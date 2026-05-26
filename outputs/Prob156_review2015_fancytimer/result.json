@@ -1,0 +1,7 @@
+{
+  "problem_id": "Prob156_review2015_fancytimer",
+  "passed": false,
+  "attempts": 3,
+  "error_type": "compile_error",
+  "error_log": "/tmp/tmpm0bekek7.sv:67: error: This assignment requires an explicit cast.\n/tmp/tmpm0bekek7.sv:68: error: This assignment requires an explicit cast.\n/tmp/tmpm0bekek7.sv:69: error: This assignment requires an explicit cast.\n3 error(s) during elaboration."
+}

@@ -1,0 +1,7 @@
+{
+  "problem_id": "Prob155_lemmings4",
+  "passed": false,
+  "attempts": 3,
+  "error_type": "simulation_error",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)\nHint: Output 'walk_left' has 42 mismatches. First mismatch occurred at time 580.\nHint: Output 'walk_right' has 56 mismatches. First mismatch occurred at time 600.\nHint: Output 'aaah' has 20 mismatches. First mismatch occurred at time 690.\nHint: Output 'digging' has 38 mismatches. First mismatch occurred at time 620.\nHint: Total mismatched samples is 156 out of 1003 samples\n\nSimulation finished at 5016 ps\nMismatches: 156 in 1003 samples"
+}
