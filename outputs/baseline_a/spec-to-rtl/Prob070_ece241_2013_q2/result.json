@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob070_ece241_2013_q2",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "C",
+  "error_log": "/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob070_ece241_2013_q2_test.sv:99: vvp.tgt error: uwire \"out_pos_dut\" must have a single driver, found (2).\nerror: Code generation had 1 error(s).",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

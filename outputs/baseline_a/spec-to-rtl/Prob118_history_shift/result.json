@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob118_history_shift",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "R",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob118_history_shift_test.sv:104: $finish called at 10276 (1ps)\nHint: Output 'predict_history' has 2039 mismatches. First mismatch occurred at time 30.\nHint: Total mismatched samples is 2039 out of 2055 samples\n\nSimulation finished at 10276 ps\nMismatches: 2039 in 2055 samples",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

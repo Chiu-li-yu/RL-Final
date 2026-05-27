@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob133_2014_q3fsm",
+  "passed": false,
+  "attempts": 3,
+  "error_type": "R",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob133_2014_q3fsm_test.sv:59: $finish called at 7071 (1ps)\nHint: Output 'z' has 252 mismatches. First mismatch occurred at time 110.\nHint: Total mismatched samples is 252 out of 1414 samples\n\nSimulation finished at 7071 ps\nMismatches: 252 in 1414 samples",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

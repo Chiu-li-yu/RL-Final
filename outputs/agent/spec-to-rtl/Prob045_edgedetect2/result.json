@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob045_edgedetect2",
+  "passed": true,
+  "attempts": 2,
+  "error_type": ".",
+  "error_log": "",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

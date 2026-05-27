@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob065_7420",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "w",
+  "error_log": "/tmp/tmpeua6rwxq.sv:16: error: p1y is not a valid l-value in tb.top_module1.\n/tmp/tmpeua6rwxq.sv:10:      : p1y is declared here as wire.\n/tmp/tmpeua6rwxq.sv:17: error: p2y is not a valid l-value in tb.top_module1.\n/tmp/tmpeua6rwxq.sv:11:      : p2y is declared here as wire.\n/tmp/tmpeua6rwxq.sv:14: warning: @* found no sensitivities so it will never trigger.\n2 error(s) during elaboration.",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

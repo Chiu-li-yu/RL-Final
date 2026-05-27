@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob098_circuit7",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "R",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob098_circuit7_test.sv:36: $finish called at 615 (1ps)\nHint: Output 'q' has 120 mismatches. First mismatch occurred at time 20.\nHint: Total mismatched samples is 120 out of 123 samples\n\nSimulation finished at 615 ps\nMismatches: 120 in 123 samples",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

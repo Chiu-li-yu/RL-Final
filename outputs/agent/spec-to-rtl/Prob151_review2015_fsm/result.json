@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob151_review2015_fsm",
+  "passed": false,
+  "attempts": 3,
+  "error_type": "e",
+  "error_log": "/tmp/tmpdjz2hiqm.sv:37: error: This assignment requires an explicit cast.\n/tmp/tmpdjz2hiqm.sv:38: error: This assignment requires an explicit cast.\n/tmp/tmpdjz2hiqm.sv:39: error: This assignment requires an explicit cast.\n/tmp/tmpdjz2hiqm.sv:40: error: This assignment requires an explicit cast.\n/tmp/tmpdjz2hiqm.sv:45: error: This assignment requires an explicit cast.\n/tmp/tmpdjz2hiqm.sv:46: error: This assignment requires an explicit cast.\n6 error(s) during elaboration.",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

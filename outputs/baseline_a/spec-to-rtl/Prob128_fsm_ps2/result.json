@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob128_fsm_ps2",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "R",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)\nHint: Output 'done' has 176 mismatches. First mismatch occurred at time 200.\nHint: Total mismatched samples is 176 out of 400 samples\n\nSimulation finished at 2001 ps\nMismatches: 176 in 400 samples",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

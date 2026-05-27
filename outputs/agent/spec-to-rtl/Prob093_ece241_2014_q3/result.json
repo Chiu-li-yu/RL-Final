@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob093_ece241_2014_q3",
+  "passed": false,
+  "attempts": 3,
+  "error_type": "R",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob093_ece241_2014_q3_test.sv:38: $finish called at 300 (1ps)\nHint: Output 'mux_in' has 11 mismatches. First mismatch occurred at time 50.\nHint: Total mismatched samples is 11 out of 60 samples\n\nSimulation finished at 300 ps\nMismatches: 11 in 60 samples",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

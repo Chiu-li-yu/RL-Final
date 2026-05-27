@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob153_gshare",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "R",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)\nHint: Output 'predict_taken' has 150 mismatches. First mismatch occurred at time 120.\nHint: Output 'predict_history' has 527 mismatches. First mismatch occurred at time 120.\nHint: Total mismatched samples is 527 out of 1083 samples\n\nSimulation finished at 5416 ps\nMismatches: 527 in 1083 samples",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

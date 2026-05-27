@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob064_vector3",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "R",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob064_vector3_test.sv:44: $finish called at 630 (1ps)\nHint: Output 'w' has no mismatches.\nHint: Output 'x' has no mismatches.\nHint: Output 'y' has no mismatches.\nHint: Output 'z' has 1 mismatches. First mismatch occurred at time 5.\nHint: Total mismatched samples is 1 out of 126 samples\n\nSimulation finished at 630 ps\nMismatches: 1 in 126 samples",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

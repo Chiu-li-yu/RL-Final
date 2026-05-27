@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob112_always_case2",
+  "passed": false,
+  "attempts": 3,
+  "error_type": "R",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob112_always_case2_test.sv:38: $finish called at 470 (1ps)\nHint: Output 'pos' has 61 mismatches. First mismatch occurred at time 90.\nHint: Total mismatched samples is 61 out of 94 samples\n\nSimulation finished at 470 ps\nMismatches: 61 in 94 samples",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob125_kmap3",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "w",
+  "error_log": "/tmp/tmpn2d1sms0.sv:67: error: out is not a valid l-value in tb.top_module1.\n/tmp/tmpn2d1sms0.sv:6:      : out is declared here as wire.\n1 error(s) during elaboration.",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

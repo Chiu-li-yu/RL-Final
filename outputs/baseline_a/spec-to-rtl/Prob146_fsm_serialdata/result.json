@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob146_fsm_serialdata",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "R",
+  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob146_fsm_serialdata_test.sv:45: $finish called at 4526 (1ps)\nHint: Output 'out_byte' has 34 mismatches. First mismatch occurred at time 210.\nHint: Output 'done' has 92 mismatches. First mismatch occurred at time 110.\nHint: Total mismatched samples is 94 out of 905 samples\n\nSimulation finished at 4526 ps\nMismatches: 94 in 905 samples",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

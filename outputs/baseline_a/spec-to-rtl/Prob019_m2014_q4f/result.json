@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob019_m2014_q4f",
+  "passed": false,
+  "attempts": 1,
+  "error_type": "w",
+  "error_log": "/tmp/tmpo7josoyy.sv:11: error: out is not a valid l-value in tb.top_module1.\n/tmp/tmpo7josoyy.sv:4:      : out is declared here as wire.\n1 error(s) during elaboration.",
+  "task": "spec-to-rtl",
+  "experiment": "baseline_a"
+}

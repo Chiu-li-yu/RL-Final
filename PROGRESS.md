@@ -282,13 +282,13 @@ class Episode:
 
 **做法**：抽出 `agent/dataset.py`，提供以下函式：
 
-| 函式                                                            | 說明                                        |
-| --------------------------------------------------------------- | ------------------------------------------- |
-| `load_problem(problem_id, task) -> str`                        | 讀取題目自然語言描述                        |
-| `list_problems(task) -> list[str]`                             | 回傳排序後的 156 個 problem ID              |
-| `result_exists(problem_id, task, experiment) -> bool`          | 檢查 result.json 是否存在（斷點續跑用）     |
+| 函式                                                             | 說明                                          |
+| ---------------------------------------------------------------- | --------------------------------------------- |
+| `load_problem(problem_id, task) -> str`                          | 讀取題目自然語言描述                          |
+| `list_problems(task) -> list[str]`                               | 回傳排序後的 156 個 problem ID                |
+| `result_exists(problem_id, task, experiment) -> bool`            | 檢查 result.json 是否存在（斷點續跑用）       |
 | `save_code(problem_id, attempt, code, task, experiment) -> Path` | 儲存 `outputs/{exp}/{task}/{id}/attempt_N.sv` |
-| `save_result(problem_id, result, task, experiment) -> Path`    | 儲存 `outputs/{exp}/{task}/{id}/result.json`  |
+| `save_result(problem_id, result, task, experiment) -> Path`      | 儲存 `outputs/{exp}/{task}/{id}/result.json`  |
 
 `save_result` 自動將 `task` 與 `experiment` 注入 JSON，方便跨組分析。
 

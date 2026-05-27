@@ -1,0 +1,9 @@
+{
+  "problem_id": "Prob144_conwaylife",
+  "passed": false,
+  "attempts": 3,
+  "error_type": "C",
+  "error_log": "/tmp/tmptwe8lmp8.sv:39: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmptwe8lmp8.sv:39: error: A reference to a wire or reg (`i') is not allowed in a constant expression.\n/tmp/tmptwe8lmp8.sv:39: error: Array index expressions must be constant here.\n/tmp/tmptwe8lmp8.sv:44: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmptwe8lmp8.sv:44: error: Array index expressions must be constant here.\n/tmp/tmptwe8lmp8.sv:44: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmptwe8lmp8.sv:44: error: Array index expressions must be constant here.\n/tmp/tmptwe8lmp8.sv:45: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmptwe8lmp8.sv:45: error: Array index expressions must be constant here.\n/tmp/tmptwe8lmp8.sv:46: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmptwe8lmp8.sv:46: error: Array index expressions must be constant here.\n11 error(s) during elaboration.",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}
