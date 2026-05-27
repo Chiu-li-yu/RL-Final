@@ -253,3 +253,45 @@ outputs/
   "experiment":  "agent"
 }
 ```
+
+### 批次評估（evaluate.py）
+
+`evaluate.py` 是三組實驗的批次執行器，對 `agent.agent.run_agent()` 進行薄層包裝。
+
+#### 三組執行器的對映關係
+
+| 實驗 | 執行方式 | 目的 |
+|------|----------|------|
+| `agent` | `run_agent(max_attempts=3)` | 完整系統（feedback + decompose_spec） |
+| `baseline_a` | `run_agent(max_attempts=1)` | 無 feedback 基準 |
+| `baseline_b` | 3 × `run_agent(max_attempts=1)` 獨立呼叫 | 3 次機會但無 feedback，隔離 feedback 的價值 |
+
+**Baseline B 的 attempt 對映**：每次獨立呼叫帶入 `attempt_offset=0/1/2`，程式碼依序存為 `attempt_1.sv`、`attempt_2.sv`、`attempt_3.sv`。`result.json` 的 `attempts` 欄位記錄「第幾次才成功」（1/2/3），全部失敗則為 3。
+
+#### _save_cb（batch 模式 checkpoint）
+
+```python
+def _save_cb(problem_id, task, experiment, attempt_offset=0):
+    def on_checkpoint(attempt, result, code) -> bool:
+        save_code(problem_id, attempt + attempt_offset, code, ...)
+        return True   # 永不中斷 agent
+    return on_checkpoint
+```
+
+與 `run.py` 的 `_make_checkpoint` 相同介面，但移除人工介入邏輯，批次執行時永遠回傳 `True`。
+
+#### 進度追蹤（_Progress）
+
+執行緒安全的計數器，由 `threading.Lock` 保護。每次 `update()` 在鎖內列印一行，因此多個 worker 的輸出行不會交錯。最終 `finish()` 列印 pass rate 與 pass-by-attempt 長條圖。
+
+#### CLI 用法
+
+```bash
+python evaluate.py --exp agent      --task spec-to-rtl            # 跑全部 156 題
+python evaluate.py --exp baseline_a --task spec-to-rtl -w 4       # 4 個 worker 並行
+python evaluate.py --exp baseline_b --task code-complete-iccad2023
+python evaluate.py --exp agent      --task spec-to-rtl --dry-run  # 只列題目，不呼叫 API
+python evaluate.py --exp agent      --task spec-to-rtl --no-resume # 強制重跑
+```
+
+斷點續跑：預設行為。已有 `result.json` 的題目自動跳過；發生例外的題目不寫 `result.json`，下次執行時會重試。
