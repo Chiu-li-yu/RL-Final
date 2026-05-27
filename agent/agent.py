@@ -189,9 +189,17 @@ def _with_retry(fn, *args, max_retries: int = 5, **kwargs):
 
 
 def _safe_text(response) -> str:
-    """安全取得 response 的文字部分（function call 時可能為空）。"""
+    """
+    安全取得 response 的純文字部分。
+
+    不使用 response.text 捷徑，因為當 response 同時含有 function_call parts 時，
+    SDK 會印出 "Warning: there are non-text parts in the response" 警告。
+    改為直接遍歷 parts，只取有 text 屬性的部分，安靜地忽略 function_call parts。
+    """
     try:
-        return response.text or ""
+        parts = response.candidates[0].content.parts
+        texts = [p.text for p in parts if getattr(p, "text", None)]
+        return "\n".join(texts)
     except Exception:
         return ""
 
