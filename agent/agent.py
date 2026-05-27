@@ -27,7 +27,7 @@ from google import genai
 from google.genai import types
 from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable, DeadlineExceeded
 
-from agent.tools import compile_and_test
+from agent.tools import compile_and_test, get_interface
 from agent.prompts import get_system_prompt
 
 load_dotenv()
@@ -110,6 +110,18 @@ class Episode:
 # 必須用 types.Tool(function_declarations=[types.FunctionDeclaration(...)]) 包裝。
 _TOOLS = types.Tool(
     function_declarations=[
+        types.FunctionDeclaration(
+            name="get_interface",
+            description=(
+                "取得本題 TopModule 的正確 port 介面宣告（module 名稱到 );）。"
+                "在撰寫程式碼前呼叫，確保 port 名稱、方向、型別完全正確，"
+                "避免因 port 宣告錯誤導致 compile error。"
+            ),
+            parameters=types.Schema(
+                type=types.Type.OBJECT,
+                properties={},
+            ),
+        ),
         types.FunctionDeclaration(
             name="compile_and_test",
             description=(
@@ -331,7 +343,27 @@ def run_agent(
         should_stop = False
 
         for fc in fc_list:
-            if fc.name == "compile_and_test":
+            if fc.name == "get_interface":
+                if on_tool_call:
+                    on_tool_call("get_interface", {}, ep.attempts)
+                elif verbose:
+                    print("[agent] get_interface ...")
+
+                ifc_result = get_interface(problem_id, task)
+
+                if on_tool_result:
+                    on_tool_result("get_interface", ifc_result, ep.attempts)
+                elif verbose:
+                    print(f"[agent]   → {ifc_result.get('interface', '')[:80]}")
+
+                tool_results.append(
+                    types.Part.from_function_response(
+                        name="get_interface",
+                        response=ifc_result,
+                    )
+                )
+
+            elif fc.name == "compile_and_test":
                 verilog_code = fc.args["verilog_code"]
                 ep.final_code = verilog_code
                 ep.attempts += 1

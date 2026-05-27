@@ -122,7 +122,51 @@ def _classify_sim(sim_log: str, verilog_code: str) -> tuple[str, int]:
     return "R", -1
 
 
-# ── 公開：唯一對外介面 ────────────────────────────────────────────────────────
+# ── 公開：介面查詢 ────────────────────────────────────────────────────────────
+
+def get_interface(problem_id: str, task: str) -> dict:
+    """
+    從 ref.sv 解析 TopModule 的 port 介面宣告。
+
+    只回傳 module 宣告到 ); 的部分，不含任何實作內容。
+    RefModule 名稱自動替換為 TopModule，讓 Gemini 可以直接複製使用。
+
+    Args:
+        problem_id: 題目 ID，例如 "Prob001_zero"
+        task:       "code-complete-iccad2023" 或 "spec-to-rtl"
+
+    Returns:
+        {
+            "interface": str   # module TopModule (...); 宣告字串
+        }
+        或發生錯誤時：
+        {
+            "interface": "",
+            "error":     str
+        }
+    """
+    if task not in _DATASET_DIRS:
+        return {"interface": "", "error": f"未知 task: {task!r}"}
+
+    ref_sv = _DATASET_DIRS[task] / f"{problem_id}_ref.sv"
+    try:
+        content = ref_sv.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return {"interface": "", "error": f"找不到 {problem_id} 的 ref.sv"}
+
+    # 取從檔案開頭到第一個 ); 的部分（port list 的結尾）
+    idx = content.find(');')
+    if idx == -1:
+        return {"interface": "", "error": "無法在 ref.sv 中找到 ); — 介面解析失敗"}
+
+    interface = content[: idx + 2].strip()
+    # 將 RefModule（或其他任何 module 名稱）替換為 TopModule
+    interface = re.sub(r'\bmodule\s+\w+', 'module TopModule', interface)
+
+    return {"interface": interface}
+
+
+# ── 公開：編譯與模擬 ──────────────────────────────────────────────────────────
 
 def compile_and_test(verilog_code: str, problem_id: str, task: str) -> dict:
     """

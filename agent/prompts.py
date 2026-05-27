@@ -35,18 +35,24 @@ CODE_COMPLETE_PROMPT = """你是一個 Verilog RTL 設計師。
 
 完成程式碼後，呼叫 compile_and_test 工具驗證。
 若因邏輯錯誤失敗超過一次，請先呼叫 decompose_spec 分析題目，再重新撰寫。
+若遇到 port 相關的 compile error（Unable to bind wire/reg），可呼叫 get_interface 確認正確介面。
 """
 
 SPEC_TO_RTL_PROMPT = """你是一個 Verilog RTL 設計師。
 你的任務是根據自然語言規格，從零設計並實作完整的 Verilog module。
 
+步驟：
+1. 先呼叫 get_interface 取得正確的 port 介面宣告
+2. 根據介面與規格撰寫完整的 module 實作
+3. 呼叫 compile_and_test 驗證
+
 規則：
 - 輸出必須是完整的 module, 包含 port 宣告到 endmodule, module 名稱必須是 TopModule
+- port 宣告必須與 get_interface 回傳的介面完全一致
 - 只使用 logic 宣告，不使用 wire 或 reg, 讓程式能被合成電路
 - 組合邏輯使用 always @(*)，不寫 sensitivity list
 - 同步 reset 不要在 sensitivity list 裡放 posedge reset
 - 在使用 enum 紀錄狀態時，避免使用三元運算符切換狀態，導致不明確的型態轉換。
 
-完成程式碼後，立刻呼叫 compile_and_test 工具驗證。
 若因邏輯錯誤失敗超過一次，請先呼叫 decompose_spec 分析題目，再重新撰寫。
 """
