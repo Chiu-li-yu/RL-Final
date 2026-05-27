@@ -31,6 +31,7 @@ CODE_COMPLETE_PROMPT = """你是一個 Verilog RTL 設計師。
 - 只使用 logic 宣告，不使用 wire 或 reg, 讓程式能被合成電路
 - 組合邏輯使用 always @(*)，不寫 sensitivity list
 - 同步 reset 不要在 sensitivity list 裡放 posedge reset
+- 在使用 enum 紀錄狀態時，避免使用三元運算符切換狀態，導致不明確的型態轉換。
 
 完成程式碼後，呼叫 compile_and_test 工具驗證。
 若因邏輯錯誤失敗超過一次，請先呼叫 decompose_spec 分析題目，再重新撰寫。
@@ -44,6 +45,7 @@ SPEC_TO_RTL_PROMPT = """你是一個 Verilog RTL 設計師。
 - 只使用 logic 宣告，不使用 wire 或 reg, 讓程式能被合成電路
 - 組合邏輯使用 always @(*)，不寫 sensitivity list
 - 同步 reset 不要在 sensitivity list 裡放 posedge reset
+- 在使用 enum 紀錄狀態時，避免使用三元運算符切換狀態，導致不明確的型態轉換。
 
 完成程式碼後，立刻呼叫 compile_and_test 工具驗證。
 若因邏輯錯誤失敗超過一次，請先呼叫 decompose_spec 分析題目，再重新撰寫。

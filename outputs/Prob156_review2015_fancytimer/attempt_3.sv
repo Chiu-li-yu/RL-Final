@@ -7,69 +7,98 @@ module TopModule (
     output logic done,
     input ack
 );
-    typedef enum logic [2:0] {
-        S_IDLE = 3'd0, S_S1 = 3'd1, S_S11 = 3'd2, S_S110 = 3'd3, S_LOAD = 3'd4, S_COUNT = 3'd5, S_DONE = 3'd6
+
+    typedef enum logic [3:0] {
+        IDLE,
+        MATCH1,
+        MATCH11,
+        MATCH110,
+        SHIFT_DELAY,
+        COUNTING,
+        WAIT_ACK
     } state_t;
 
     state_t state, next_state;
-    logic [3:0] delay;
-    logic [2:0] bit_counter;
-    logic [15:0] cycle_counter;
+    logic [3:0] delay_val, next_delay_val;
+    logic [2:0] shift_cnt, next_shift_cnt;
+    logic [13:0] cycle_cnt, next_cycle_cnt;
+    logic [3:0] current_timer, next_current_timer;
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            state <= S_IDLE;
-            delay <= 4'b0;
-            bit_counter <= 3'd0;
-            cycle_counter <= 16'd0;
-            count <= 4'b0;
-            counting <= 1'b0;
-            done <= 1'b0;
+            state <= IDLE;
+            delay_val <= 4'd0;
+            shift_cnt <= 3'd0;
+            cycle_cnt <= 14'd0;
+            current_timer <= 4'd0;
         end else begin
             state <= next_state;
-
-            case (state)
-                S_IDLE: begin
-                    counting <= 1'b0;
-                    done <= 1'b0;
-                end
-                S_LOAD: begin
-                    if (bit_counter < 3'd3) begin
-                        delay <= {delay[2:0], data};
-                        bit_counter <= bit_counter + 3'd1;
-                    end else begin
-                        delay <= {delay[2:0], data};
-                        count <= {delay[2:0], data};
-                        bit_counter <= 3'd0;
-                    end
-                end
-                S_COUNT: begin
-                    counting <= 1'b1;
-                    if (cycle_counter == 16'd999) begin
-                        cycle_counter <= 16'd0;
-                        if (count > 4'd0) count <= count - 4'd1;
-                    end else begin
-                        cycle_counter <= cycle_counter + 16'd1;
-                    end
-                end
-                S_DONE: begin
-                    counting <= 1'b0;
-                    done <= 1'b1;
-                end
-            endcase
+            delay_val <= next_delay_val;
+            shift_cnt <= next_shift_cnt;
+            cycle_cnt <= next_cycle_cnt;
+            current_timer <= next_current_timer;
         end
     end
 
     always @(*) begin
         next_state = state;
+        next_delay_val = delay_val;
+        next_shift_cnt = shift_cnt;
+        next_cycle_cnt = cycle_cnt;
+        next_current_timer = current_timer;
+        counting = 1'b0;
+        done = 1'b0;
+        count = current_timer;
+
         case (state)
-            S_IDLE: if (data) next_state = S_S1;
-            S_S1:   next_state = data ? S_S11 : S_IDLE;
-            S_S11:  next_state = data ? S_S11 : S_S110;
-            S_S110: next_state = data ? S_LOAD : S_IDLE;
-            S_LOAD: if (bit_counter == 3'd3) next_state = S_COUNT;
-            S_COUNT: if (count == 4'd0 && cycle_counter == 16'd999) next_state = S_DONE;
-            S_DONE: if (ack) next_state = S_IDLE;
+            IDLE: begin
+                if (data) next_state = MATCH1;
+            end
+            MATCH1: begin
+                if (data) next_state = MATCH11;
+                else next_state = IDLE;
+            end
+            MATCH11: begin
+                if (!data) next_state = MATCH110;
+                else next_state = MATCH11;
+            end
+            MATCH110: begin
+                if (data) begin
+                    next_state = SHIFT_DELAY;
+                    next_shift_cnt = 3'd0;
+                    next_delay_val = 4'd0;
+                end else begin
+                    next_state = IDLE;
+                end
+            end
+            SHIFT_DELAY: begin
+                next_delay_val = {delay_val[2:0], data};
+                if (shift_cnt == 3'd3) begin
+                    next_state = COUNTING;
+                    next_current_timer = {delay_val[2:0], data};
+                    next_cycle_cnt = 14'd999;
+                end else begin
+                    next_shift_cnt = shift_cnt + 1'b1;
+                end
+            end
+            COUNTING: begin
+                counting = 1'b1;
+                if (cycle_cnt == 14'd0) begin
+                    if (current_timer == 4'd0) begin
+                        next_state = WAIT_ACK;
+                    end else begin
+                        next_current_timer = current_timer - 1'b1;
+                        next_cycle_cnt = 14'd999;
+                    end
+                end else begin
+                    next_cycle_cnt = cycle_cnt - 1'b1;
+                end
+            end
+            WAIT_ACK: begin
+                done = 1'b1;
+                if (ack) next_state = IDLE;
+            end
+            default: next_state = IDLE;
         endcase
     end
 endmodule

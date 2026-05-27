@@ -94,26 +94,26 @@ def _classify_sim(sim_log: str, verilog_code: str) -> tuple[str, int]:
     """
     分析 vvp stdout，回傳細粒度 sim 結果代碼與 mismatch 數。
 
-    對應 sv-iv-analyze 的 sim 階段判斷邏輯：
-      T → TIMEOUT（testbench 輸出或 Python timeout）
-      . → Mismatches: 0
-      R → Mismatches: N > 0
-      r → 無法識別輸出 + verilog source 含 posedge/negedge reset（靜態分析）
-      R → 其餘無法識別情況
+    優先序（與 sv-iv-analyze 略有不同，修正 timer 題的邊界情況）：
+      1. Mismatches 行優先：即使 TIMEOUT 也出現，Mismatches: 0 視為通過
+         原因：timer 類題目模擬時間長，testbench 的 $finish 守衛觸發後仍會
+               輸出完整的 Mismatches 統計，此時 Mismatches: 0 是可信的結果。
+      2. TIMEOUT 但無 Mismatches 行 → T（模擬未完成）
+      3. 靜態分析 async reset → r
+      4. 其餘 → R（runtime mismatch 或無法識別）
     """
-    # ── Timeout ──────────────────────────────────────────────────────────────
-    if "TIMEOUT" in sim_log:
-        return "T", -1
-
-    # ── Mismatches 行（由 testbench final 區塊輸出）──────────────────────────
+    # ── 優先：Mismatches 行（testbench $finish 後輸出的最終統計）────────────
     # 格式：Mismatches: 0 in 40 samples
     m = re.search(r"Mismatches:\s*(\d+)\s+in\s+\d+\s+samples", sim_log)
     if m:
         n = int(m.group(1))
         return (".", 0) if n == 0 else ("R", n)
 
+    # ── Timeout（無 Mismatches 行 → 模擬確實未完成）────────────────────────
+    if "TIMEOUT" in sim_log:
+        return "T", -1
+
     # ── 無法識別輸出：靜態分析 verilog source 是否有 async reset ─────────────
-    # （對應 sv-iv-analyze 掃描 .sv 檔案的邏輯）
     for line in verilog_code.splitlines():
         if "posedge reset" in line or "negedge reset" in line or "posedge r)" in line:
             return "r", -1

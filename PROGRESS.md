@@ -481,7 +481,7 @@ def run_agent(problem: str, task: str):
 - [x] `agent/agent.py` 完成（含 callback 介面）
 - [x] `run.py` 互動式 CLI 完成
 - [x] 端對端 Prob001_zero 驗證通過
-- [ ] GitHub commit：`"feat: 核心實作完成，工具層 + agent loop + 互動式 CLI"`
+- [x] GitHub commit：`"feat: 核心實作完成，工具層 + agent loop + 互動式 CLI"`
 
 #### 執行環境
 
