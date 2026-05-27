@@ -654,13 +654,20 @@ decompose_spec = {
 ### 5/27–5/28
 
 - [x] 整合測試腳本（test_tools.py）
-- [ ] 實作 `evaluate.py`：批次跑全部 156 題，收集結果 JSON
+- [x] 實作 `evaluate.py`：批次跑全部 156 題，收集結果 JSON
+  - agent / baseline_a / baseline_b 三組執行器
+  - `ThreadPoolExecutor` 並行執行，`--workers` 可調
+  - `result_exists()` 斷點續跑，`--no-resume` 可強制重跑
+  - `_Progress` 執行緒安全進度追蹤，逐行輸出 + 最終摘要
+  - `--dry-run` 列出待執行題目不呼叫 API
 
 ### 5/29–5/30
 
-- [ ] 實作 Baseline A（單次生成，無 feedback）
-- [ ] 實作 Baseline B（3 次獨立生成，互不共享）
 - [ ] 跑完整實驗（3 組 × 兩種 task × 156 題）
+  - `python evaluate.py --exp agent --task spec-to-rtl`
+  - `python evaluate.py --exp baseline_a --task spec-to-rtl`
+  - `python evaluate.py --exp baseline_b --task spec-to-rtl`
+  - code-complete-iccad2023 同上三組
 
 ### 5/31–6/01
 
