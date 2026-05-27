@@ -92,7 +92,7 @@ def _classify_compile(log: str) -> str:
 
 def _classify_sim(sim_log: str, verilog_code: str) -> tuple[str, int]:
     """
-    分析 vvp stdout，回傳細粒度 sim 結果代碼與 mismatch 數。
+    分析 vvp stdout, 回傳細粒度 sim 結果代碼與 mismatch 數。
 
     優先序（與 sv-iv-analyze 略有不同，修正 timer 題的邊界情況）：
       1. Mismatches 行優先：即使 TIMEOUT 也出現，Mismatches: 0 視為通過
