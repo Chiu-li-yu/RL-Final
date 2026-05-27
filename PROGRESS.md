@@ -200,9 +200,9 @@ Gemini multi-turn chat + function calling 主迴圈。
 功能：
 
 - ANSI 彩色輸出（Gemini 思考文字、工具呼叫、pass/fail 結果）
-- 每次 compile_and_test 後自動儲存程式碼：`outputs/{problem_id}/attempt_N.sv`
+- 每次 compile_and_test 後自動儲存程式碼：`outputs/agent/{task}/{problem_id}/attempt_N.sv`
 - 人工介入點（on_checkpoint）：`[Enter] 繼續 / a 中止 / v 查看完整 log / c 查看完整程式碼`
-- 執行結果存 `outputs/{problem_id}/result.json`
+- 執行結果存 `outputs/agent/{task}/{problem_id}/result.json`
 
 執行方式：
 
@@ -216,10 +216,11 @@ python run.py Prob001_zero code-complete-iccad2023
 
 ```
 outputs/
-  Prob001_zero/
-    attempt_1.sv    ← simulation_error（自動儲存）
-    attempt_2.sv    ← PASS（最終答案）
-    result.json     ← {"passed": true, "attempts": 2, ...}
+  agent/spec-to-rtl/
+    Prob001_zero/
+      attempt_1.sv    ← simulation_error（自動儲存）
+      attempt_2.sv    ← PASS（最終答案）
+      result.json     ← {"passed": true, "attempts": 2, "task": "spec-to-rtl", "experiment": "agent"}
 ```
 
 ### 端對端驗證結果（Prob001_zero）
@@ -279,17 +280,21 @@ class Episode:
 
 **問題**：`run.py` 硬編了資料集目錄路徑和輸出路徑，未來的 `evaluate.py` 也需要相同的路徑知識，等於讓兩個呼叫者各自維護相同的目錄結構。
 
-**做法**：抽出 `agent/dataset.py`，提供三個函式：
+**做法**：抽出 `agent/dataset.py`，提供以下函式：
 
-| 函式                                           | 說明                             |
-| ---------------------------------------------- | -------------------------------- |
-| `load_problem(problem_id, task) -> str`        | 讀取題目自然語言描述             |
-| `save_code(problem_id, attempt, code) -> Path` | 儲存 `outputs/{id}/attempt_N.sv` |
-| `save_result(problem_id, result) -> Path`      | 儲存 `outputs/{id}/result.json`  |
+| 函式                                                            | 說明                                        |
+| --------------------------------------------------------------- | ------------------------------------------- |
+| `load_problem(problem_id, task) -> str`                        | 讀取題目自然語言描述                        |
+| `list_problems(task) -> list[str]`                             | 回傳排序後的 156 個 problem ID              |
+| `result_exists(problem_id, task, experiment) -> bool`          | 檢查 result.json 是否存在（斷點續跑用）     |
+| `save_code(problem_id, attempt, code, task, experiment) -> Path` | 儲存 `outputs/{exp}/{task}/{id}/attempt_N.sv` |
+| `save_result(problem_id, result, task, experiment) -> Path`    | 儲存 `outputs/{exp}/{task}/{id}/result.json`  |
+
+`save_result` 自動將 `task` 與 `experiment` 注入 JSON，方便跨組分析。
 
 `run.py` 移除 `_save_code()`、`_save_result()`、`_PROMPT_DIRS`，改為 `from agent.dataset import load_problem, save_code, save_result`。
 
-**效果**：資料集目錄結構只有 `dataset.py` 知道；`evaluate.py` 未來直接 import，不需重複。
+**效果**：資料集目錄結構只有 `dataset.py` 知道；`evaluate.py` 直接 import，不需重複路徑邏輯。
 
 ---
 
@@ -637,10 +642,18 @@ decompose_spec = {
   - 新增 Python-level `TimeoutExpired` 捕捉（回傳 `T`）
   - 新增公開常數 `COMPILE_ERROR_CODES`、`SIM_ERROR_CODES`、`PASS_CODE`（供 evaluate.py 使用）
 - [x] **API Retry 機制**：`agent.py` 新增 `_with_retry()`，指數退避處理 429 / 503 / 504，所有 `chat.send_message()` 和 `generate_content()` 呼叫均已包裝
+- [x] **整合測試腳本** `test_tools.py`：Section 1 單元測試（mock log，不需 iverilog）+ Section 2 整合測試（需 WSL iverilog），覆蓋 9 種 error code 的端對端觸發
+- [x] **`dataset.py` 擴充**（evaluate.py 前置準備）：
+  - 新增 `list_problems(task)` → 回傳排序後 156 個 problem ID
+  - 新增 `result_exists(problem_id, task, experiment)` → 斷點續跑用
+  - `save_code` / `save_result` 新增 `task`, `experiment` 參數
+  - 輸出目錄改為三層結構：`outputs/{experiment}/{task}/{problem_id}/`
+  - `result.json` 自動注入 `task` 與 `experiment` 欄位
+  - `run.py` 同步更新：一律以 `experiment="agent"` 儲存
 
 ### 5/27–5/28
 
-- [ ] 整合測試：用 `run.py` REPL 跑 5–10 題，確認各種 error type 都能正確處理
+- [x] 整合測試腳本（test_tools.py）
 - [ ] 實作 `evaluate.py`：批次跑全部 156 題，收集結果 JSON
 
 ### 5/29–5/30

@@ -90,9 +90,9 @@ def _on_tool_result(name: str, result: dict, attempt: int):
         _print(f"{GRAY}{sub_goals[:400]}{R}")
 
 
-def _make_checkpoint(problem_id: str, max_attempts: int):
+def _make_checkpoint(problem_id: str, task: str, max_attempts: int):
     """
-    建立 on_checkpoint callback（closure 帶入 problem_id）。
+    建立 on_checkpoint callback（closure 帶入 problem_id, task）。
     每次 compile_and_test 完成後呼叫；回傳 False 表示使用者要求中止。
 
     儲存邏輯委派給 agent.dataset，此函式只負責顯示與互動。
@@ -100,7 +100,8 @@ def _make_checkpoint(problem_id: str, max_attempts: int):
     def on_checkpoint(attempt: int, result: dict, code: str) -> bool:
 
         # ── 儲存程式碼（委派給 dataset） ──────────────────────────────────
-        out_file = save_code(problem_id, attempt, code)
+        out_file = save_code(problem_id, attempt, code,
+                             task=task, experiment="agent")
         _print(f"{GRAY}💾  saved → {out_file}{R}")
 
         # ── 顯示結果 ───────────────────────────────────────────────────────
@@ -187,7 +188,7 @@ def run_problem(problem_id: str, task: str, max_attempts: int = 3):
     _print(DLINE)
 
     # 建立 callbacks
-    checkpoint = _make_checkpoint(problem_id, max_attempts)
+    checkpoint = _make_checkpoint(problem_id, task, max_attempts)
 
     # 執行 agent
     result = run_agent(
@@ -203,17 +204,18 @@ def run_problem(problem_id: str, task: str, max_attempts: int = 3):
     )
 
     # 儲存結果 JSON（委派給 dataset）
-    save_result(problem_id, result)
+    save_result(problem_id, result, task=task, experiment="agent")
 
     # 最終摘要
+    out_prefix = f"outputs/agent/{task}/{problem_id}"
     _print(f"\n{DLINE}")
     if result["passed"]:
         _print(f"{GREEN}{BOLD}🎉  完成！  共 {result['attempts']} 次嘗試{R}")
-        _print(f"📄  outputs/{problem_id}/attempt_{result['attempts']}.sv")
+        _print(f"📄  {out_prefix}/attempt_{result['attempts']}.sv")
     else:
         _print(f"{RED}😞  未通過  共 {result['attempts']} 次嘗試{R}")
         if result["attempts"] > 0:
-            _print(f"📄  outputs/{problem_id}/attempt_{result['attempts']}.sv  （最後的程式碼）")
+            _print(f"📄  {out_prefix}/attempt_{result['attempts']}.sv  （最後的程式碼）")
     _print(DLINE + "\n")
 
 

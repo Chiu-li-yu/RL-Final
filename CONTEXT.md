@@ -210,8 +210,8 @@ run.py
 ├── run_problem(problem_id, task)
 │   ├── 讀取 dataset_spec-to-rtl/{id}_prompt.txt 作為題目描述
 │   ├── 呼叫 run_agent() with callbacks
-│   ├── 自動儲存 outputs/{id}/attempt_N.sv
-│   └── 儲存 outputs/{id}/result.json
+│   ├── 自動儲存 outputs/agent/{task}/{id}/attempt_N.sv
+│   └── 儲存 outputs/agent/{task}/{id}/result.json
 └── Callbacks（顯示層）
     ├── _on_thinking()     → 灰色文字
     ├── _on_tool_call()    → 黃色標題 + 程式碼預覽（前 25 行）
@@ -228,10 +228,28 @@ run.py
 
 ### 輸出目錄結構
 
+三組實驗（agent / baseline_a / baseline_b）分層存放，避免結果互蓋：
+
 ```
 outputs/
-  {problem_id}/
-    attempt_1.sv     ← 每次 compile_and_test 的程式碼（不論通過與否）
-    attempt_2.sv
-    result.json      ← {"passed": bool, "attempts": int, "error_type": str, ...}
+  {experiment}/              ← "agent" | "baseline_a" | "baseline_b"
+    {task}/                  ← "spec-to-rtl" | "code-complete-iccad2023"
+      {problem_id}/
+        attempt_1.sv         ← 每次 compile_and_test 的程式碼（不論通過與否）
+        attempt_2.sv
+        result.json          ← 見下方格式
+```
+
+`result.json` 格式（`task` 與 `experiment` 自動注入，方便跨組分析）：
+
+```json
+{
+  "problem_id":  "Prob001_zero",
+  "passed":      true,
+  "attempts":    2,
+  "error_type":  ".",
+  "error_log":   "",
+  "task":        "spec-to-rtl",
+  "experiment":  "agent"
+}
 ```
