@@ -629,6 +629,15 @@ decompose_spec = {
 - [x] 端對端驗證（Prob001_zero，2 次嘗試通過）
 - [x] 架構重構（4 項改善，消除 error_classifier 淺層模組，職責分離）
 
+### 已完成（5/27）✅
+
+- [x] **細粒度 error classification**：`tools.py` 的 `_classify` 從三分類升級為 13-code，完整移植 VerilogEval `sv-iv-analyze` 的 `analyze_result()` 邏輯，結果可直接與公開基準比較
+  - compile phase：`_classify_compile(log)` → S / e / 0 / n / w / m / c / p / C
+  - sim phase：`_classify_sim(sim_log, verilog_code)` → . / R / T / r
+  - 新增 Python-level `TimeoutExpired` 捕捉（回傳 `T`）
+  - 新增公開常數 `COMPILE_ERROR_CODES`、`SIM_ERROR_CODES`、`PASS_CODE`（供 evaluate.py 使用）
+- [x] **API Retry 機制**：`agent.py` 新增 `_with_retry()`，指數退避處理 429 / 503 / 504，所有 `chat.send_message()` 和 `generate_content()` 呼叫均已包裝
+
 ### 5/27–5/28
 
 - [ ] 整合測試：用 `run.py` REPL 跑 5–10 題，確認各種 error type 都能正確處理

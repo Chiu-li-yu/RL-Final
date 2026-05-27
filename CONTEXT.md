@@ -129,17 +129,51 @@ compile() + simulate()
 | 評估資料集 | VerilogEval code-complete-iccad2023 + spec-to-rtl（各 156 題） | 現成 testbench，有基準比較數據          |
 | SDK        | `google-genai`（新版）                                         | `google-generativeai` 已棄用            |
 
-## 實作架構（2026-05-26 確定）
+## 實作架構（2026-05-26 確定，2026-05-27 更新）
 
-### Error Classification（簡化三分類）
+### Error Classification（13-code 細粒度分類）
 
-MVP 使用三分類，夠用且不過設計：
+直接移植 VerilogEval `sv-iv-analyze` 腳本的 `analyze_result()` 邏輯，
+讓我們的結果可以直接與 VerilogEval 公開基準比較。
 
-| 類別               | 判斷條件                                            |
-| ------------------ | --------------------------------------------------- |
-| `pass`             | compile exit code 0 且 `Mismatches: 0 in N samples` |
-| `compile_error`    | compile exit code != 0                              |
-| `simulation_error` | compile 成功但 mismatch > 0，或 TIMEOUT             |
+| 代碼 | 意思                              | 類別             | 判斷方式 |
+| ---- | --------------------------------- | ---------------- | -------- |
+| `.`  | Pass                              | ✅ 成功          | `Mismatches: 0 in N samples` |
+| `S`  | Syntax Error                      | Compile Error    | log 含 `"syntax error"` |
+| `e`  | Explicit Cast Required            | Compile Error    | log 含 `"explicit cast"` |
+| `0`  | Sized Numeric Constant Error      | Compile Error    | log 含 `"size greater than zero"` |
+| `n`  | No Sensitivities                  | Compile Error    | log 含 `"no sensitivities"` |
+| `w`  | Declared as Wire                  | Compile Error    | log 含 `"declared here as wire"` |
+| `m`  | Unknown Module Type               | Compile Error    | log 含 `"Unknown module type"` |
+| `c`  | Unable to Bind `clk`              | Compile Error    | log 含 `"Unable to bind wire/reg/memory \`clk'"` |
+| `p`  | Unable to Bind Wire/Reg           | Compile Error    | log 含 `"Unable to bind wire/reg"`（非 clk） |
+| `C`  | Generic Compiler Error            | Compile Error    | 兜底：其他含 `"error"` 的情況 |
+| `T`  | Timeout                           | Simulation Error | log 含 `"TIMEOUT"` 或 Python `TimeoutExpired` |
+| `r`  | Async Reset（靜態分析）           | Simulation Error | verilog source 含 `posedge/negedge reset` |
+| `R`  | Runtime Error / Mismatch          | Simulation Error | `Mismatches: N > 0`，或無法識別輸出 |
+
+實作在 `agent/tools.py` 的 `_classify_compile()` 和 `_classify_sim()` 兩個私有函式。
+公開常數供 `evaluate.py` 使用：
+
+```python
+from agent.tools import COMPILE_ERROR_CODES, SIM_ERROR_CODES, PASS_CODE
+
+COMPILE_ERROR_CODES = frozenset({"S", "C", "e", "0", "n", "w", "m", "p", "c"})
+SIM_ERROR_CODES     = frozenset({"R", "T", "r"})
+PASS_CODE           = "."
+```
+
+### API Retry 機制
+
+`agent/agent.py` 的 `_with_retry()` 以指數退避重試所有 Gemini API 呼叫：
+
+```
+處理例外：ResourceExhausted (429)、ServiceUnavailable (503)、DeadlineExceeded (504)
+退避策略：首次等待 ~4s，每次翻倍，最長 60s，最多 5 次重試
+Jitter：加入 0–2s 隨機抖動，避免多個 worker 同時重試的驚群效應
+```
+
+所有 `chat.send_message()` 和 `client.models.generate_content()` 呼叫都已包在 `_with_retry()` 內。
 
 ### google.genai SDK 使用注意
 

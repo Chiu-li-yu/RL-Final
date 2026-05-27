@@ -16,12 +16,15 @@ Module responsibilities:
 """
 
 import os
+import time
+import random
 from dataclasses import dataclass, field
 from typing import Callable
 
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable, DeadlineExceeded
 
 from agent.tools import compile_and_test
 from agent.prompts import get_system_prompt
@@ -112,6 +115,33 @@ _DATASET_DIRS = {
 
 # ── 私有工具函式 ──────────────────────────────────────────────────────────────
 
+_RETRYABLE = (ResourceExhausted, ServiceUnavailable, DeadlineExceeded)
+
+
+def _with_retry(fn, *args, max_retries: int = 5, **kwargs):
+    """
+    以指數退避重試一個 Gemini API 呼叫。
+
+    處理的例外：
+      ResourceExhausted  (429) — 超過 RPM / TPM 配額
+      ServiceUnavailable (503) — Gemini 服務暫時不可用
+      DeadlineExceeded   (504) — 請求逾時
+
+    退避策略：首次等待 ~4s，之後每次翻倍，最長 60s，最多重試 max_retries 次。
+    前兩次等待加入少量隨機抖動（jitter），避免多個 worker 同時重試時形成驚群。
+    """
+    for attempt in range(max_retries):
+        try:
+            return fn(*args, **kwargs)
+        except _RETRYABLE as e:
+            if attempt == max_retries - 1:
+                raise  # 已達上限，讓例外往上傳
+            wait = min(4 * (2 ** attempt) + random.uniform(0, 2), 60)
+            print(f"[retry] {type(e).__name__} — {wait:.1f}s 後重試 "
+                  f"({attempt + 1}/{max_retries - 1})…", flush=True)
+            time.sleep(wait)
+
+
 def _safe_text(response) -> str:
     """安全取得 response 的文字部分（function call 時可能為空）。"""
     try:
@@ -128,7 +158,8 @@ def _decompose_spec(problem_description: str, model: str) -> str:
     與 compile_and_test 放在同一模組，是因為它由同一個 agent 對話迴圈調用。
     """
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-    response = client.models.generate_content(
+    response = _with_retry(
+        client.models.generate_content,
         model=model,
         contents=(
             "請將以下 Verilog 題目分解成 3-5 個具體、可執行的子目標，"
@@ -216,7 +247,7 @@ def run_agent(
 
     # ── 第一條訊息 ───────────────────────────────────────────────────────────
     user_msg = _build_initial_message(problem_id, problem_description, task)
-    response = chat.send_message(user_msg)
+    response = _with_retry(chat.send_message, user_msg)
 
     # ── 主迴圈：最多 max_attempts 次 compile_and_test ────────────────────────
     while ep.attempts < max_attempts:
@@ -235,8 +266,9 @@ def run_agent(
             # Gemini 回覆純文字，沒有呼叫工具 → 提示它應該呼叫工具
             if verbose:
                 print("[agent] 未偵測到工具呼叫，提醒呼叫 compile_and_test ...")
-            response = chat.send_message(
-                "請完成 Verilog 程式碼後，呼叫 compile_and_test 工具驗證。"
+            response = _with_retry(
+                chat.send_message,
+                "請完成 Verilog 程式碼後，呼叫 compile_and_test 工具驗證。",
             )
             continue
 
@@ -321,6 +353,6 @@ def run_agent(
             break
 
         # ── 把 tool results 送回 Gemini，繼續對話 ────────────────────────────
-        response = chat.send_message(tool_results)
+        response = _with_retry(chat.send_message, tool_results)
 
     return ep.to_result()
