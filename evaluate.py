@@ -29,7 +29,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from agent.agent import run_agent
+from agent.agent import run_agent, configure_rate_limit
 from agent.dataset import (
     list_problems,
     load_problem,
@@ -319,7 +319,8 @@ def run_batch(
     task: str,
     model: str = DEFAULT_MODEL,
     resume: bool = True,
-    workers: int = 4,
+    workers: int = 1,
+    rpm: int = 0,
     dry_run: bool = False,
 ) -> None:
     """
@@ -331,7 +332,8 @@ def run_batch(
         model:      Gemini model name
         resume:     True 表示跳過已有 result.json 的題目（斷點續跑）
         workers:    ThreadPoolExecutor 的 max_workers
-                    注意 Gemini API 速率限制，建議 2–4
+                    使用 rpm 限速時建議保持 1（API 呼叫已序列化）
+        rpm:        全域 API 速率上限（requests/min）；0 表示不限速
         dry_run:    True 表示只列出待執行題目，不呼叫 API
     """
     if experiment not in VALID_EXPS:
@@ -341,15 +343,21 @@ def run_batch(
         print(f"{RED}未知 task: {task!r}{R}")
         sys.exit(1)
 
+    # ── 設定全域速率限制器（在任何 API 呼叫發生前設定）────────────────────
+    if rpm > 0:
+        configure_rate_limit(rpm)
+
     problems = list_problems(task)
     total    = len(problems)
 
+    rpm_str = f"{rpm} RPM  ({60/rpm:.1f}s/call)" if rpm > 0 else "unlimited"
     print(f"\n{'=' * 60}")
     print(f"  Experiment : {YELLOW}{BOLD}{experiment}{R}")
     print(f"  Task       : {CYAN}{task}{R}")
     print(f"  Model      : {model}")
     print(f"  Problems   : {total}")
     print(f"  Workers    : {workers}")
+    print(f"  Rate limit : {rpm_str}")
     print(f"  Resume     : {resume}")
     print(f"  Dry run    : {dry_run}")
     print(f"{'=' * 60}\n")
@@ -428,10 +436,17 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "範例:\n"
-            "  python evaluate.py --exp agent --task spec-to-rtl\n"
-            "  python evaluate.py --exp baseline_a --task spec-to-rtl -w 4\n"
+            "  # Free tier：15 RPM 限速，單 worker 跑全天\n"
+            "  python evaluate.py --exp agent --task spec-to-rtl --rpm 15\n"
+            "\n"
+            "  # 第二天 resume（自動跳過已完成題目）\n"
+            "  python evaluate.py --exp agent --task spec-to-rtl --rpm 15\n"
+            "\n"
+            "  # 確認還剩幾題\n"
             "  python evaluate.py --exp agent --task spec-to-rtl --dry-run\n"
-            "  python evaluate.py --exp baseline_b --task code-complete-iccad2023 --no-resume"
+            "\n"
+            "  # 不限速（付費帳號）\n"
+            "  python evaluate.py --exp baseline_a --task spec-to-rtl -w 4"
         ),
     )
 
@@ -457,8 +472,15 @@ def main():
     parser.add_argument(
         "--workers", "-w",
         type=int,
-        default=4,
-        help="並行 worker 數（建議 2–4，注意 Gemini API 速率限制；預設: 4）",
+        default=1,
+        help="並行 worker 數（使用 --rpm 限速時保持 1 即可；預設: 1）",
+    )
+    parser.add_argument(
+        "--rpm",
+        type=int,
+        default=15,
+        metavar="N",
+        help="每分鐘最多 API 呼叫次數，0 表示不限速（預設: 15）",
     )
     parser.add_argument(
         "--no-resume",
@@ -479,6 +501,7 @@ def main():
         model=args.model,
         resume=not args.no_resume,
         workers=args.workers,
+        rpm=args.rpm,
         dry_run=args.dry_run,
     )
 

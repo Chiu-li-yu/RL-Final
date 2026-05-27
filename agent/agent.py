@@ -18,6 +18,7 @@ Module responsibilities:
 import os
 import time
 import random
+import threading
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -30,6 +31,47 @@ from agent.tools import compile_and_test
 from agent.prompts import get_system_prompt
 
 load_dotenv()
+
+
+# ── 全域速率限制器（可選，由 evaluate.py 啟用；run.py 不啟用）─────────────────
+
+class _RateLimiter:
+    """
+    跨執行緒的全域 API 呼叫限速器（leaky bucket）。
+
+    確保相鄰兩次 Gemini API 呼叫之間的最短間隔為 60/rpm 秒。
+    在持有 lock 的情況下 sleep，因此多個 worker 的請求會排隊，
+    不會同時打出超過限速的流量。
+    """
+    def __init__(self, rpm: int):
+        self._interval = 60.0 / rpm   # 最短間隔（秒）
+        self._lock     = threading.Lock()
+        self._last     = 0.0          # 上次呼叫的 monotonic 時間
+
+    def wait(self):
+        with self._lock:
+            elapsed = time.monotonic() - self._last
+            gap = self._interval - elapsed
+            if gap > 0:
+                time.sleep(gap)
+            self._last = time.monotonic()
+
+
+_rate_limiter: _RateLimiter | None = None
+
+
+def configure_rate_limit(rpm: int) -> None:
+    """
+    設定全域 API 呼叫速率上限。
+
+    evaluate.py 在 run_batch() 開始時呼叫；run.py（互動模式）不呼叫。
+    設為 0 或不呼叫表示不限速。
+
+    Args:
+        rpm: 每分鐘最多呼叫次數（例如 15）
+    """
+    global _rate_limiter
+    _rate_limiter = _RateLimiter(rpm) if rpm > 0 else None
 
 
 # ── Episode：單題執行狀態的單一持有者 ────────────────────────────────────────
@@ -129,9 +171,13 @@ def _with_retry(fn, *args, max_retries: int = 5, **kwargs):
 
     退避策略：首次等待 ~4s，之後每次翻倍，最長 60s，最多重試 max_retries 次。
     前兩次等待加入少量隨機抖動（jitter），避免多個 worker 同時重試時形成驚群。
+
+    若有設定全域速率限制器（configure_rate_limit()），在每次呼叫前先等待。
     """
     for attempt in range(max_retries):
         try:
+            if _rate_limiter:
+                _rate_limiter.wait()   # ← 全域限速：確保不超過設定的 RPM
             return fn(*args, **kwargs)
         except _RETRYABLE as e:
             if attempt == max_retries - 1:
