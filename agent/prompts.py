@@ -1,6 +1,32 @@
 """
-System prompts for different VerilogEval tasks.
+System prompts and debug hints for VerilogEval tasks.
+
+DEBUG_HINTS: 每種 error code 對應的除錯提示清單，由 compile_and_test 附加到
+             tool result 中，讓 LLM 在僅有 error code / mismatch count 的情況下
+             能系統性診斷錯誤原因。
 """
+
+
+# ── 除錯提示清單（按 error code 索引）────────────────────────────────────────
+DEBUG_HINTS: dict[str, str] = {
+    "R": (
+        "Runtime mismatch 常見原因（請逐項對照自己的程式碼）：\n"
+        "1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle\n"
+        "2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之\n"
+        "3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向\n"
+        "4. Reset 初始值不符：state / counter 初始值與規格不符\n"
+        "5. 計數器邊界：off-by-one（計數到幾才觸發）\n"
+        "6. 輸出時序：z 應在哪個 state 輸出、是 Mealy 還是 Moore"
+    ),
+    "e": (
+        "Explicit cast 錯誤常見原因（iverilog 要求明確型別轉換）：\n"
+        "1. 把整數常數賦值給 enum 變數（改用 enum 成員名稱，如 state <= IDLE 而非 state <= 2'd0）\n"
+        "2. 三元運算符兩側混用 enum 和整數（兩側都必須是同一 enum 的成員）\n"
+        "3. 對 enum 變數做算術（如 cnt <= cnt + 1）（改用 logic [N:0] 型態做計數器）\n"
+        "修正方式：找到 error 行號的賦值，改用 enum 成員名稱；若需要整數轉 enum 才用 state_t'(value)。\n"
+        "根本解法：考慮改用 localparam + logic 取代 enum，可完全避免此類錯誤。"
+    ),
+}
 
 
 def get_system_prompt(task: str) -> str:
@@ -31,11 +57,15 @@ CODE_COMPLETE_PROMPT = """你是一個 Verilog RTL 設計師。
 - 只使用 logic 宣告，不使用 wire 或 reg, 讓程式能被合成電路
 - 組合邏輯使用 always @(*)，不寫 sensitivity list
 - 同步 reset 不要在 sensitivity list 裡放 posedge reset
-- 在使用 enum 紀錄狀態時，避免使用三元運算符切換狀態，導致不明確的型態轉換。
+- FSM 狀態機統一用 localparam + logic 宣告，不使用 enum（可避免型別轉換問題）：
+    localparam IDLE = 2'd0, RUN = 2'd1, DONE = 2'd2;
+    logic [1:0] state, next_state;
+  若因題目需要使用 enum，切換狀態只能用 case 語句，禁用三元運算符，禁止對 enum 變數做算術
 
-完成程式碼後，呼叫 compile_and_test 工具驗證。
-若因邏輯錯誤失敗超過一次，請先呼叫 decompose_spec 分析題目，再重新撰寫。
-若遇到 port 相關的 compile error（Unable to bind wire/reg），可呼叫 get_interface 確認正確介面。
+可使用的工具列表: 
+- get_interface, 確認正確介面, 若遇到 port 相關的 compile error (Unable to bind wire/reg)時使用。
+- decompose_spec, 可用來分析題目，若因邏輯錯誤失敗超過一次，可呼叫並用於分析。
+- compile_and_test, 在完成程式碼時用來驗證結果。
 """
 
 SPEC_TO_RTL_PROMPT = """你是一個 Verilog RTL 設計師。
@@ -52,7 +82,10 @@ SPEC_TO_RTL_PROMPT = """你是一個 Verilog RTL 設計師。
 - 只使用 logic 宣告，不使用 wire 或 reg, 讓程式能被合成電路
 - 組合邏輯使用 always @(*)，不寫 sensitivity list
 - 同步 reset 不要在 sensitivity list 裡放 posedge reset
-- 在使用 enum 紀錄狀態時，避免使用三元運算符切換狀態，導致不明確的型態轉換。
+- FSM 狀態機統一用 localparam + logic 宣告，不使用 enum（可避免型別轉換問題）：
+    localparam IDLE = 2'd0, RUN = 2'd1, DONE = 2'd2;
+    logic [1:0] state, next_state;
+  若因題目需要使用 enum，切換狀態只能用 case 語句，禁用三元運算符，禁止對 enum 變數做算術
 
 若因邏輯錯誤失敗超過一次，請先呼叫 decompose_spec 分析題目，再重新撰寫。
 """

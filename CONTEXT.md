@@ -136,23 +136,43 @@ compile() + simulate()
 直接移植 VerilogEval `sv-iv-analyze` 腳本的 `analyze_result()` 邏輯，
 讓我們的結果可以直接與 VerilogEval 公開基準比較。
 
-| 代碼 | 意思                              | 類別             | 判斷方式 |
-| ---- | --------------------------------- | ---------------- | -------- |
-| `.`  | Pass                              | ✅ 成功          | `Mismatches: 0 in N samples` |
-| `S`  | Syntax Error                      | Compile Error    | log 含 `"syntax error"` |
-| `e`  | Explicit Cast Required            | Compile Error    | log 含 `"explicit cast"` |
-| `0`  | Sized Numeric Constant Error      | Compile Error    | log 含 `"size greater than zero"` |
-| `n`  | No Sensitivities                  | Compile Error    | log 含 `"no sensitivities"` |
-| `w`  | Declared as Wire                  | Compile Error    | log 含 `"declared here as wire"` |
-| `m`  | Unknown Module Type               | Compile Error    | log 含 `"Unknown module type"` |
-| `c`  | Unable to Bind `clk`              | Compile Error    | log 含 `"Unable to bind wire/reg/memory \`clk'"` |
-| `p`  | Unable to Bind Wire/Reg           | Compile Error    | log 含 `"Unable to bind wire/reg"`（非 clk） |
-| `C`  | Generic Compiler Error            | Compile Error    | 兜底：其他含 `"error"` 的情況 |
-| `T`  | Timeout                           | Simulation Error | log 含 `"TIMEOUT"` 或 Python `TimeoutExpired` |
-| `r`  | Async Reset（靜態分析）           | Simulation Error | verilog source 含 `posedge/negedge reset` |
-| `R`  | Runtime Error / Mismatch          | Simulation Error | `Mismatches: N > 0`，或無法識別輸出 |
+| 代碼 | 意思                         | 類別             | 判斷方式                                         |
+| ---- | ---------------------------- | ---------------- | ------------------------------------------------ |
+| `.`  | Pass                         | ✅ 成功          | `Mismatches: 0 in N samples`                     |
+| `S`  | Syntax Error                 | Compile Error    | log 含 `"syntax error"`                          |
+| `e`  | Explicit Cast Required       | Compile Error    | log 含 `"explicit cast"`                         |
+| `0`  | Sized Numeric Constant Error | Compile Error    | log 含 `"size greater than zero"`                |
+| `n`  | No Sensitivities             | Compile Error    | log 含 `"no sensitivities"`                      |
+| `w`  | Declared as Wire             | Compile Error    | log 含 `"declared here as wire"`                 |
+| `m`  | Unknown Module Type          | Compile Error    | log 含 `"Unknown module type"`                   |
+| `c`  | Unable to Bind `clk`         | Compile Error    | log 含 `"Unable to bind wire/reg/memory \`clk'"` |
+| `p`  | Unable to Bind Wire/Reg      | Compile Error    | log 含 `"Unable to bind wire/reg"`（非 clk）     |
+| `C`  | Generic Compiler Error       | Compile Error    | 兜底：其他含 `"error"` 的情況                    |
+| `T`  | Timeout                      | Simulation Error | log 含 `"TIMEOUT"` 或 Python `TimeoutExpired`    |
+| `r`  | Async Reset（靜態分析）      | Simulation Error | verilog source 含 `posedge/negedge reset`        |
+| `R`  | Runtime Error / Mismatch     | Simulation Error | `Mismatches: N > 0`，或無法識別輸出              |
 
 實作在 `agent/tools.py` 的 `_classify_compile()` 和 `_classify_sim()` 兩個私有函式。
+
+#### DEBUG_HINTS — 按 error code 索引的除錯提示清單
+
+集中管理在 `agent/prompts.py` 的 `DEBUG_HINTS` dict，`compile_and_test` 在兩個回傳路徑（compile error / sim error）都統一做：
+
+```python
+if error_code in DEBUG_HINTS:
+    result["debug_hints"] = DEBUG_HINTS[error_code]
+```
+
+目前涵蓋的 error code：
+
+**`R`（Runtime mismatch）** — 6 項子類型假設清單，讓 LLM 逐項對照程式碼：timing offset、狀態轉移條件、組合邏輯錯誤、reset 初始值、計數器邊界、輸出時序（Mealy/Moore）。
+
+**`e`（Explicit cast required）** — 3 項觸發原因 + 修正方式 + 根本解法（改用 localparam + logic）：
+1. 把整數常數賦值給 enum 變數
+2. 三元運算符兩側混用 enum 和整數
+3. 對 enum 變數做算術運算
+
+設計原則：只對有診斷價值的 error code 附加（T / r / S 等不附加）。新增 hint 只需改 `prompts.py` 的 `DEBUG_HINTS`，`tools.py` 不需動。
 公開常數供 `evaluate.py` 使用：
 
 ```python
@@ -162,6 +182,19 @@ COMPILE_ERROR_CODES = frozenset({"S", "C", "e", "0", "n", "w", "m", "p", "c"})
 SIM_ERROR_CODES     = frozenset({"R", "T", "r"})
 PASS_CODE           = "."
 ```
+
+#### System Prompt FSM 規範
+
+兩個 prompt 的 enum 規則改為正向模板，直接給出推薦寫法：
+
+```
+- FSM 狀態機統一用 localparam + logic 宣告，不使用 enum（可避免型別轉換問題）：
+    localparam IDLE = 2'd0, RUN = 2'd1, DONE = 2'd2;
+    logic [1:0] state, next_state;
+  若因題目需要使用 enum，切換狀態只能用 case 語句，禁用三元運算符，禁止對 enum 變數做算術
+```
+
+動機：LLM 在 FSM 題目中傾向使用 `enum + 三元運算符`，但 iverilog 的嚴格型別檢查會觸發 `e` 錯誤。提供正向模板比純禁止清單更有效，讓模型直接走 localparam 路徑。
 
 ### API Retry 機制
 
@@ -244,13 +277,13 @@ outputs/
 
 ```json
 {
-  "problem_id":  "Prob001_zero",
-  "passed":      true,
-  "attempts":    2,
-  "error_type":  ".",
-  "error_log":   "",
-  "task":        "spec-to-rtl",
-  "experiment":  "agent"
+  "problem_id": "Prob001_zero",
+  "passed": true,
+  "attempts": 2,
+  "error_type": ".",
+  "error_log": "",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
 }
 ```
 
@@ -260,15 +293,15 @@ outputs/
 
 #### 三組執行器的對映關係
 
-| 實驗 | 執行方式 | 目的 |
-|------|----------|------|
-| `agent` | `run_agent(max_attempts=3)` | 完整系統（feedback + decompose_spec） |
-| `baseline_a` | `run_agent(max_attempts=1)` | 無 feedback 基準 |
+| 實驗         | 執行方式                                 | 目的                                        |
+| ------------ | ---------------------------------------- | ------------------------------------------- |
+| `agent`      | `run_agent(max_attempts=3)`              | 完整系統（feedback + decompose_spec）       |
+| `baseline_a` | `run_agent(max_attempts=1)`              | 無 feedback 基準                            |
 | `baseline_b` | 3 × `run_agent(max_attempts=1)` 獨立呼叫 | 3 次機會但無 feedback，隔離 feedback 的價值 |
 
 **Baseline B 的 attempt 對映**：每次獨立呼叫帶入 `attempt_offset=0/1/2`，程式碼依序存為 `attempt_1.sv`、`attempt_2.sv`、`attempt_3.sv`。`result.json` 的 `attempts` 欄位記錄「第幾次才成功」（1/2/3），全部失敗則為 3。
 
-#### _save_cb（batch 模式 checkpoint）
+#### \_save_cb（batch 模式 checkpoint）
 
 ```python
 def _save_cb(problem_id, task, experiment, attempt_offset=0):
@@ -280,7 +313,7 @@ def _save_cb(problem_id, task, experiment, attempt_offset=0):
 
 與 `run.py` 的 `_make_checkpoint` 相同介面，但移除人工介入邏輯，批次執行時永遠回傳 `True`。
 
-#### 進度追蹤（_Progress）
+#### 進度追蹤（\_Progress）
 
 執行緒安全的計數器，由 `threading.Lock` 保護。每次 `update()` 在鎖內列印一行，因此多個 worker 的輸出行不會交錯。最終 `finish()` 列印 pass rate 與 pass-by-attempt 長條圖。
 

@@ -72,7 +72,7 @@ def _on_tool_call(name: str, args: dict, attempt: int):
             preview += f"\n{GRAY}  … ({len(lines) - 25} more lines){R}"
 
         _print(f"\n{LINE}")
-        _print(f"{YELLOW}{BOLD}🔧  compile_and_test{R}  ({attempt})")
+        _print(f"{YELLOW}{BOLD}🔧  compile_and_test{R}  (attempt {attempt})")
         _print(LINE)
         _print(preview)
         _print(LINE)
@@ -82,12 +82,23 @@ def _on_tool_call(name: str, args: dict, attempt: int):
         _print(f"\n{YELLOW}🔍  decompose_spec{R}")
         _print(f"{GRAY}{desc[:200]}…{R}")
 
+    elif name == "get_interface":
+        _print(f"\n{YELLOW}🔌  get_interface{R}")
+
 
 def _on_tool_result(name: str, result: dict, attempt: int):
     """工具執行完畢（顯示結果摘要）。"""
     if name == "decompose_spec":
         sub_goals = result.get("sub_goals", "")
         _print(f"{GRAY}{sub_goals[:400]}{R}")
+
+    elif name == "get_interface":
+        err = result.get("error", "")
+        if err:
+            _print(f"{RED}  介面查詢失敗：{err}{R}")
+        else:
+            ifc = result.get("interface", "")
+            _print(f"{GRAY}{ifc}{R}")
 
 
 def _make_checkpoint(problem_id: str, task: str, max_attempts: int):
@@ -122,49 +133,43 @@ def _make_checkpoint(problem_id: str, task: str, max_attempts: int):
             if len(err_lines) > 6:
                 _print(f"   {GRAY}  … ({len(err_lines) - 6} more lines, 輸入 v 查看全部){R}")
 
+        # 若有 debug_hints（R 類錯誤），顯示診斷提示
+        if result.get("debug_hints"):
+            _print(f"\n{CYAN}💡  Debug hints:{R}")
+            for line in result["debug_hints"].splitlines():
+                _print(f"   {GRAY}{line}{R}")
+
         # ── 若已到上限，不詢問 ─────────────────────────────────────────────
         if attempt >= max_attempts:
             return True
 
-        # ── 人工介入點 ────────────────────────────────────────────────────
+        # ── 人工介入點（while 迴圈，v/c 看完後仍可繼續操作）─────────────────
         _print(f"\n{DLINE}")
-        prompt = (
+        menu = (
             f"{CYAN}繼續讓 Agent 嘗試？{R} "
             f"[{BOLD}Enter{R} 繼續 / "
             f"{BOLD}a{R} 中止 / "
-            f"{BOLD}v{R} 查看完整 log / "
-            f"{BOLD}c{R} 查看完整程式碼] > "
+            f"{BOLD}v{R} 完整 log / "
+            f"{BOLD}c{R} 完整程式碼] > "
         )
-        try:
-            ans = input(prompt).strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            _print()
-            return False
-
-        if ans == "a":
-            _print(f"{GRAY}已中止。{R}")
-            return False
-
-        if ans == "v":
-            _print(f"\n{GRAY}── Error Log ──{R}")
-            _print(result.get("error_log", "(無 error log)"))
+        while True:
             try:
-                ans2 = input(f"{CYAN}繼續？{R} [Enter 繼續 / a 中止] > ").strip().lower()
+                ans = input(menu).strip().lower()
             except (EOFError, KeyboardInterrupt):
+                _print()
                 return False
-            return ans2 != "a"
 
-        if ans == "c":
-            _print(f"\n{GRAY}── Generated Code ──{R}")
-            _print(code)
-            try:
-                ans2 = input(f"{CYAN}繼續？{R} [Enter 繼續 / a 中止] > ").strip().lower()
-            except (EOFError, KeyboardInterrupt):
+            if ans == "a":
+                _print(f"{GRAY}已中止。{R}")
                 return False
-            return ans2 != "a"
-
-        # Enter 或其他輸入 → 繼續
-        return True
+            elif ans == "v":
+                _print(f"\n{GRAY}── Error Log ──{R}")
+                _print(result.get("error_log", "(無 error log)"))
+            elif ans == "c":
+                _print(f"\n{GRAY}── Generated Code ──{R}")
+                _print(code)
+            else:
+                return True  # Enter 或其他輸入 → 繼續
 
     return on_checkpoint
 

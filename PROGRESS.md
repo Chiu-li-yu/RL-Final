@@ -660,6 +660,19 @@ decompose_spec = {
   - `result_exists()` 斷點續跑，`--no-resume` 可強制重跑
   - `_Progress` 執行緒安全進度追蹤，逐行輸出 + 最終摘要
   - `--dry-run` 列出待執行題目不呼叫 API
+- [x] 新增 `get_interface` 工具（`agent/tools.py`）：從 ref.sv 解析 TopModule port 介面宣告
+  - 無參數設計（problem_id / task 由 agent closure 注入）
+  - `spec-to-rtl` prompt 更新為三步驟：先呼叫 get_interface → 撰寫實作 → compile_and_test
+- [x] `DEBUG_HINTS` 架構（`agent/prompts.py` + `agent/tools.py`）：
+  - `prompts.py` 新增 `DEBUG_HINTS` dict，集中管理所有 error code 的除錯提示文字
+  - `tools.py` import `DEBUG_HINTS`，compile error 與 sim error 兩條回傳路徑統一附加 hints
+  - 目前涵蓋：`R`（6 項 runtime mismatch 子類型）、`e`（3 項 explicit cast 觸發原因 + 根本解法）
+  - 新增 hint 只改 `prompts.py`，`tools.py` 不需動
+- [x] `run.py` CLI 改善：
+  - `_on_tool_call` / `_on_tool_result` 補上 `get_interface` 的顯示（呼叫時顯示 🔌、回傳時顯示 port 介面）
+  - `on_checkpoint` 在 R 類錯誤後顯示 `💡 Debug hints`
+  - 人工介入迴圈改為 `while True`，`v` 看完 log 或 `c` 看完程式碼後仍可繼續切換，不再只剩 Enter/a
+- [x] Prompt FSM 規範改版：兩個 prompt 的 enum 規則從「禁止清單」改為「正向模板」，推薦 `localparam + logic`，消除 LLM 傾向使用 `enum + 三元運算符` 的根本原因
 
 ### 5/29–5/30
 

@@ -34,6 +34,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from agent.prompts import DEBUG_HINTS
+
 
 # ── 資料集路徑 ────────────────────────────────────────────────────────────────
 _BASE_DIR = Path(__file__).parent.parent
@@ -216,12 +218,15 @@ def compile_and_test(verilog_code: str, problem_id: str, task: str) -> dict:
 
         if compile_result.returncode != 0:
             error_code = _classify_compile(compile_log)
-            return {
+            compile_result_dict = {
                 "passed":         False,
                 "error_type":     error_code,
                 "error_log":      compile_log.strip(),
                 "mismatch_count": 0,
             }
+            if error_code in DEBUG_HINTS:
+                compile_result_dict["debug_hints"] = DEBUG_HINTS[error_code]
+            return compile_result_dict
 
         # ── Step 2：vvp 模擬 ─────────────────────────────────────────────────
         try:
@@ -243,12 +248,15 @@ def compile_and_test(verilog_code: str, problem_id: str, task: str) -> dict:
 
         error_code, mismatch_count = _classify_sim(sim_log, verilog_code)
 
-        return {
+        result = {
             "passed":         error_code == ".",
             "error_type":     error_code,
             "error_log":      "" if error_code == "." else sim_log.strip(),
             "mismatch_count": mismatch_count,
         }
+        if error_code in DEBUG_HINTS:
+            result["debug_hints"] = DEBUG_HINTS[error_code]
+        return result
 
     finally:
         if os.path.exists(gen_sv):
