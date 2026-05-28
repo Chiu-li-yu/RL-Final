@@ -8,82 +8,76 @@ module TopModule (
     input logic ack
 );
 
-    typedef enum logic [3:0] {
-        S_SEARCH,
-        S_READ_DELAY,
-        S_COUNTING,
-        S_DONE
-    } state_t;
+    localparam SEARCH = 0, LOAD_DELAY = 1, COUNTING = 2, DONE_STATE = 3;
+    logic [1:0] state, next_state;
+    logic [3:0] delay_val, current_delay;
+    logic [3:0] shift_reg;
+    logic [2:0] shift_idx;
+    logic [10:0] clk_counter;
 
-    state_t state, next_state;
-    logic [3:0] pattern_reg;
-    logic [3:0] delay_reg;
-    logic [3:0] shift_cnt;
-    logic [15:0] timer_cnt;
-    logic [3:0] timer_1000_cnt;
-
-    always @(*) begin
-        next_state = state;
-        case (state)
-            S_SEARCH: begin
-                if (pattern_reg == 4'b1101) next_state = S_READ_DELAY;
-            end
-            S_READ_DELAY: begin
-                if (shift_cnt == 4'd4) next_state = S_COUNTING;
-            end
-            S_COUNTING: begin
-                if (timer_1000_cnt == 4'd0 && timer_cnt == 16'd0) next_state = S_DONE;
-            end
-            S_DONE: begin
-                if (ack) next_state = S_SEARCH;
-            end
-            default: next_state = S_SEARCH;
-        endcase
-    end
-
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
-            state <= S_SEARCH;
-            pattern_reg <= 4'b0000;
-            delay_reg <= 4'b0000;
-            shift_cnt <= 4'b0000;
-            timer_cnt <= 16'b0;
-            timer_1000_cnt <= 4'b0;
+            state <= SEARCH;
+            shift_reg <= 0;
+            shift_idx <= 0;
+            delay_val <= 0;
+            current_delay <= 0;
+            clk_counter <= 0;
         end else begin
             state <= next_state;
+
             case (state)
-                S_SEARCH: begin
-                    pattern_reg <= {pattern_reg[2:0], data};
-                end
-                S_READ_DELAY: begin
-                    if (shift_cnt < 4'd4) begin
-                        delay_reg <= {delay_reg[2:0], data};
-                        shift_cnt <= shift_cnt + 1'b1;
-                    end else begin
-                        timer_1000_cnt <= delay_reg;
-                        timer_cnt <= 16'd999;
+                SEARCH: begin
+                    if (data) shift_reg <= {shift_reg[2:0], 1'b1};
+                    else shift_reg <= {shift_reg[2:0], 1'b0};
+                    
+                    if (shift_reg[2:0] == 3'b110 && data == 1'b1) begin
+                        shift_idx <= 0;
                     end
                 end
-                S_COUNTING: begin
-                    if (timer_cnt > 0) begin
-                        timer_cnt <= timer_cnt - 1'b1;
-                    end else begin
-                        if (timer_1000_cnt > 0) begin
-                            timer_1000_cnt <= timer_1000_cnt - 1'b1;
-                            timer_cnt <= 16'd999;
+                LOAD_DELAY: begin
+                    shift_reg <= {shift_reg[2:0], data};
+                    shift_idx <= shift_idx + 1;
+                    if (shift_idx == 3) delay_val <= {shift_reg[2:0], data};
+                end
+                COUNTING: begin
+                    if (clk_counter == 1000) begin
+                        clk_counter <= 0;
+                        if (current_delay == 0) begin
+                        end else begin
+                            current_delay <= current_delay - 1;
                         end
+                    end else begin
+                        clk_counter <= clk_counter + 1;
                     end
-                end
-                S_DONE: begin
-                    shift_cnt <= 4'b0;
-                    pattern_reg <= 4'b0;
                 end
             endcase
         end
     end
 
-    assign counting = (state == S_COUNTING);
-    assign done = (state == S_DONE);
-    assign count = (state == S_COUNTING) ? timer_1000_cnt : 4'b0;
+    always @(*) begin
+        next_state = state;
+        counting = 0;
+        done = 0;
+        count = current_delay;
 
+        case (state)
+            SEARCH: begin
+                if (shift_reg == 4'b1101) next_state = LOAD_DELAY;
+            end
+            LOAD_DELAY: begin
+                if (shift_idx == 3) begin
+                    next_state = COUNTING;
+                end
+            end
+            COUNTING: begin
+                counting = 1;
+                if (clk_counter == 1000 && current_delay == 0) next_state = DONE_STATE;
+            end
+            DONE_STATE: begin
+                done = 1;
+                if (ack) next_state = SEARCH;
+            end
+        endcase
+    end
 endmodule

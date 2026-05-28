@@ -1,13 +1,12 @@
 """
-Verilog subprocess tools — compile_and_test() is the only public function.
+Verilog subprocess tools.
 
-This module is deliberately narrow: it contains only code that calls external
-processes (iverilog, vvp).  LLM calls (decompose_spec) and dataset I/O live in
-their own modules so this one stays easy to unit-test and mock.
+This module is deliberately narrow: it only calls external processes (iverilog,
+vvp) and parses their output.  Dataset paths, LLM calls, and debug hints all
+live elsewhere.
 
-Error classification is inlined here as two private helpers (_classify_compile,
-_classify_sim).  The codes exactly match VerilogEval's sv-iv-analyze script so
-our results can be compared directly against published baselines.
+Callers pass dataset_dir directly (obtained from Task.dataset_dir), so this
+module has no knowledge of task names or dataset layout.
 
 Error code reference (from sv-iv-analyze):
   Compile errors (iverilog returncode != 0):
@@ -34,16 +33,6 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from agent.prompts import DEBUG_HINTS
-
-
-# ── 資料集路徑 ────────────────────────────────────────────────────────────────
-_BASE_DIR = Path(__file__).parent.parent
-_DATASET_DIRS: dict[str, Path] = {
-    "code-complete-iccad2023": _BASE_DIR / "verilog-eval" / "dataset_code-complete-iccad2023",
-    "spec-to-rtl":             _BASE_DIR / "verilog-eval" / "dataset_spec-to-rtl",
-}
-
 # 公開常數：供 evaluate.py 等呼叫者分類 error_type
 COMPILE_ERROR_CODES = frozenset({"S", "C", "e", "0", "n", "w", "m", "p", "c"})
 SIM_ERROR_CODES     = frozenset({"R", "T", "r"})
@@ -60,8 +49,8 @@ def _classify_compile(log: str) -> str:
     掃描順序與 sv-iv-analyze 的 analyze_result() 一致：
     早出現的 break 優先，`p` 和 `C` 在整個 log 掃完後才判定。
     """
-    error_C = False   # 有 "error" 字串但不屬於更具體的類別
-    error_p = False   # 有 "Unable to bind wire/reg" 但不是 clk
+    error_C = False
+    error_p = False
 
     for line in log.splitlines():
         if "syntax error" in line:
@@ -89,88 +78,37 @@ def _classify_compile(log: str) -> str:
         return "p"
     if error_C:
         return "C"
-    return "C"   # 兜底：returncode != 0 但 log 沒有明確 error 字串
+    return "C"
 
 
 def _classify_sim(sim_log: str, verilog_code: str) -> tuple[str, int]:
     """
-    分析 vvp stdout, 回傳細粒度 sim 結果代碼與 mismatch 數。
+    分析 vvp stdout，回傳細粒度 sim 結果代碼與 mismatch 數。
 
-    優先序（與 sv-iv-analyze 略有不同，修正 timer 題的邊界情況）：
-      1. Mismatches 行優先：即使 TIMEOUT 也出現，Mismatches: 0 視為通過
-         原因：timer 類題目模擬時間長，testbench 的 $finish 守衛觸發後仍會
-               輸出完整的 Mismatches 統計，此時 Mismatches: 0 是可信的結果。
-      2. TIMEOUT 但無 Mismatches 行 → T（模擬未完成）
+    優先序：
+      1. Mismatches 行優先（即使出現 TIMEOUT，Mismatches: 0 視為通過）
+      2. TIMEOUT 但無 Mismatches 行 → T
       3. 靜態分析 async reset → r
-      4. 其餘 → R（runtime mismatch 或無法識別）
+      4. 其餘 → R
     """
-    # ── 優先：Mismatches 行（testbench $finish 後輸出的最終統計）────────────
-    # 格式：Mismatches: 0 in 40 samples
     m = re.search(r"Mismatches:\s*(\d+)\s+in\s+\d+\s+samples", sim_log)
     if m:
         n = int(m.group(1))
         return (".", 0) if n == 0 else ("R", n)
 
-    # ── Timeout（無 Mismatches 行 → 模擬確實未完成）────────────────────────
     if "TIMEOUT" in sim_log:
         return "T", -1
 
-    # ── 無法識別輸出：靜態分析 verilog source 是否有 async reset ─────────────
     for line in verilog_code.splitlines():
         if "posedge reset" in line or "negedge reset" in line or "posedge r)" in line:
             return "r", -1
 
-    # 兜底
     return "R", -1
-
-
-# ── 公開：介面查詢 ────────────────────────────────────────────────────────────
-
-def get_interface(problem_id: str, task: str) -> dict:
-    """
-    從 ref.sv 解析 TopModule 的 port 介面宣告。
-
-    只回傳 module 宣告到 ); 的部分，不含任何實作內容。
-    RefModule 名稱自動替換為 TopModule，讓 Gemini 可以直接複製使用。
-
-    Args:
-        problem_id: 題目 ID，例如 "Prob001_zero"
-        task:       "code-complete-iccad2023" 或 "spec-to-rtl"
-
-    Returns:
-        {
-            "interface": str   # module TopModule (...); 宣告字串
-        }
-        或發生錯誤時：
-        {
-            "interface": "",
-            "error":     str
-        }
-    """
-    if task not in _DATASET_DIRS:
-        return {"interface": "", "error": f"未知 task: {task!r}"}
-
-    ref_sv = _DATASET_DIRS[task] / f"{problem_id}_ref.sv"
-    try:
-        content = ref_sv.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        return {"interface": "", "error": f"找不到 {problem_id} 的 ref.sv"}
-
-    # 取從檔案開頭到第一個 ); 的部分（port list 的結尾）
-    idx = content.find(');')
-    if idx == -1:
-        return {"interface": "", "error": "無法在 ref.sv 中找到 ); — 介面解析失敗"}
-
-    interface = content[: idx + 2].strip()
-    # 將 RefModule（或其他任何 module 名稱）替換為 TopModule
-    interface = re.sub(r'\bmodule\s+\w+', 'module TopModule', interface)
-
-    return {"interface": interface}
 
 
 # ── 公開：編譯與模擬 ──────────────────────────────────────────────────────────
 
-def compile_and_test(verilog_code: str, problem_id: str, task: str) -> dict:
+def compile_and_test(verilog_code: str, problem_id: str, dataset_dir: Path) -> dict:
     """
     編譯並模擬 Verilog 程式碼。
 
@@ -182,7 +120,7 @@ def compile_and_test(verilog_code: str, problem_id: str, task: str) -> dict:
     Args:
         verilog_code: 完整的 TopModule Verilog 程式碼
         problem_id:   題目 ID，例如 "Prob001_zero"
-        task:         "code-complete-iccad2023" 或 "spec-to-rtl"
+        dataset_dir:  Task.dataset_dir（ref.sv / test.sv 所在目錄）
 
     Returns:
         {
@@ -191,11 +129,8 @@ def compile_and_test(verilog_code: str, problem_id: str, task: str) -> dict:
             "error_log":      str,   # 通過時為空字串
             "mismatch_count": int    # pass=0；sim error=mismatch 數；timeout/unknown=-1
         }
+        注意：debug_hints 不在此處附加，由 agent.py 的 dispatch handler 負責。
     """
-    if task not in _DATASET_DIRS:
-        raise ValueError(f"Unknown task: {task!r}. Must be one of {list(_DATASET_DIRS)}")
-
-    dataset_dir = _DATASET_DIRS[task]
     ref_sv  = dataset_dir / f"{problem_id}_ref.sv"
     test_sv = dataset_dir / f"{problem_id}_test.sv"
 
@@ -217,16 +152,12 @@ def compile_and_test(verilog_code: str, problem_id: str, task: str) -> dict:
         compile_log = compile_result.stderr + compile_result.stdout
 
         if compile_result.returncode != 0:
-            error_code = _classify_compile(compile_log)
-            compile_result_dict = {
+            return {
                 "passed":         False,
-                "error_type":     error_code,
+                "error_type":     _classify_compile(compile_log),
                 "error_log":      compile_log.strip(),
                 "mismatch_count": 0,
             }
-            if error_code in DEBUG_HINTS:
-                compile_result_dict["debug_hints"] = DEBUG_HINTS[error_code]
-            return compile_result_dict
 
         # ── Step 2：vvp 模擬 ─────────────────────────────────────────────────
         try:
@@ -238,7 +169,6 @@ def compile_and_test(verilog_code: str, problem_id: str, task: str) -> dict:
             )
             sim_log = sim_result.stdout + sim_result.stderr
         except subprocess.TimeoutExpired:
-            # Python-level timeout（testbench 跑超過 60 秒）
             return {
                 "passed":         False,
                 "error_type":     "T",
@@ -247,16 +177,12 @@ def compile_and_test(verilog_code: str, problem_id: str, task: str) -> dict:
             }
 
         error_code, mismatch_count = _classify_sim(sim_log, verilog_code)
-
-        result = {
+        return {
             "passed":         error_code == ".",
             "error_type":     error_code,
             "error_log":      "" if error_code == "." else sim_log.strip(),
             "mismatch_count": mismatch_count,
         }
-        if error_code in DEBUG_HINTS:
-            result["debug_hints"] = DEBUG_HINTS[error_code]
-        return result
 
     finally:
         if os.path.exists(gen_sv):

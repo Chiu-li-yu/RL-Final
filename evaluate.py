@@ -29,7 +29,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from agent.agent import run_agent, configure_rate_limit
+from agent.agent import run_agent, RateLimiter
+from agent.task import get_task, Task
 from agent.dataset import (
     list_problems,
     load_problem,
@@ -48,27 +49,25 @@ CYAN   = "\033[36m"
 GRAY   = "\033[90m"
 
 VALID_EXPS    = ("agent", "baseline_a", "baseline_b")
-VALID_TASKS   = ("spec-to-rtl", "code-complete-iccad2023")
 DEFAULT_MODEL = "gemini-3.1-flash-lite"
 
 
-# ── Checkpoint callback（batch 模式：儲存程式碼但不中斷 agent）───────────────
+# ── on_save callback（batch 模式：儲存程式碼，無互動）────────────────────────
 
-def _save_cb(
+def _make_save_cb(
     problem_id: str,
-    task: str,
+    task: Task,
     experiment: str,
     attempt_offset: int = 0,
 ):
     """
-    回傳一個 on_checkpoint closure，在每次 compile_and_test 後儲存程式碼。
-    永遠回傳 True（不中斷 agent）。
+    回傳一個 on_save closure，在每次 compile_and_test 後儲存程式碼。
 
     attempt_offset：
       baseline_b 的三次獨立執行各自帶入 0 / 1 / 2，
       讓程式碼依序存成 attempt_1.sv / attempt_2.sv / attempt_3.sv。
     """
-    def on_checkpoint(attempt: int, result: dict, code: str) -> bool:
+    def on_save(attempt: int, code: str) -> None:
         save_code(
             problem_id,
             attempt + attempt_offset,
@@ -76,9 +75,8 @@ def _save_cb(
             task=task,
             experiment=experiment,
         )
-        return True  # 永不中斷
 
-    return on_checkpoint
+    return on_save
 
 
 # ── 三組實驗執行函式 ──────────────────────────────────────────────────────────
@@ -86,12 +84,10 @@ def _save_cb(
 def _run_agent(
     problem_id: str,
     desc: str,
-    task: str,
+    task: Task,
     model: str,
+    rate_limiter: RateLimiter | None,
 ) -> dict:
-    """
-    Agent 實驗：最多 3 次嘗試，包含 error feedback 與 decompose_spec。
-    """
     return run_agent(
         problem_id=problem_id,
         problem_description=desc,
@@ -99,20 +95,18 @@ def _run_agent(
         max_attempts=3,
         model=model,
         verbose=False,
-        on_checkpoint=_save_cb(problem_id, task, "agent"),
+        rate_limiter=rate_limiter,
+        on_save=_make_save_cb(problem_id, task, "agent"),
     )
 
 
 def _run_baseline_a(
     problem_id: str,
     desc: str,
-    task: str,
+    task: Task,
     model: str,
+    rate_limiter: RateLimiter | None,
 ) -> dict:
-    """
-    Baseline A：單次生成，無 error feedback。
-    衡量「沒有 Agent 迭代」的基準 pass rate。
-    """
     return run_agent(
         problem_id=problem_id,
         problem_description=desc,
@@ -120,30 +114,24 @@ def _run_baseline_a(
         max_attempts=1,
         model=model,
         verbose=False,
-        on_checkpoint=_save_cb(problem_id, task, "baseline_a"),
+        rate_limiter=rate_limiter,
+        on_save=_make_save_cb(problem_id, task, "baseline_a"),
     )
 
 
 def _run_baseline_b(
     problem_id: str,
     desc: str,
-    task: str,
+    task: Task,
     model: str,
+    rate_limiter: RateLimiter | None,
 ) -> dict:
     """
     Baseline B：3 次完全獨立生成，各自建立新的 chat session，互不共享歷史。
-
-    與 agent 的差異：agent 在嘗試之間傳遞 error log（feedback），
-    baseline_b 不傳，但同樣允許最多 3 次機會。
-    兩者都允許 3 次機會，這樣才能公平地隔離 feedback 的作用。
-
-    程式碼依序存成 attempt_1.sv、attempt_2.sv、attempt_3.sv。
-    result.json 的 attempts 欄位記錄「第幾次才成功」（1/2/3），
-    或若全部失敗則為 3。
     """
     last_result: dict = {}
 
-    for run_idx in range(3):      # run_idx: 0→attempt_1, 1→attempt_2, 2→attempt_3
+    for run_idx in range(3):
         result = run_agent(
             problem_id=problem_id,
             problem_description=desc,
@@ -151,20 +139,20 @@ def _run_baseline_b(
             max_attempts=1,
             model=model,
             verbose=False,
-            on_checkpoint=_save_cb(
+            rate_limiter=rate_limiter,
+            on_save=_make_save_cb(
                 problem_id, task, "baseline_b",
                 attempt_offset=run_idx,
             ),
         )
-        # 覆寫 attempts 欄位：1/2/3（對應第幾次獨立嘗試）
         result = dict(result)
         result["attempts"] = run_idx + 1
         last_result = result
 
         if result["passed"]:
-            return result   # 早停：第一次成功即回傳
+            return result
 
-    return last_result      # 全部失敗，回傳最後一次結果
+    return last_result
 
 
 # ── 實驗分派 ──────────────────────────────────────────────────────────────────
@@ -180,26 +168,19 @@ def _run_one(
     experiment: str,
     problem_id: str,
     desc: str,
-    task: str,
+    task: Task,
     model: str,
     resume: bool,
+    rate_limiter: RateLimiter | None,
 ) -> tuple[dict | None, bool]:
-    """
-    執行單一題目（由 ThreadPoolExecutor worker 呼叫）。
-
-    Returns:
-        (result, was_skipped)
-        result=None  → 執行時發生例外（不儲存 result.json，下次可重試）
-        was_skipped  → True 表示 resume=True 且已有 result.json
-    """
+    """執行單一題目（由 ThreadPoolExecutor worker 呼叫）。"""
     if resume and result_exists(problem_id, task, experiment):
-        return None, True      # 已有結果，跳過
+        return None, True
 
     runner = _EXP_RUNNERS[experiment]
     try:
-        result = runner(problem_id, desc, task, model)
+        result = runner(problem_id, desc, task, model, rate_limiter)
     except Exception as e:
-        # 不儲存 result.json，讓下次 --resume 時可重試
         raise RuntimeError(f"{problem_id}: {e}") from e
 
     save_result(problem_id, result, task=task, experiment=experiment)
@@ -209,14 +190,7 @@ def _run_one(
 # ── 執行緒安全進度追蹤器 ───────────────────────────────────────────────────────
 
 class _Progress:
-    """
-    執行緒安全的進度追蹤器（不依賴 tqdm）。
-
-    每次 update() 都在持有 lock 的情況下列印一行進度，
-    因此多個 worker 的輸出行不會交錯。
-    """
-
-    def __init__(self, total: int, experiment: str, task: str):
+    def __init__(self, total: int, experiment: str, task: Task):
         self._lock   = threading.Lock()
         self.total   = total
         self.done    = 0
@@ -226,8 +200,7 @@ class _Progress:
         self.errors  = 0
         self._start  = time.monotonic()
         self.exp     = experiment
-        self.task    = task
-        # 記錄每個 attempt 上的成功數（供最終摘要顯示）
+        self.task    = task.name
         self.pass_at: dict[int, int] = {1: 0, 2: 0, 3: 0}
 
     def update(
@@ -274,7 +247,6 @@ class _Progress:
             print(line, flush=True)
 
     def finish(self):
-        """列印最終摘要統計。"""
         with self._lock:
             elapsed   = time.monotonic() - self._start
             pass_rate = self.passed / self.total * 100 if self.total > 0 else 0
@@ -284,19 +256,14 @@ class _Progress:
             print(f"{BOLD}  {self.exp}  ×  {self.task}{R}")
             print(sep)
             print(f"  Total   : {self.total}")
-            print(
-                f"  {GREEN}{BOLD}Passed  : {self.passed}  "
-                f"({pass_rate:.1f}%){R}"
-            )
+            print(f"  {GREEN}{BOLD}Passed  : {self.passed}  ({pass_rate:.1f}%){R}")
             print(f"  {RED}Failed  : {self.failed}{R}")
             if self.skipped:
                 print(f"  Skipped : {self.skipped}  (--resume)")
             if self.errors:
-                print(f"  {YELLOW}Errors  : {self.errors}  "
-                      f"(will retry on next run){R}")
+                print(f"  {YELLOW}Errors  : {self.errors}  (will retry on next run){R}")
             print(f"  Time    : {elapsed:.0f}s")
 
-            # 成功題目的 attempt 分佈（僅限有成功題目時顯示）
             if self.passed > 0 and any(self.pass_at.values()):
                 print(f"\n  Pass by attempt:")
                 for n in sorted(self.pass_at):
@@ -304,10 +271,7 @@ class _Progress:
                     if cnt:
                         bar_len  = int(cnt / self.passed * 20)
                         bar_fill = "█" * bar_len
-                        print(
-                            f"    attempt {n}: {cnt:>3}  "
-                            f"{GREEN}{bar_fill}{R}"
-                        )
+                        print(f"    attempt {n}: {cnt:>3}  {GREEN}{bar_fill}{R}")
 
             print(sep + "\n")
 
@@ -316,7 +280,7 @@ class _Progress:
 
 def run_batch(
     experiment: str,
-    task: str,
+    task: Task,
     model: str = DEFAULT_MODEL,
     resume: bool = True,
     workers: int = 1,
@@ -325,27 +289,13 @@ def run_batch(
 ) -> None:
     """
     對指定 experiment × task 批次執行所有 156 題。
-
-    Args:
-        experiment: "agent" | "baseline_a" | "baseline_b"
-        task:       "spec-to-rtl" | "code-complete-iccad2023"
-        model:      Gemini model name
-        resume:     True 表示跳過已有 result.json 的題目（斷點續跑）
-        workers:    ThreadPoolExecutor 的 max_workers
-                    使用 rpm 限速時建議保持 1（API 呼叫已序列化）
-        rpm:        全域 API 速率上限（requests/min）；0 表示不限速
-        dry_run:    True 表示只列出待執行題目，不呼叫 API
     """
     if experiment not in VALID_EXPS:
         print(f"{RED}未知 experiment: {experiment!r}{R}")
         sys.exit(1)
-    if task not in VALID_TASKS:
-        print(f"{RED}未知 task: {task!r}{R}")
-        sys.exit(1)
 
-    # ── 設定全域速率限制器（在任何 API 呼叫發生前設定）────────────────────
-    if rpm > 0:
-        configure_rate_limit(rpm)
+    # 建立速率限制器（單一實例，所有 worker 共用）
+    rate_limiter = RateLimiter(rpm) if rpm > 0 else None
 
     problems = list_problems(task)
     total    = len(problems)
@@ -353,7 +303,7 @@ def run_batch(
     rpm_str = f"{rpm} RPM  ({60/rpm:.1f}s/call)" if rpm > 0 else "unlimited"
     print(f"\n{'=' * 60}")
     print(f"  Experiment : {YELLOW}{BOLD}{experiment}{R}")
-    print(f"  Task       : {CYAN}{task}{R}")
+    print(f"  Task       : {CYAN}{task.name}{R}")
     print(f"  Model      : {model}")
     print(f"  Problems   : {total}")
     print(f"  Workers    : {workers}")
@@ -362,7 +312,6 @@ def run_batch(
     print(f"  Dry run    : {dry_run}")
     print(f"{'=' * 60}\n")
 
-    # ── Dry run：只列出待執行題目 ──────────────────────────────────────────
     if dry_run:
         will_run = [
             pid for pid in problems
@@ -376,7 +325,6 @@ def run_batch(
             print(f"\n  ({skipped} 題已有 result.json，--resume 時跳過)")
         return
 
-    # ── 預先讀取所有題目描述（在主執行緒批次讀取，避免 worker 間競態）──────
     print("讀取題目描述 ...", end="", flush=True)
     desc_map: dict[str, str] = {}
     missing: list[str] = []
@@ -391,10 +339,8 @@ def run_batch(
             print(f"  {pid}")
     print(f" {len(desc_map)} 題已載入")
 
-    # ── 進度追蹤器 ────────────────────────────────────────────────────────
     progress = _Progress(total, experiment, task)
 
-    # ── 先把 resume 可跳過的題目計入進度（讓百分比從一開始就正確）─────────
     skip_set: set[str] = set()
     for pid in problems:
         if pid not in desc_map:
@@ -403,7 +349,6 @@ def run_batch(
             skip_set.add(pid)
             progress.update(None, was_skipped=True, problem_id=pid)
 
-    # ── ThreadPoolExecutor 並行執行 ────────────────────────────────────────
     pending = [pid for pid in problems
                if pid in desc_map and pid not in skip_set]
 
@@ -411,7 +356,7 @@ def run_batch(
         futures = {
             pool.submit(
                 _run_one,
-                experiment, pid, desc_map[pid], task, model, resume,
+                experiment, pid, desc_map[pid], task, model, resume, rate_limiter,
             ): pid
             for pid in pending
         }
@@ -422,7 +367,6 @@ def run_batch(
                 result, was_skipped = future.result()
                 progress.update(result, was_skipped, pid)
             except Exception as e:
-                # _run_one 拋出例外（API 失敗等）→ 不儲存結果，下次可重試
                 progress.update(None, False, pid, error_msg=str(e))
 
     progress.finish()
@@ -436,68 +380,38 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "範例:\n"
-            "  # Free tier：15 RPM 限速，單 worker 跑全天\n"
             "  python evaluate.py --exp agent --task spec-to-rtl --rpm 15\n"
-            "\n"
-            "  # 第二天 resume（自動跳過已完成題目）\n"
-            "  python evaluate.py --exp agent --task spec-to-rtl --rpm 15\n"
-            "\n"
-            "  # 確認還剩幾題\n"
+            "  python evaluate.py --exp baseline_a --task spec-to-rtl -w 4\n"
             "  python evaluate.py --exp agent --task spec-to-rtl --dry-run\n"
-            "\n"
-            "  # 不限速（付費帳號）\n"
-            "  python evaluate.py --exp baseline_a --task spec-to-rtl -w 4"
         ),
     )
 
-    parser.add_argument(
-        "--exp", "-e",
-        required=True,
-        choices=VALID_EXPS,
-        metavar="EXP",
-        help=f"實驗類型：{' | '.join(VALID_EXPS)}",
-    )
-    parser.add_argument(
-        "--task", "-t",
-        required=True,
-        choices=VALID_TASKS,
-        metavar="TASK",
-        help=f"評估任務：{' | '.join(VALID_TASKS)}",
-    )
-    parser.add_argument(
-        "--model", "-m",
-        default=DEFAULT_MODEL,
-        help=f"Gemini model name（預設: {DEFAULT_MODEL}）",
-    )
-    parser.add_argument(
-        "--workers", "-w",
-        type=int,
-        default=1,
-        help="並行 worker 數（使用 --rpm 限速時保持 1 即可；預設: 1）",
-    )
-    parser.add_argument(
-        "--rpm",
-        type=int,
-        default=15,
-        metavar="N",
-        help="每分鐘最多 API 呼叫次數，0 表示不限速（預設: 15）",
-    )
-    parser.add_argument(
-        "--no-resume",
-        action="store_true",
-        help="強制重跑所有題目（忽略已有的 result.json）",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="只列出待執行題目，不實際呼叫 API",
-    )
+    parser.add_argument("--exp", "-e", required=True, choices=VALID_EXPS,
+                        metavar="EXP", help=f"實驗類型：{' | '.join(VALID_EXPS)}")
+    parser.add_argument("--task", "-t", required=True,
+                        metavar="TASK", help="評估任務：spec-to-rtl | code-complete-iccad2023")
+    parser.add_argument("--model", "-m", default=DEFAULT_MODEL,
+                        help=f"Gemini model name（預設: {DEFAULT_MODEL}）")
+    parser.add_argument("--workers", "-w", type=int, default=1,
+                        help="並行 worker 數（預設: 1）")
+    parser.add_argument("--rpm", type=int, default=15, metavar="N",
+                        help="每分鐘最多 API 呼叫次數，0 表示不限速（預設: 15）")
+    parser.add_argument("--no-resume", action="store_true",
+                        help="強制重跑所有題目（忽略已有的 result.json）")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="只列出待執行題目，不實際呼叫 API")
 
     args = parser.parse_args()
 
+    try:
+        task = get_task(args.task)
+    except ValueError as e:
+        print(f"{RED}{e}{R}")
+        sys.exit(1)
+
     run_batch(
         experiment=args.exp,
-        task=args.task,
+        task=task,
         model=args.model,
         resume=not args.no_resume,
         workers=args.workers,

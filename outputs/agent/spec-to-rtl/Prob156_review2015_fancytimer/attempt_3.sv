@@ -8,74 +8,72 @@ module TopModule (
     input logic ack
 );
 
-    typedef enum logic [1:0] {
-        S_SEARCH,
-        S_READ_DELAY,
-        S_COUNTING,
-        S_DONE
-    } state_t;
-
-    state_t state;
+    localparam SEARCH = 0, LOAD = 1, COUNT = 2, DONE_STATE = 3;
+    logic [1:0] state, next_state;
     logic [3:0] shift_reg;
+    logic [2:0] bit_counter;
     logic [3:0] delay_val;
-    logic [2:0] bit_cnt;
-    logic [9:0] cycle_cnt;
+    logic [9:0] clk_counter;
     logic [3:0] current_count;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
-            state <= S_SEARCH;
-            shift_reg <= 4'b0000;
-            delay_val <= 4'b0000;
-            bit_cnt <= 0;
-            cycle_cnt <= 999;
+            state <= SEARCH;
+            shift_reg <= 0;
+            bit_counter <= 0;
+            delay_val <= 0;
+            clk_counter <= 0;
             current_count <= 0;
-            counting <= 0;
-            done <= 0;
         end else begin
+            state <= next_state;
+
             case (state)
-                S_SEARCH: begin
+                SEARCH: begin
                     shift_reg <= {shift_reg[2:0], data};
-                    if (shift_reg[2:0] == 3'b110 && data == 1'b1) begin
-                        state <= S_READ_DELAY;
-                        bit_cnt <= 0;
-                        delay_val <= 0;
-                    end
                 end
-                S_READ_DELAY: begin
-                    delay_val <= {delay_val[2:0], data};
-                    bit_cnt <= bit_cnt + 1;
-                    if (bit_cnt == 3) begin
-                        state <= S_COUNTING;
-                        current_count <= {delay_val[2:0], data};
-                        cycle_cnt <= 999;
-                        counting <= 1;
-                    end
+                LOAD: begin
+                    shift_reg <= {shift_reg[2:0], data};
+                    bit_counter <= bit_counter + 1;
+                    if (bit_counter == 2) delay_val <= {shift_reg[2:0], data};
                 end
-                S_COUNTING: begin
-                    if (cycle_cnt > 0) begin
-                        cycle_cnt <= cycle_cnt - 1;
+                COUNT: begin
+                    if (clk_counter == 10'd999) begin
+                        clk_counter <= 0;
+                        if (current_count > 0) current_count <= current_count - 1;
                     end else begin
-                        if (current_count > 0) begin
-                            current_count <= current_count - 1;
-                            cycle_cnt <= 999;
-                        end else begin
-                            state <= S_DONE;
-                            counting <= 0;
-                            done <= 1;
-                        end
-                    end
-                end
-                S_DONE: begin
-                    if (ack) begin
-                        state <= S_SEARCH;
-                        done <= 0;
-                        shift_reg <= 0;
+                        clk_counter <= clk_counter + 1;
                     end
                 end
             endcase
         end
     end
-    assign count = (state == S_COUNTING) ? current_count : 4'b0;
 
+    always @(*) begin
+        next_state = state;
+        counting = 0;
+        done = 0;
+        count = current_count;
+
+        case (state)
+            SEARCH: begin
+                if (shift_reg == 4'b1101) next_state = LOAD;
+            end
+            LOAD: begin
+                if (bit_counter == 3) next_state = COUNT;
+            end
+            COUNT: begin
+                counting = 1;
+                if (clk_counter == 10'd999 && current_count == 0) next_state = DONE_STATE;
+            end
+            DONE_STATE: begin
+                done = 1;
+                if (ack) next_state = SEARCH;
+            end
+        endcase
+    end
+
+    always_ff @(posedge clk) begin
+        if (reset) current_count <= 0;
+        else if (state == LOAD && bit_counter == 3) current_count <= {shift_reg[2:0], data};
+    end
 endmodule

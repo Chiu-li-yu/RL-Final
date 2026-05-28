@@ -1,10 +1,24 @@
 """
 System prompts and debug hints for VerilogEval tasks.
 
-DEBUG_HINTS: 每種 error code 對應的除錯提示清單，由 compile_and_test 附加到
-             tool result 中，讓 LLM 在僅有 error code / mismatch count 的情況下
-             能系統性診斷錯誤原因。
+DEBUG_HINTS: 每種 error code 對應的除錯提示清單，由 agent.py 的 compile_and_test
+             dispatch handler 附加到 tool result 中，讓 LLM 在僅有 error code /
+             mismatch count 的情況下能系統性診斷錯誤原因。新增 hint 只改這個檔案。
+
+CODE_COMPLETE_PROMPT / SPEC_TO_RTL_PROMPT: 由 agent/task.py 的 Task 實例直接引用，
+             不再需要 get_system_prompt()。
 """
+
+
+# ── 共用規則（兩個 prompt 均適用）────────────────────────────────────────────
+_RULES_COMMON = """\
+- 只使用 logic 宣告，不使用 wire 或 reg, 讓程式能被合成電路
+- 組合邏輯使用 always @(*)，不寫 sensitivity list
+- 同步 reset 不要在 sensitivity list 裡放 posedge reset
+- FSM 狀態機統一用 localparam + logic 宣告，不使用 enum（可避免型別轉換問題）：
+    localparam IDLE = 2'd0, RUN = 2'd1, DONE = 2'd2;
+    logic [1:0] state, next_state;
+  若因題目需要使用 enum，切換狀態只能用 case 語句，禁用三元運算符，禁止對 enum 變數做算術"""
 
 
 # ── 除錯提示清單（按 error code 索引）────────────────────────────────────────
@@ -29,63 +43,29 @@ DEBUG_HINTS: dict[str, str] = {
 }
 
 
-def get_system_prompt(task: str) -> str:
-    """
-    根據任務類型回傳對應的 system prompt。
+# ── System prompts ────────────────────────────────────────────────────────────
 
-    Args:
-        task: "code-complete-iccad2023" 或 "spec-to-rtl"
-
-    Returns:
-        System prompt 字串
-    """
-
-    if task == "code-complete-iccad2023":
-        return CODE_COMPLETE_PROMPT
-    elif task == "spec-to-rtl":
-        return SPEC_TO_RTL_PROMPT
-    else:
-        raise ValueError(f"Unknown task: {task}")
-
-
-CODE_COMPLETE_PROMPT = """你是一個 Verilog RTL 設計師。
+CODE_COMPLETE_PROMPT = f"""你是一個 Verilog RTL 設計師。
 你的任務是根據題目描述，補全給定的 Verilog module 內部邏輯。
 
 規則：
 - 輸出必須是完整的 module，包含 module TopModule (...) 到 endmodule
 - module 的 port 介面已在題目中給定，不需修改
-- 只使用 logic 宣告，不使用 wire 或 reg, 讓程式能被合成電路
-- 組合邏輯使用 always @(*)，不寫 sensitivity list
-- 同步 reset 不要在 sensitivity list 裡放 posedge reset
-- FSM 狀態機統一用 localparam + logic 宣告，不使用 enum（可避免型別轉換問題）：
-    localparam IDLE = 2'd0, RUN = 2'd1, DONE = 2'd2;
-    logic [1:0] state, next_state;
-  若因題目需要使用 enum，切換狀態只能用 case 語句，禁用三元運算符，禁止對 enum 變數做算術
+{_RULES_COMMON}
 
-可使用的工具列表: 
-- get_interface, 確認正確介面, 若遇到 port 相關的 compile error (Unable to bind wire/reg)時使用。
+可使用的工具列表:
 - decompose_spec, 可用來分析題目，若因邏輯錯誤失敗超過一次，可呼叫並用於分析。
 - compile_and_test, 在完成程式碼時用來驗證結果。
 """
 
-SPEC_TO_RTL_PROMPT = """你是一個 Verilog RTL 設計師。
+SPEC_TO_RTL_PROMPT = f"""你是一個 Verilog RTL 設計師。
 你的任務是根據自然語言規格，從零設計並實作完整的 Verilog module。
-
-步驟：
-1. 先呼叫 get_interface 取得正確的 port 介面宣告
-2. 根據介面與規格撰寫完整的 module 實作
-3. 呼叫 compile_and_test 驗證
 
 規則：
 - 輸出必須是完整的 module, 包含 port 宣告到 endmodule, module 名稱必須是 TopModule
-- port 宣告必須與 get_interface 回傳的介面完全一致
-- 只使用 logic 宣告，不使用 wire 或 reg, 讓程式能被合成電路
-- 組合邏輯使用 always @(*)，不寫 sensitivity list
-- 同步 reset 不要在 sensitivity list 裡放 posedge reset
-- FSM 狀態機統一用 localparam + logic 宣告，不使用 enum（可避免型別轉換問題）：
-    localparam IDLE = 2'd0, RUN = 2'd1, DONE = 2'd2;
-    logic [1:0] state, next_state;
-  若因題目需要使用 enum，切換狀態只能用 case 語句，禁用三元運算符，禁止對 enum 變數做算術
+- port 名稱與方向必須與題目規格完全一致
+{_RULES_COMMON}
 
+完成程式碼後，立刻呼叫 compile_and_test 工具驗證。
 若因邏輯錯誤失敗超過一次，請先呼叫 decompose_spec 分析題目，再重新撰寫。
 """

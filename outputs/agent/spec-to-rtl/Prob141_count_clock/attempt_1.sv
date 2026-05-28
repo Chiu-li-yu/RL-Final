@@ -1,64 +1,55 @@
 module TopModule (
-    input logic clk,
-    input logic reset,
-    input logic ena,
+    input clk,
+    input reset,
+    input ena,
     output logic pm,
     output logic [7:0] hh,
     output logic [7:0] mm,
     output logic [7:0] ss
 );
 
-    logic [3:0] ss_ones, ss_tens;
-    logic [3:0] mm_ones, mm_tens;
-    logic [3:0] hh_ones, hh_tens;
-    logic pm_reg;
+    logic [7:0] s_ss, s_mm, s_hh;
+    logic s_pm;
 
-    assign ss = {ss_tens, ss_ones};
-    assign mm = {mm_tens, mm_ones};
-    assign hh = {hh_tens, hh_ones};
-    assign pm = pm_reg;
-
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (reset) begin
-            ss_ones <= 4'd0; ss_tens <= 4'd0;
-            mm_ones <= 4'd0; mm_tens <= 4'd0;
-            hh_ones <= 4'd2; hh_tens <= 4'd1;
-            pm_reg <= 1'b0;
+            s_ss <= 8'h00;
+            s_mm <= 8'h00;
+            s_hh <= 8'h12;
+            s_pm <= 1'b0; // AM
         end else if (ena) begin
             // Seconds
-            if (ss_ones == 4'd9) begin
-                ss_ones <= 4'd0;
-                if (ss_tens == 4'd5) begin
-                    ss_tens <= 4'd0;
-                    // Minutes
-                    if (mm_ones == 4'd9) begin
-                        mm_ones <= 4'd0;
-                        if (mm_tens == 4'd5) begin
-                            mm_tens <= 4'd0;
-                            // Hours
-                            if (hh_ones == 4'd2 && hh_tens == 4'd1) begin
-                                hh_ones <= 4'd1; hh_tens <= 4'd0;
-                            end else if (hh_ones == 4'd9) begin
-                                hh_ones <= 4'd0; hh_tens <= hh_tens + 1'b1;
-                            end else begin
-                                hh_ones <= hh_ones + 1'b1;
-                            end
-                            
-                            if (hh_ones == 4'd1 && hh_tens == 4'd1) begin
-                                pm_reg <= ~pm_reg;
-                            end
-                        end else begin
-                            mm_tens <= mm_tens + 1'b1;
-                        end
-                    end else begin
-                        mm_ones <= mm_ones + 1'b1;
-                    end
+            if (s_ss == 8'h59) begin
+                s_ss <= 8'h00;
+                // Minutes
+                if (s_mm == 8'h59) begin
+                    s_mm <= 8'h00;
+                    // Hours
+                    if (s_hh == 8'h12) s_hh <= 8'h01;
+                    else if (s_hh == 8'h09) s_hh <= 8'h10;
+                    else s_hh <= s_hh + 8'h01;
+                    
+                    if (s_hh == 8'h11) s_pm <= ~s_pm;
                 end else begin
-                    ss_tens <= ss_tens + 1'b1;
+                    if (s_mm[3:0] == 4'd9) begin
+                        s_mm <= {s_mm[7:4] + 1'b1, 4'd0};
+                    end else begin
+                        s_mm <= s_mm + 8'h01;
+                    end
                 end
             end else begin
-                ss_ones <= ss_ones + 1'b1;
+                if (s_ss[3:0] == 4'd9) begin
+                    s_ss <= {s_ss[7:4] + 1'b1, 4'd0};
+                end else begin
+                    s_ss <= s_ss + 8'h01;
+                end
             end
         end
     end
+
+    assign ss = s_ss;
+    assign mm = s_mm;
+    assign hh = s_hh;
+    assign pm = s_pm;
+
 endmodule

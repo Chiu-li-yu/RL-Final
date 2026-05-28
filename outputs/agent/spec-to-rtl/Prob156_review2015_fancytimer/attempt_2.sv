@@ -8,79 +8,83 @@ module TopModule (
     input logic ack
 );
 
-    typedef enum logic [2:0] {
-        S_SEARCH,
-        S_READ_DELAY,
-        S_COUNTING,
-        S_DONE
-    } state_t;
-
-    state_t state, next_state;
+    localparam SEARCH = 0, LOAD = 1, COUNT = 2, DONE_STATE = 3;
+    logic [1:0] state, next_state;
     logic [3:0] shift_reg;
+    logic [2:0] bit_counter;
     logic [3:0] delay_val;
-    logic [2:0] bit_cnt;
-    logic [9:0] cycle_cnt;
+    logic [10:0] clk_counter;
     logic [3:0] current_count;
 
-    always @(*) begin
-        next_state = state;
-        case (state)
-            S_SEARCH: begin
-                if (shift_reg == 4'b1101) next_state = S_READ_DELAY;
-            end
-            S_READ_DELAY: begin
-                if (bit_cnt == 4) next_state = S_COUNTING;
-            end
-            S_COUNTING: begin
-                if (current_count == 0 && cycle_cnt == 0) next_state = S_DONE;
-            end
-            S_DONE: begin
-                if (ack) next_state = S_SEARCH;
-            end
-        endcase
-    end
-
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
-            state <= S_SEARCH;
-            shift_reg <= 4'b0000;
-            delay_val <= 4'b0000;
-            bit_cnt <= 0;
-            cycle_cnt <= 999;
+            state <= SEARCH;
+            shift_reg <= 0;
+            bit_counter <= 0;
+            delay_val <= 0;
+            clk_counter <= 0;
             current_count <= 0;
         end else begin
             state <= next_state;
+
             case (state)
-                S_SEARCH: begin
+                SEARCH: begin
                     shift_reg <= {shift_reg[2:0], data};
                 end
-                S_READ_DELAY: begin
-                    if (bit_cnt < 4) begin
-                        delay_val <= {delay_val[2:0], data};
-                        bit_cnt <= bit_cnt + 1;
+                LOAD: begin
+                    shift_reg <= {shift_reg[2:0], data};
+                    bit_counter <= bit_counter + 1;
+                    if (bit_counter == 3) delay_val <= {shift_reg[2:0], data};
+                end
+                COUNT: begin
+                    if (clk_counter == 999) begin
+                        clk_counter <= 0;
+                        if (current_count > 0) current_count <= current_count - 1;
                     end else begin
-                        current_count <= delay_val;
-                        cycle_cnt <= 999;
+                        clk_counter <= clk_counter + 1;
                     end
                 end
-                S_COUNTING: begin
-                    if (cycle_cnt > 0) begin
-                        cycle_cnt <= cycle_cnt - 1;
-                    end else begin
-                        cycle_cnt <= 999;
-                        current_count <= current_count - 1;
-                    end
-                end
-                S_DONE: begin
-                    shift_reg <= 4'b0000;
-                    bit_cnt <= 0;
+                DONE_STATE: begin
+                    // Remain
                 end
             endcase
         end
     end
 
-    assign counting = (state == S_COUNTING);
-    assign done = (state == S_DONE);
-    assign count = (state == S_COUNTING) ? current_count : 4'b0;
+    always @(*) begin
+        next_state = state;
+        counting = 0;
+        done = 0;
+        count = current_count;
+
+        case (state)
+            SEARCH: begin
+                if (shift_reg == 4'b1101) next_state = LOAD;
+            end
+            LOAD: begin
+                if (bit_counter == 3) begin
+                    next_state = COUNT;
+                end
+            end
+            COUNT: begin
+                counting = 1;
+                if (clk_counter == 999 && current_count == 0) begin
+                    next_state = DONE_STATE;
+                end
+            end
+            DONE_STATE: begin
+                done = 1;
+                if (ack) next_state = SEARCH;
+            end
+        endcase
+    end
+
+    // Initialize current_count when moving to COUNT state
+    // Use an assignment that doesn't conflict with FSM or always_ff
+    // Simplified: Just use a separate always_ff to handle current_count load
+    always_ff @(posedge clk) begin
+        if (reset) current_count <= 0;
+        else if (state == LOAD && bit_counter == 3) current_count <= {shift_reg[2:0], data};
+    end
 
 endmodule

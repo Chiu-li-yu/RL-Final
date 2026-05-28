@@ -7,10 +7,9 @@
   - 每次 compile_and_test 後提供人工介入點
   - 儲存邏輯委派給 agent.dataset
 
-關係：
-  run.py  ──uses──>  agent.agent.run_agent()    (Agent 邏輯)
-  run.py  ──uses──>  agent.dataset.save_code()  (儲存委派)
-  run.py  ──uses──>  agent.dataset.load_problem() (題目讀取)
+Callback 分工：
+  on_save(attempt, code)               — 儲存程式碼（純 I/O，無回傳值）
+  on_checkpoint(attempt, result, code) — 顯示結果 + 人工互動（回傳 bool 控制流程）
 
 Usage:
     python run.py                                      # REPL 模式
@@ -24,10 +23,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from agent.agent import run_agent
+from agent.task import get_task, Task
 from agent.dataset import load_problem, save_code, save_result
 
 # ── ANSI 色碼 ─────────────────────────────────────────────────────────────────
-R     = "\033[0m"       # Reset
+R     = "\033[0m"
 BOLD  = "\033[1m"
 CYAN  = "\033[36m"
 YELLOW= "\033[33m"
@@ -58,12 +58,10 @@ def section(text: str):
 # ── Callbacks（純顯示層，不碰 I/O）───────────────────────────────────────────
 
 def _on_thinking(text: str):
-    """Gemini 的思考文字（工具呼叫前的說明，或回應純文字）。"""
     _print(f"\n{GRAY}{text}{R}")
 
 
 def _on_tool_call(name: str, args: dict, attempt: int):
-    """工具即將被呼叫。"""
     if name == "compile_and_test":
         code = args.get("verilog_code", "")
         lines = code.splitlines()
@@ -82,50 +80,40 @@ def _on_tool_call(name: str, args: dict, attempt: int):
         _print(f"\n{YELLOW}🔍  decompose_spec{R}")
         _print(f"{GRAY}{desc[:200]}…{R}")
 
-    elif name == "get_interface":
-        _print(f"\n{YELLOW}🔌  get_interface{R}")
-
-
 def _on_tool_result(name: str, result: dict, attempt: int):
-    """工具執行完畢（顯示結果摘要）。"""
     if name == "decompose_spec":
         sub_goals = result.get("sub_goals", "")
         _print(f"{GRAY}{sub_goals[:400]}{R}")
 
-    elif name == "get_interface":
-        err = result.get("error", "")
-        if err:
-            _print(f"{RED}  介面查詢失敗：{err}{R}")
-        else:
-            ifc = result.get("interface", "")
-            _print(f"{GRAY}{ifc}{R}")
+
+# ── on_save：儲存程式碼（純 I/O，無互動）────────────────────────────────────
+
+def _make_on_save(problem_id: str, task: Task):
+    def on_save(attempt: int, code: str) -> None:
+        out_file = save_code(problem_id, attempt, code, task=task, experiment="agent")
+        _print(f"{GRAY}💾  saved → {out_file}{R}")
+    return on_save
 
 
-def _make_checkpoint(problem_id: str, task: str, max_attempts: int):
+# ── on_checkpoint：顯示結果 + 人工介入（控制流）────────────────────────────
+
+def _make_checkpoint(problem_id: str, task: Task, max_attempts: int):
     """
-    建立 on_checkpoint callback（closure 帶入 problem_id, task）。
-    每次 compile_and_test 完成後呼叫；回傳 False 表示使用者要求中止。
-
-    儲存邏輯委派給 agent.dataset，此函式只負責顯示與互動。
+    回傳 on_checkpoint closure。
+    儲存邏輯已移至 on_save，這裡只負責顯示結果與人工互動。
     """
     def on_checkpoint(attempt: int, result: dict, code: str) -> bool:
 
-        # ── 儲存程式碼（委派給 dataset） ──────────────────────────────────
-        out_file = save_code(problem_id, attempt, code,
-                             task=task, experiment="agent")
-        _print(f"{GRAY}💾  saved → {out_file}{R}")
-
-        # ── 顯示結果 ───────────────────────────────────────────────────────
+        # ── 顯示結果 ───────────────────────────────────────────────────────────
         if result["passed"]:
             _print(f"\n{GREEN}{BOLD}✅  PASS{R}")
-            return True  # 通過後 agent 會自動停止，直接繼續即可
+            return True
 
-        etype = result["error_type"]
-        mc    = result.get("mismatch_count", 0)
+        etype  = result["error_type"]
+        mc     = result.get("mismatch_count", 0)
         mc_str = f"  (mismatches: {mc})" if mc > 0 else ""
         _print(f"\n{RED}❌  {etype}{R}{mc_str}")
 
-        # 顯示前 6 行 error log
         if result.get("error_log"):
             err_lines = result["error_log"].splitlines()
             for line in err_lines[:6]:
@@ -133,13 +121,12 @@ def _make_checkpoint(problem_id: str, task: str, max_attempts: int):
             if len(err_lines) > 6:
                 _print(f"   {GRAY}  … ({len(err_lines) - 6} more lines, 輸入 v 查看全部){R}")
 
-        # 若有 debug_hints（R 類錯誤），顯示診斷提示
         if result.get("debug_hints"):
             _print(f"\n{CYAN}💡  Debug hints:{R}")
             for line in result["debug_hints"].splitlines():
                 _print(f"   {GRAY}{line}{R}")
 
-        # ── 若已到上限，不詢問 ─────────────────────────────────────────────
+        # ── 若已到上限，不詢問 ─────────────────────────────────────────────────
         if attempt >= max_attempts:
             return True
 
@@ -169,33 +156,25 @@ def _make_checkpoint(problem_id: str, task: str, max_attempts: int):
                 _print(f"\n{GRAY}── Generated Code ──{R}")
                 _print(code)
             else:
-                return True  # Enter 或其他輸入 → 繼續
+                return True
 
     return on_checkpoint
 
 
 # ── 單題執行 ──────────────────────────────────────────────────────────────────
 
-def run_problem(problem_id: str, task: str, max_attempts: int = 3):
-    """執行單一題目，含互動式顯示。"""
-
-    # 讀取題目描述（委派給 dataset）
+def run_problem(problem_id: str, task: Task, max_attempts: int = 3):
     try:
         problem_desc = load_problem(problem_id, task)
     except FileNotFoundError:
-        _print(f"{RED}找不到題目描述檔（problem_id={problem_id!r}, task={task!r}）{R}")
+        _print(f"{RED}找不到題目描述檔（problem_id={problem_id!r}, task={task.name!r}）{R}")
         _print("請確認 problem_id 拼法（例如 Prob001_zero）")
         return
 
-    # 顯示題目資訊
-    header(f"🎯  {problem_id}  [{task}]")
+    header(f"🎯  {problem_id}  [{task.name}]")
     _print(problem_desc[:600] + ("…" if len(problem_desc) > 600 else ""))
     _print(DLINE)
 
-    # 建立 callbacks
-    checkpoint = _make_checkpoint(problem_id, task, max_attempts)
-
-    # 執行 agent
     result = run_agent(
         problem_id=problem_id,
         problem_description=problem_desc,
@@ -205,14 +184,13 @@ def run_problem(problem_id: str, task: str, max_attempts: int = 3):
         on_thinking=_on_thinking,
         on_tool_call=_on_tool_call,
         on_tool_result=_on_tool_result,
-        on_checkpoint=checkpoint,
+        on_save=_make_on_save(problem_id, task),
+        on_checkpoint=_make_checkpoint(problem_id, task, max_attempts),
     )
 
-    # 儲存結果 JSON（委派給 dataset）
     save_result(problem_id, result, task=task, experiment="agent")
 
-    # 最終摘要
-    out_prefix = f"outputs/agent/{task}/{problem_id}"
+    out_prefix = f"outputs/agent/{task.name}/{problem_id}"
     _print(f"\n{DLINE}")
     if result["passed"]:
         _print(f"{GREEN}{BOLD}🎉  完成！  共 {result['attempts']} 次嘗試{R}")
@@ -247,10 +225,12 @@ def repl():
 
         parts = line.split()
         problem_id = parts[0]
-        task = parts[1] if len(parts) > 1 else "spec-to-rtl"
+        task_name  = parts[1] if len(parts) > 1 else "spec-to-rtl"
 
-        if task not in ("spec-to-rtl", "code-complete-iccad2023"):
-            _print(f"{RED}未知 task：{task!r}{R}")
+        try:
+            task = get_task(task_name)
+        except ValueError as e:
+            _print(f"{RED}{e}{R}")
             continue
 
         run_problem(problem_id, task)
@@ -264,9 +244,17 @@ if __name__ == "__main__":
     if len(args) == 0:
         repl()
     elif len(args) == 1:
-        run_problem(args[0], task="spec-to-rtl")
+        try:
+            task = get_task("spec-to-rtl")
+        except ValueError as e:
+            print(e); sys.exit(1)
+        run_problem(args[0], task)
     elif len(args) == 2:
-        run_problem(args[0], task=args[1])
+        try:
+            task = get_task(args[1])
+        except ValueError as e:
+            print(e); sys.exit(1)
+        run_problem(args[0], task)
     else:
-        print(f"Usage: python run.py [problem_id] [task]")
+        print("Usage: python run.py [problem_id] [task]")
         sys.exit(1)
