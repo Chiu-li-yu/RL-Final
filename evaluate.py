@@ -203,6 +203,7 @@ class _Progress:
         self.task    = task.name
         self.pass_at: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
         self.total_attempts = 0  # 累計所有通過題目的嘗試次數
+        self.error_count: dict[str, int] = {}  # 錯誤類型計數
 
     def update(
         self,
@@ -218,6 +219,16 @@ class _Progress:
                 self.skipped += 1
                 attempts = result.get("attempts", 0) if result else 0
                 status = f"{GRAY}skip {attempts}{R}" if attempts else f"{GRAY}skip{R}"
+                # skip 的題目根據歷史結果計入對應統計
+                if result:
+                    if result.get("passed"):
+                        self.passed += 1
+                        n = min(attempts, 5) if attempts else 1
+                        self.pass_at[n] = self.pass_at.get(n, 0) + 1
+                        self.total_attempts += attempts if attempts else 1
+                    else:
+                        # 未完全通過（包括 sim_passed 和完全失敗）都計入 failed
+                        self.failed += 1
             elif result is None:
                 self.errors += 1
                 status = f"{RED}err {R}"
@@ -236,6 +247,17 @@ class _Progress:
                 self.failed += 1
                 etype = result.get("sim_error_type") or result.get("error_type", "?")
                 status = f"{RED}FAIL[{etype}]{R}"
+
+            # 統計錯誤類型（跳過 . 和 Y，只計失敗的錯誤）
+            if result and result is not None:
+                sim_seq = result.get("sim_error_sequence", [])
+                synth_seq = result.get("synth_error_sequence", [])
+                for err in sim_seq:
+                    if err and err != ".":  # 跳過 pass 和 None
+                        self.error_count[err] = self.error_count.get(err, 0) + 1
+                for err in synth_seq:
+                    if err and err != "Y":  # 跳過 synth pass 和 None
+                        self.error_count[err] = self.error_count.get(err, 0) + 1
 
             elapsed = time.monotonic() - self._start
             rate    = self.done / elapsed if elapsed > 0 else 0
@@ -282,6 +304,13 @@ class _Progress:
                         bar_len  = int(cnt / self.passed * 20)
                         bar_fill = "█" * bar_len
                         print(f"    attempt {n}: {cnt:>3}  {GREEN}{bar_fill}{R}")
+
+            if self.error_count:
+                print(f"\n  Error Distribution:")
+                # 按頻率降序排序
+                sorted_errors = sorted(self.error_count.items(), key=lambda x: x[1], reverse=True)
+                for err_type, cnt in sorted_errors:
+                    print(f"    {err_type}: {cnt:>3} times")
 
             print(sep + "\n")
 

@@ -83,6 +83,10 @@ class Episode:
     # 歷史最佳結果（sim+synth > sim-only > none）
     _best: dict = field(default_factory=dict)
 
+    # 錯誤序列記錄（追蹤每次嘗試的錯誤）
+    _sim_error_sequence:   list[str] = field(default_factory=list)
+    _synth_error_sequence: list[str] = field(default_factory=list)
+
     # ── 分數計算（用於比較哪個 attempt 結果更好）─────────────────────────────
     @staticmethod
     def _score(d: dict) -> int:
@@ -97,11 +101,19 @@ class Episode:
         self._sim_result   = result
         self._synth_result = {}       # 新的模擬 → 重置合成狀態
         self.final_code    = code
+        # 記錄錯誤序列
+        sim_error = result.get("error_type", "?")
+        self._sim_error_sequence.append(sim_error)
+        self._synth_error_sequence.append(None)  # synth 還沒做
         self._maybe_update_best()
 
     # ── 記錄本次 attempt 的合成結果 ──────────────────────────────────────────
     def record_synth(self, result: dict) -> None:
         self._synth_result = result
+        # 更新最後一次 attempt 的 synth 錯誤
+        if self._synth_error_sequence:
+            synth_error = result.get("error_type", "?")
+            self._synth_error_sequence[-1] = synth_error
         self._maybe_update_best()
 
     # ── 更新最佳結果 ─────────────────────────────────────────────────────────
@@ -124,6 +136,8 @@ class Episode:
             "sim_error_log":   self._sim_result.get("error_log", ""),
             "synth_error_type": self._synth_result.get("error_type", ""),
             "synth_error_log": self._synth_result.get("error_log", ""),
+            "sim_error_sequence": self._sim_error_sequence,
+            "synth_error_sequence": self._synth_error_sequence,
         }
 
     # ── 便利查詢 ─────────────────────────────────────────────────────────────

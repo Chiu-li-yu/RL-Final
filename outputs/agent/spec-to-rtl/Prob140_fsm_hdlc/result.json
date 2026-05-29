@@ -1,0 +1,13 @@
+{
+  "problem_id": "Prob140_fsm_hdlc",
+  "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
+  "attempts": 1,
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
+  "synth_error_log": "",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

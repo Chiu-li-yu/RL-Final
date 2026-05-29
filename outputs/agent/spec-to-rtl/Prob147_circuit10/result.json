@@ -1,0 +1,13 @@
+{
+  "problem_id": "Prob147_circuit10",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob147_circuit10_test.sv:50: $finish called at 1160 (1ps)\nHint: Output 'q' has 229 mismatches. First mismatch occurred at time 20.\nHint: Output 'state' has 229 mismatches. First mismatch occurred at time 20.\nHint: Total mismatched samples is 229 out of 232 samples\n\nSimulation finished at 1160 ps\nMismatches: 229 in 232 samples",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

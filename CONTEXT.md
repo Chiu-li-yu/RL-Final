@@ -237,17 +237,17 @@ ep.to_result()                     # 回傳歷史最佳
 
 ```json
 {
-  "problem_id":       "Prob001_zero",
-  "passed":           true,
-  "sim_passed":       true,
-  "synth_passed":     true,
-  "attempts":         2,
-  "sim_error_type":   ".",
-  "sim_error_log":    "",
+  "problem_id": "Prob001_zero",
+  "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
+  "attempts": 2,
+  "sim_error_type": ".",
+  "sim_error_log": "",
   "synth_error_type": "Y",
-  "synth_error_log":  "",
-  "task":             "spec-to-rtl",
-  "experiment":       "agent"
+  "synth_error_log": "",
+  "task": "spec-to-rtl",
+  "experiment": "agent"
 }
 ```
 
@@ -258,6 +258,7 @@ ep.to_result()                     # 回傳歷史最佳
 部分 VerilogEval 題目的 ref.sv 使用 `initial` 設定上電初始值，這在 FPGA 合成中合法，但 yosys generic `synth` 不支援，會對正確答案誤判為合成失敗。
 
 掃描全部 156 題 ref.sv 的結果：
+
 - `initial` 出現：Prob031、034、053、104
 - tri-state / `inout` / `readmemh` / `real` / `time`：無
 
@@ -333,6 +334,7 @@ run_agent(
 ```
 
 `on_checkpoint` 回傳值語意：
+
 - `False`：中止 agent
 - `True`：繼續
 - `str`（非空）：繼續，並將此字串作為獨立 user turn 注入對話——讓使用者可以在失敗後直接補充修改方向給 Gemini
