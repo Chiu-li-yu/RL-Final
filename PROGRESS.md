@@ -87,7 +87,23 @@
 #### 狀態
 
 - [x] Ubuntu WSL 已安裝
+```bash
+#step1: 安裝wsl
+wsl --install
+#step2: 重新開機
+#step3: 安裝Ubuntu
+wsl --install -d Ubuntu
+#step4: 設定username與password（輸入密碼時不顯示為正常情況）
+#step5: 更新套件
+sudo apt update && sudo apt upgrade -y
+#step6: 進入Ubuntu
+wsl
+```
 - [x] iverilog v12.0 (stable) 已安裝並確認版本
+```bash
+sudo apt install -y iverilog #安裝
+iverilog -v #確認版本
+```
 - [x] VerilogEval 第一題驗證通過（Prob001_zero，Mismatches: 0 in 20 samples）
 - [x] Python 虛擬環境建立（使用 **uv**，比 pip 快 10-100x）
 - [x] `google-genai`（新官方 SDK）安裝並驗證 OK
