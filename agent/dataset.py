@@ -33,9 +33,9 @@ _OUTPUT_DIR = _BASE_DIR / "outputs"
 # 因此從實驗資料集中排除，避免合成階段對正確答案誤判為失敗。
 # （Prob031 的正解不需要 initial 也能通過，故保留。）
 _SYNTH_EXCLUDED: frozenset[str] = frozenset({
-    "Prob034_dff8",
-    "Prob053_m2014_q4d",
-    "Prob104_mt2015_muxdff",
+    # "Prob034_dff8",
+    # "Prob053_m2014_q4d",
+    # "Prob104_mt2015_muxdff",
 })
 
 

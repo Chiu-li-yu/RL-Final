@@ -3,3 +3,8 @@ learn-claude-code/
 .venv/
 .env
 __pycache__/
+node_modules/
+unpacked_report/
+package-lock.json
+package.json
+*.js

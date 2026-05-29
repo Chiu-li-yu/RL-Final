@@ -1,18 +1,20 @@
-module TopModule(
-    input clk,
-    input in,
+module TopModule (
+    input logic clk,
+    input logic in,
     output logic out
 );
 
-    logic d_ff_q;
+    logic d_ff_out;
     logic xor_out;
 
-    assign xor_out = in ^ d_ff_q;
-
-    always_ff @(posedge clk) begin
-        d_ff_q <= xor_out;
+    always @(*) begin
+        xor_out = in ^ d_ff_out;
     end
 
-    assign out = d_ff_q;
+    always @(posedge clk) begin
+        d_ff_out <= xor_out;
+    end
+
+    assign out = d_ff_out;
 
 endmodule

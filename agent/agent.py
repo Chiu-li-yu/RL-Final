@@ -293,10 +293,13 @@ def run_agent(
     on_thinking:    Callable[[str], None]            | None = None,
     on_tool_call:   Callable[[str, dict, int], None] | None = None,
     on_tool_result: Callable[[str, dict, int], None] | None = None,
-    on_save:        Callable[[int, str], None]       | None = None,
+    on_save:        Callable[[int, str], None]                | None = None,
     # fn(attempt, code)   compile_and_test 完成後儲存程式碼（不論通過與否）
-    on_checkpoint:  Callable[[int, dict, str], bool] | None = None,
-    # fn(attempt, result, code) -> bool   回傳 False 中止 agent
+    on_checkpoint:  Callable[[int, dict, str], bool | str]   | None = None,
+    # fn(attempt, result, code) -> bool | str
+    #   False        → 中止 agent
+    #   True         → 繼續
+    #   str（非空）  → 繼續，並將此字串作為獨立 user turn 注入對話
 ) -> dict:
     """
     對單一題目執行 Verilog Agent。
@@ -362,6 +365,7 @@ def run_agent(
 
         tool_results = []
         should_stop  = False
+        _user_hint: str | None = None
 
         for fc in fc_list:
             if fc.name == "compile_and_test":
@@ -396,8 +400,11 @@ def run_agent(
 
                 # 控制流 callback（sim 通過時不停止，等待 synthesize）
                 if on_checkpoint:
-                    if not on_checkpoint(ep.attempts, result, verilog_code):
+                    _cr = on_checkpoint(ep.attempts, result, verilog_code)
+                    if _cr is False:
                         should_stop = True
+                    elif isinstance(_cr, str) and _cr.strip():
+                        _user_hint = _cr.strip()
 
                 tool_results.append(types.Part.from_function_response(
                     name="compile_and_test", response=result,
@@ -467,5 +474,10 @@ def run_agent(
             break
 
         response = retry(chat.send_message, tool_results)
+
+        # 使用者補充的修改方向：作為獨立 user turn 注入對話
+        if _user_hint:
+            response = retry(chat.send_message, _user_hint)
+            _user_hint = None
 
     return ep.to_result()

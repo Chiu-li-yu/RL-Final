@@ -1,19 +1,19 @@
-module TopModule(
-    input clk,
-    input in,
+module TopModule (
+    input logic clk,
+    input logic in,
     output logic out
 );
 
-    logic d_ff_q;
+    logic d_ff_out;
 
-    // A D flip-flop takes as input the output of a two-input XOR.
-    // The XOR takes as input 'in' along with the output 'out' of the flip-flop.
-    // D = in ^ out
-
-    always_ff @(posedge clk) begin
-        d_ff_q <= in ^ d_ff_q;
+    initial begin
+        d_ff_out = 1'b0;
     end
 
-    assign out = d_ff_q;
+    always @(posedge clk) begin
+        d_ff_out <= in ^ d_ff_out;
+    end
+
+    assign out = d_ff_out;
 
 endmodule

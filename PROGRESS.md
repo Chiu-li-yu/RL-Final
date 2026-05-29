@@ -87,7 +87,27 @@
 #### 狀態
 
 - [x] Ubuntu WSL 已安裝
+
+```bash
+#step1: 安裝wsl
+wsl --install
+#step2: 重新開機
+#step3: 安裝Ubuntu
+wsl --install -d Ubuntu
+#step4: 設定username與password（輸入密碼時不顯示為正常情況）
+#step5: 更新套件
+sudo apt update && sudo apt upgrade -y
+#step6: 進入Ubuntu
+wsl
+```
+
 - [x] iverilog v12.0 (stable) 已安裝並確認版本
+
+```bash
+sudo apt install -y iverilog #安裝
+iverilog -v #確認版本
+```
+
 - [x] VerilogEval 第一題驗證通過（Prob001_zero，Mismatches: 0 in 20 samples）
 - [x] Python 虛擬環境建立（使用 **uv**，比 pip 快 10-100x）
 - [x] `google-genai`（新官方 SDK）安裝並驗證 OK
@@ -696,6 +716,12 @@ decompose_spec = {
   - 掃描全部 156 題 ref.sv，確認只有 `initial` 會導致 yosys 對正解誤判
   - 排除 Prob034 / Prob053 / Prob104（ref.sv 含 `initial` 且正解需依賴它）
   - 實驗資料集從 156 題縮減為 **153 題**，`list_problems()` 自動過濾
+
+### 5/29
+
+- [x] **`test_tools.py` 修正**：架構重構後 Section 2 整合測試全部 SKIP（`compile_and_test` 簽名從 `task: str` 改為 `dataset_dir: Path`），修正為使用 `SPEC_TO_RTL.dataset_dir`；新增 Section 3 `synthesize()` 測試（含 yosys 未安裝的優雅 SKIP）
+- [x] **`_SYNTH_EXCLUDED` 修正**：確認 yosys 實際上支援 `initial` 暫存器初始值（不報錯），三題 comment 掉，回到 **156 題**；保留 `_SYNTH_EXCLUDED` 機制供未來使用
+- [x] **`run.py` 補充修改方向（`h`）**：互動選單新增 `h` 選項，使用者可在每次失敗後輸入修改方向，注入為 Gemini 對話的獨立 user turn；`agent.py` 的 `on_checkpoint` 回傳型別擴展為 `bool | str`，str 回傳值觸發注入
 
 ### 5/29–5/30
 

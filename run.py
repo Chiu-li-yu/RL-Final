@@ -84,7 +84,7 @@ def _on_tool_call(name: str, args: dict, attempt: int):
         _print(f"{GRAY}{desc[:200]}…{R}")
 
 
-def _on_tool_result(name: str, result: dict, attempt: int):
+def _on_tool_result(name: str, result: dict, _attempt: int):
     if name == "synthesize":
         if result["passed"]:
             _print(f"{GREEN}{BOLD}✅  Synthesis PASS{R}")
@@ -114,7 +114,7 @@ def _make_on_save(problem_id: str, task: Task):
 
 # ── on_checkpoint：顯示結果 + 人工介入（控制流）────────────────────────────
 
-def _make_checkpoint(problem_id: str, task: Task, max_attempts: int):
+def _make_checkpoint(max_attempts: int):
     """
     回傳 on_checkpoint closure。
     儲存邏輯已移至 on_save，這裡只負責顯示結果與人工互動。
@@ -154,7 +154,8 @@ def _make_checkpoint(problem_id: str, task: Task, max_attempts: int):
             f"[{BOLD}Enter{R} 繼續 / "
             f"{BOLD}a{R} 中止 / "
             f"{BOLD}v{R} 完整 log / "
-            f"{BOLD}c{R} 完整程式碼] > "
+            f"{BOLD}c{R} 完整程式碼 / "
+            f"{BOLD}h{R} 補充修改方向] > "
         )
         while True:
             try:
@@ -172,6 +173,16 @@ def _make_checkpoint(problem_id: str, task: Task, max_attempts: int):
             elif ans == "c":
                 _print(f"\n{GRAY}── Generated Code ──{R}")
                 _print(code)
+            elif ans == "h":
+                try:
+                    hint = input("補充修改方向 > ").strip()
+                except (EOFError, KeyboardInterrupt):
+                    _print()
+                    return False
+                if hint:
+                    _print(f"{GRAY}已注入：{hint}{R}")
+                    return hint   # str → agent 作為獨立 user turn 注入
+                # hint 為空 → 當作 Enter 繼續
             else:
                 return True
 
@@ -202,15 +213,14 @@ def run_problem(problem_id: str, task: Task, max_attempts: int = 3):
         on_tool_call=_on_tool_call,
         on_tool_result=_on_tool_result,
         on_save=_make_on_save(problem_id, task),
-        on_checkpoint=_make_checkpoint(problem_id, task, max_attempts),
+        on_checkpoint=_make_checkpoint(max_attempts),
     )
 
     save_result(problem_id, result, task=task, experiment="agent")
 
     out_prefix = f"outputs/agent/{task.name}/{problem_id}"
     _print(f"\n{DLINE}")
-    sim_ok   = result.get("sim_passed",   result.get("passed", False))
-    synth_ok = result.get("synth_passed", False)
+    sim_ok = result.get("sim_passed", result.get("passed", False))
     if result["passed"]:
         _print(f"{GREEN}{BOLD}🎉  完成！模擬✅ 合成✅  共 {result['attempts']} 次嘗試{R}")
         _print(f"📄  {out_prefix}/attempt_{result['attempts']}.sv")

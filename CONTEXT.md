@@ -323,15 +323,19 @@ types.Tool(function_declarations=[types.FunctionDeclaration(...)])
 
 ```
 run_agent(
-    on_thinking(text)              ← Gemini 的文字思考輸出
-    on_tool_call(name, args, n)    ← 工具呼叫前
-    on_tool_result(name, res, n)   ← 工具呼叫後
-    on_save(n, code)               ← compile_and_test 後，純 I/O，儲存程式碼
-    on_checkpoint(n, res, code)→bool ← compile_and_test 後，False 可中止
+    on_thinking(text)                    ← Gemini 的文字思考輸出
+    on_tool_call(name, args, n)          ← 工具呼叫前
+    on_tool_result(name, res, n)         ← 工具呼叫後
+    on_save(n, code)                     ← compile_and_test 後，純 I/O，儲存程式碼
+    on_checkpoint(n, res, code) → bool | str
+                                         ← compile_and_test 後，控制流 + 可選注入
 )
 ```
 
-`on_save` 與 `on_checkpoint` 職責分離：`on_save` 只負責存檔（無回傳值），`on_checkpoint` 只負責控制流與人工互動。
+`on_checkpoint` 回傳值語意：
+- `False`：中止 agent
+- `True`：繼續
+- `str`（非空）：繼續，並將此字串作為獨立 user turn 注入對話——讓使用者可以在失敗後直接補充修改方向給 Gemini
 
 不傳任何 callback 時，`verbose=True` 仍可印出簡易進度，兩者可並用。
 
