@@ -12,9 +12,12 @@ Callback 分工：
   on_checkpoint(attempt, result, code) — 顯示結果 + 人工互動（回傳 bool 控制流程）
 
 Usage:
-    python run.py                                      # REPL 模式
-    python run.py Prob001_zero                         # 直接執行（預設 spec-to-rtl）
-    python run.py Prob001_zero code-complete-iccad2023 # 指定任務類型
+    python run.py                                                # REPL 模式
+    python run.py Prob001_zero                                   # 預設 spec-to-rtl / agent
+    python run.py Prob001_zero code-complete-iccad2023           # 指定任務
+    python run.py Prob001_zero spec-to-rtl no_debug_hints        # 指定實驗組
+
+可用 experiment：agent / no_debug_hints / no_decompose / no_helper_tools / no_memory
 """
 
 import sys
@@ -24,7 +27,32 @@ load_dotenv()
 
 from agent.agent import run_agent
 from agent.task import get_task, Task
-from agent.dataset import load_problem, save_code, save_result
+from agent.dataset import load_problem, save_code, save_result, list_problems
+
+
+def _resolve_problem_id(token: str, task: Task) -> str | None:
+    """
+    將使用者輸入轉換為完整的 problem_id。
+    - 純數字（1~3 位）：在題目清單中找開頭為 ProbXXX_ 的題目
+    - 其他：原樣回傳（假設已是完整 ID）
+    """
+    if not token.isdigit():
+        return token
+    prefix = f"Prob{int(token):03d}_"
+    for pid in list_problems(task):
+        if pid.startswith(prefix):
+            return pid
+    return None
+
+# 各實驗組對應的 enabled_tools 設定
+_EXP_TOOLS: dict[str, frozenset[str] | None] = {
+    "agent":           None,
+    "no_debug_hints":  frozenset({"compile_and_test", "synthesize", "decompose_spec"}),
+    "no_decompose":    frozenset({"compile_and_test", "synthesize", "get_debug_hints"}),
+    "no_helper_tools": frozenset({"compile_and_test", "synthesize"}),
+    "no_memory":       None,
+}
+VALID_EXPS = tuple(_EXP_TOOLS.keys())
 
 # ── ANSI 色碼 ─────────────────────────────────────────────────────────────────
 R     = "\033[0m"
@@ -83,6 +111,10 @@ def _on_tool_call(name: str, args: dict, attempt: int):
         _print(f"\n{YELLOW}🔍  decompose_spec{R}")
         _print(f"{GRAY}{desc[:200]}…{R}")
 
+    elif name == "get_debug_hints":
+        error_type = args.get("error_type", "?")
+        _print(f"\n{YELLOW}💡  get_debug_hints{R}  error_type={error_type!r}")
+
 
 def _on_tool_result(name: str, result: dict, _attempt: int):
     if name == "synthesize":
@@ -93,21 +125,26 @@ def _on_tool_result(name: str, result: dict, _attempt: int):
             if result.get("error_log"):
                 for line in result["error_log"].splitlines()[:6]:
                     _print(f"   {GRAY}{line}{R}")
-            if result.get("debug_hints"):
-                _print(f"\n{CYAN}💡  Debug hints:{R}")
-                for line in result["debug_hints"].splitlines():
-                    _print(f"   {GRAY}{line}{R}")
 
     elif name == "decompose_spec":
         sub_goals = result.get("sub_goals", "")
         _print(f"{GRAY}{sub_goals[:400]}{R}")
 
+    elif name == "get_debug_hints":
+        hints = result.get("hints", "")
+        if hints:
+            _print(f"{CYAN}── hints ──{R}")
+            for line in hints.splitlines():
+                _print(f"   {GRAY}{line}{R}")
+        else:
+            _print(f"{GRAY}（無對應提示）{R}")
+
 
 # ── on_save：儲存程式碼（純 I/O，無互動）────────────────────────────────────
 
-def _make_on_save(problem_id: str, task: Task):
+def _make_on_save(problem_id: str, task: Task, experiment: str):
     def on_save(attempt: int, code: str) -> None:
-        out_file = save_code(problem_id, attempt, code, task=task, experiment="agent")
+        out_file = save_code(problem_id, attempt, code, task=task, experiment=experiment)
         _print(f"{GRAY}💾  saved → {out_file}{R}")
     return on_save
 
@@ -138,11 +175,6 @@ def _make_checkpoint():
                 _print(f"   {GRAY}{line}{R}")
             if len(err_lines) > 6:
                 _print(f"   {GRAY}  … ({len(err_lines) - 6} more lines, 輸入 v 查看全部){R}")
-
-        if result.get("debug_hints"):
-            _print(f"\n{CYAN}💡  Debug hints:{R}")
-            for line in result["debug_hints"].splitlines():
-                _print(f"   {GRAY}{line}{R}")
 
         # ── 人工介入點（while 迴圈，v/c 看完後仍可繼續操作）─────────────────
         _print(f"\n{DLINE}")
@@ -188,7 +220,16 @@ def _make_checkpoint():
 
 # ── 單題執行 ──────────────────────────────────────────────────────────────────
 
-def run_problem(problem_id: str, task: Task, max_attempts: int = 999):
+def run_problem(
+    problem_id: str,
+    task: Task,
+    experiment: str = "agent",
+    max_attempts: int = 999,
+):
+    if experiment not in _EXP_TOOLS:
+        _print(f"{RED}未知 experiment: {experiment!r}，可用：{', '.join(VALID_EXPS)}{R}")
+        return
+
     try:
         problem_desc = load_problem(problem_id, task)
     except FileNotFoundError:
@@ -196,7 +237,7 @@ def run_problem(problem_id: str, task: Task, max_attempts: int = 999):
         _print("請確認 problem_id 拼法（例如 Prob001_zero）")
         return
 
-    header(f"🎯  {problem_id}  [{task.name}]")
+    header(f"🎯  {problem_id}  [{task.name}]  [{experiment}]")
     _print(problem_desc[:600] + ("…" if len(problem_desc) > 600 else ""))
     _print(DLINE)
 
@@ -206,16 +247,17 @@ def run_problem(problem_id: str, task: Task, max_attempts: int = 999):
         task=task,
         max_attempts=max_attempts,
         verbose=False,
+        enabled_tools=_EXP_TOOLS[experiment],
         on_thinking=_on_thinking,
         on_tool_call=_on_tool_call,
         on_tool_result=_on_tool_result,
-        on_save=_make_on_save(problem_id, task),
+        on_save=_make_on_save(problem_id, task, experiment),
         on_checkpoint=_make_checkpoint(),
     )
 
-    save_result(problem_id, result, task=task, experiment="agent")
+    save_result(problem_id, result, task=task, experiment=experiment)
 
-    out_prefix = f"outputs/agent/{task.name}/{problem_id}"
+    out_prefix = f"outputs/{experiment}/{task.name}/{problem_id}"
     _print(f"\n{DLINE}")
     sim_ok = result.get("sim_passed", result.get("passed", False))
     if result["passed"]:
@@ -235,8 +277,9 @@ def run_problem(problem_id: str, task: Task, max_attempts: int = 999):
 
 def repl():
     header("🤖  Verilog Agent  Interactive Mode")
-    _print("輸入 <problem_id> [task] 開始，task 預設 spec-to-rtl")
-    _print("可用 task：spec-to-rtl  /  code-complete-iccad2023")
+    _print("輸入 <problem_id> [task] [experiment] 開始")
+    _print(f"  task       預設 spec-to-rtl  /  code-complete-iccad2023")
+    _print(f"  experiment 預設 agent  /  {' / '.join(VALID_EXPS)}")
     _print("輸入 q 離開\n")
 
     while True:
@@ -252,9 +295,10 @@ def repl():
             _print("再見！")
             break
 
-        parts = line.split()
-        problem_id = parts[0]
+        parts      = line.split()
+        token      = parts[0]
         task_name  = parts[1] if len(parts) > 1 else "spec-to-rtl"
+        experiment = parts[2] if len(parts) > 2 else "agent"
 
         try:
             task = get_task(task_name)
@@ -262,7 +306,12 @@ def repl():
             _print(f"{RED}{e}{R}")
             continue
 
-        run_problem(problem_id, task)
+        problem_id = _resolve_problem_id(token, task)
+        if problem_id is None:
+            _print(f"{RED}找不到題目編號 {token!r}（task={task_name}）{R}")
+            continue
+
+        run_problem(problem_id, task, experiment)
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -272,18 +321,19 @@ if __name__ == "__main__":
 
     if len(args) == 0:
         repl()
-    elif len(args) == 1:
+    elif len(args) <= 3:
+        task_name  = args[1] if len(args) > 1 else "spec-to-rtl"
+        experiment = args[2] if len(args) > 2 else "agent"
         try:
-            task = get_task("spec-to-rtl")
+            task = get_task(task_name)
         except ValueError as e:
             print(e); sys.exit(1)
-        run_problem(args[0], task)
-    elif len(args) == 2:
-        try:
-            task = get_task(args[1])
-        except ValueError as e:
-            print(e); sys.exit(1)
-        run_problem(args[0], task)
+        problem_id = _resolve_problem_id(args[0], task)
+        if problem_id is None:
+            print(f"找不到題目編號 {args[0]!r}（task={task_name}）")
+            sys.exit(1)
+        run_problem(problem_id, task, experiment)
     else:
-        print("Usage: python run.py [problem_id] [task]")
+        print("Usage: python run.py [problem_id] [task] [experiment]")
+        print(f"  experiment: {', '.join(VALID_EXPS)}")
         sys.exit(1)

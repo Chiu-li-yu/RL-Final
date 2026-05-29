@@ -8,6 +8,12 @@
   "sim_error_log": "",
   "synth_error_type": "Y",
   "synth_error_log": "",
+  "sim_error_sequence": [
+    "."
+  ],
+  "synth_error_sequence": [
+    "Y"
+  ],
   "task": "spec-to-rtl",
   "experiment": "agent"
 }

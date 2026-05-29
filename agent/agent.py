@@ -17,6 +17,7 @@ Module responsibilities:
 """
 
 import os
+import re
 import time
 import random
 import threading
@@ -155,63 +156,92 @@ class Episode:
 
 # ── Tool schemas ──────────────────────────────────────────────────────────────
 
-_TOOLS = types.Tool(
-    function_declarations=[
-        types.FunctionDeclaration(
-            name="compile_and_test",
-            description=(
-                "編譯並模擬 Verilog 程式碼。"
-                "完成 TopModule 實作後，必須立刻呼叫此工具驗證。"
-                "回傳 passed（bool）、error_type、error_log、mismatch_count。"
-            ),
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "verilog_code": types.Schema(
-                        type=types.Type.STRING,
-                        description="完整的 TopModule Verilog 程式碼（從 module TopModule 到 endmodule）",
-                    ),
-                },
-                required=["verilog_code"],
-            ),
+_TOOL_DECLARATIONS: list[types.FunctionDeclaration] = [
+    types.FunctionDeclaration(
+        name="compile_and_test",
+        description=(
+            "編譯並模擬 Verilog 程式碼。"
+            "完成 TopModule 實作後，必須立刻呼叫此工具驗證。"
+            "回傳 passed（bool）、error_type、error_log、mismatch_count。"
         ),
-        types.FunctionDeclaration(
-            name="synthesize",
-            description=(
-                "使用 yosys 對 Verilog 程式碼進行合成性驗證。"
-                "模擬通過（passed=true）後必須呼叫此工具。"
-                "回傳 passed（bool）、error_type（Y=通過 / Ys=合成錯誤）、error_log。"
-            ),
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "verilog_code": types.Schema(
-                        type=types.Type.STRING,
-                        description="完整的 TopModule Verilog 程式碼",
-                    ),
-                },
-                required=["verilog_code"],
-            ),
+        parameters=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "verilog_code": types.Schema(
+                    type=types.Type.STRING,
+                    description="完整的 TopModule Verilog 程式碼（從 module TopModule 到 endmodule）",
+                ),
+            },
+            required=["verilog_code"],
         ),
-        types.FunctionDeclaration(
-            name="decompose_spec",
-            description=(
-                "將題目規格分解成 3-5 個具體子目標清單。"
-                "只在邏輯錯誤（simulation_error）多次修改仍無效時才呼叫。"
-            ),
-            parameters=types.Schema(
-                type=types.Type.OBJECT,
-                properties={
-                    "problem_description": types.Schema(
-                        type=types.Type.STRING,
-                        description="Verilog 題目的完整敘述",
-                    ),
-                },
-                required=["problem_description"],
-            ),
+    ),
+    types.FunctionDeclaration(
+        name="synthesize",
+        description=(
+            "使用 yosys 對 Verilog 程式碼進行合成性驗證。"
+            "模擬通過（passed=true）後必須呼叫此工具。"
+            "回傳 passed（bool）、error_type（Y=通過 / Ys=合成錯誤）、error_log。"
         ),
+        parameters=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "verilog_code": types.Schema(
+                    type=types.Type.STRING,
+                    description="完整的 TopModule Verilog 程式碼",
+                ),
+            },
+            required=["verilog_code"],
+        ),
+    ),
+    types.FunctionDeclaration(
+        name="decompose_spec",
+        description=(
+            "將題目規格分解成 3-5 個具體子目標清單。"
+            "只在邏輯錯誤（simulation_error）多次修改仍無效時才呼叫。"
+        ),
+        parameters=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "problem_description": types.Schema(
+                    type=types.Type.STRING,
+                    description="Verilog 題目的完整敘述",
+                ),
+            },
+            required=["problem_description"],
+        ),
+    ),
+    types.FunctionDeclaration(
+        name="get_debug_hints",
+        description=(
+            "查詢指定錯誤類型的除錯提示清單。"
+            "遇到反覆出現的錯誤或不確定修正方向時呼叫。"
+            "回傳 hints 字串；若無對應提示則回傳空字串。"
+        ),
+        parameters=types.Schema(
+            type=types.Type.OBJECT,
+            properties={
+                "error_type": types.Schema(
+                    type=types.Type.STRING,
+                    description="錯誤類型代碼，例如 R、S、e、Ys",
+                ),
+            },
+            required=["error_type"],
+        ),
+    ),
+]
+
+
+def _build_tools(enabled_tools: frozenset[str] | None) -> types.Tool:
+    """
+    根據 enabled_tools 建構工具集。
+    None 表示啟用全部工具；否則只包含名稱在集合中的工具。
+    compile_and_test 與 synthesize 永遠啟用。
+    """
+    decls = [
+        d for d in _TOOL_DECLARATIONS
+        if enabled_tools is None or d.name in enabled_tools
     ]
-)
+    return types.Tool(function_declarations=decls)
 
 
 # ── 私有工具函式 ──────────────────────────────────────────────────────────────
@@ -235,6 +265,26 @@ def _is_retryable(e: Exception) -> bool:
     return False
 
 
+_HTTP_MEANINGS: dict[int, str] = {
+    429: "Rate limit exceeded（請求過於頻繁）",
+    500: "Internal Server Error（伺服器內部錯誤）",
+    503: "Service Unavailable（服務暫時不可用）",
+    504: "Gateway Timeout（閘道逾時）",
+}
+
+
+def _error_summary(e: Exception) -> str:
+    """從例外中提取 HTTP 狀態碼並附上說明文字。"""
+    code = getattr(e, "code", None) or getattr(e, "status_code", None)
+    if code is None:
+        m = re.search(r"\b([45]\d{2})\b", str(e))
+        code = int(m.group(1)) if m else None
+    if code:
+        meaning = _HTTP_MEANINGS.get(int(code), "未知伺服器錯誤")
+        return f"HTTP {code} — {meaning}"
+    return f"{type(e).__name__}"
+
+
 def _with_retry(
     fn,
     *args,
@@ -252,7 +302,7 @@ def _with_retry(
             if not _is_retryable(e) or attempt == max_retries - 1:
                 raise
             wait = min(4 * (2 ** attempt) + random.uniform(0, 2), 60)
-            print(f"[retry] {type(e).__name__} — {wait:.1f}s 後重試 "
+            print(f"[retry] {_error_summary(e)} — {wait:.1f}s 後重試 "
                   f"({attempt + 1}/{max_retries - 1})…", flush=True)
             time.sleep(wait)
 
@@ -314,6 +364,10 @@ def run_agent(
     model: str = "gemma-4-31b-it",#"gemini-3.1-flash-lite",
     verbose: bool = False,
     rate_limiter: RateLimiter | None = None,
+    enabled_tools: frozenset[str] | None = None,
+    # None = 啟用全部工具；否則只包含集合中的工具名稱
+    # 永遠啟用：compile_and_test、synthesize
+    # 可選關閉：decompose_spec、get_debug_hints
     # ── 顯示 / 互動 callbacks（全部可選）────────────────────────────────────
     on_thinking:    Callable[[str], None]            | None = None,
     on_tool_call:   Callable[[str, dict, int], None] | None = None,
@@ -361,7 +415,7 @@ def run_agent(
 
     config = types.GenerateContentConfig(
         system_instruction=task.system_prompt,
-        tools=[_TOOLS],
+        tools=[_build_tools(enabled_tools)],
     )
     chat = client.chats.create(model=model, config=config)
 
@@ -405,12 +459,6 @@ def run_agent(
 
                 result = compile_and_test(verilog_code, problem_id, task.dataset_dir)
 
-                # 附加 debug_hints
-                error_code = result.get("error_type", "")
-                if error_code in DEBUG_HINTS:
-                    result = dict(result)
-                    result["debug_hints"] = DEBUG_HINTS[error_code]
-
                 ep.record_sim(result, verilog_code)
 
                 if on_tool_result:
@@ -445,12 +493,6 @@ def run_agent(
 
                 synth_result = synthesize(verilog_code)
 
-                # 附加 debug_hints
-                synth_code = synth_result.get("error_type", "")
-                if synth_code in DEBUG_HINTS:
-                    synth_result = dict(synth_result)
-                    synth_result["debug_hints"] = DEBUG_HINTS[synth_code]
-
                 ep.record_synth(synth_result)
 
                 if on_tool_result:
@@ -484,6 +526,25 @@ def run_agent(
 
                 tool_results.append(types.Part.from_function_response(
                     name="decompose_spec", response={"sub_goals": decomposed},
+                ))
+
+            elif fc.name == "get_debug_hints":
+                error_type = fc.args["error_type"]
+                hints = DEBUG_HINTS.get(error_type, "")
+                hint_result = {"error_type": error_type, "hints": hints}
+
+                if on_tool_call:
+                    on_tool_call("get_debug_hints", {"error_type": error_type}, ep.attempts)
+                elif verbose:
+                    print(f"[agent] get_debug_hints({error_type!r})")
+
+                if on_tool_result:
+                    on_tool_result("get_debug_hints", hint_result, ep.attempts)
+                elif verbose:
+                    print(f"[agent]   → {'有提示' if hints else '無對應提示'}")
+
+                tool_results.append(types.Part.from_function_response(
+                    name="get_debug_hints", response=hint_result,
                 ))
 
             else:

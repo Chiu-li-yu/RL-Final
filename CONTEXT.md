@@ -47,6 +47,9 @@ Gemini 可選擇的操作。透過 function calling 結構化輸出：
 **decompose_spec**
 輸入題目敘述，回傳結構化的子目標清單（list of strings）。由 Gemini 實作（另一個 LLM call）。觸發條件：第二次嘗試仍發生 Simulation Error 時。
 
+**get_debug_hints**
+輸入 error_type 代碼（例如 `R`、`e`、`Ys`），回傳對應的除錯提示文字（來自 `agent/prompts.py` 的 `DEBUG_HINTS`）。LLM 自主決定何時呼叫（不再自動附加），呼叫行為本身即為一種可追蹤的決策動作。無對應提示時回傳空字串。
+
 ## Error Type
 
 VerilogEval 的錯誤分類代碼（來自 sv-iv-analyze 腳本）：

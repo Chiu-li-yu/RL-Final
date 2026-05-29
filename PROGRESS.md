@@ -723,13 +723,43 @@ decompose_spec = {
 - [x] **`_SYNTH_EXCLUDED` 修正**：確認 yosys 實際上支援 `initial` 暫存器初始值（不報錯），三題 comment 掉，回到 **156 題**；保留 `_SYNTH_EXCLUDED` 機制供未來使用
 - [x] **`run.py` 補充修改方向（`h`）**：互動選單新增 `h` 選項，使用者可在每次失敗後輸入修改方向，注入為 Gemini 對話的獨立 user turn；`agent.py` 的 `on_checkpoint` 回傳型別擴展為 `bool | str`，str 回傳值觸發注入
 
+### 5/29（續）
+
+- [x] **`run.py` 互動邏輯調整**：移除 `max_attempts` 作為 `_make_checkpoint` 參數，改以使用者互動（Enter/a）控制中止；`run_problem()` 的 `max_attempts` 預設改為 999
+- [x] **`evaluate.py` 進度統計強化**：
+  - 每個 status 後顯示該題嘗試次數：`[pass 2]`、`[sim✓ synth✗ 2]`、`[skip 2]`
+  - skip 的題目根據歷史 result.json 計入 passed / failed 統計（不再低估 pass rate）
+  - 最終統計新增 `Error Distribution` 區塊（按頻率排序，跳過 `.` 和 `Y`）
+- [x] **`agent.py` Episode 新增 error_sequence 記錄**：每次 compile_and_test / synthesize 後，`_sim_error_sequence` / `_synth_error_sequence` 記錄該次錯誤代碼，結果寫入 result.json
+- [x] **`get_debug_hints` 工具化**：
+  - 移除 `compile_and_test` / `synthesize` dispatch handler 中自動附加 `debug_hints` 的邏輯
+  - 新增 `get_debug_hints(error_type)` 工具宣告（FunctionDeclaration）與 handler
+  - LLM 可自主決定何時查詢提示，呼叫行為記錄於 result.json 的工具序列中
+  - `run.py` 新增對應顯示：呼叫時顯示 `💡 get_debug_hints error_type=...`，結果顯示 hint 文字
+  - `agent/prompts.py` system prompt 更新說明此工具的使用時機
+
+- [x] **實驗方案重設計（Ablation Study）**：
+  - 廢棄 `baseline_a` / `baseline_b`，改為 5 組對照實驗
+  - `run_agent()` 新增 `enabled_tools: frozenset[str] | None` 參數，透過 `_build_tools()` 動態建構工具集
+  - `evaluate.py` 更新為 5 個 runner，`VALID_EXPS` 同步更新
+
+  | 實驗 ID | 工具 | 記憶 |
+  |---------|------|------|
+  | `agent` | 全部 | ✅ |
+  | `no_debug_hints` | 移除 get_debug_hints | ✅ |
+  | `no_decompose` | 移除 decompose_spec | ✅ |
+  | `no_helper_tools` | 僅 compile_and_test + synthesize | ✅ |
+  | `no_memory` | 全部（5 次獨立 session） | ❌ |
+
 ### 5/29–5/30
 
-- [ ] 跑完整實驗（3 組 × 兩種 task × 156 題）
+- [ ] 跑完整實驗（5 組 × 兩種 task × 156 題）
   - `python evaluate.py --exp agent --task spec-to-rtl`
-  - `python evaluate.py --exp baseline_a --task spec-to-rtl`
-  - `python evaluate.py --exp baseline_b --task spec-to-rtl`
-  - code-complete-iccad2023 同上三組
+  - `python evaluate.py --exp no_debug_hints --task spec-to-rtl`
+  - `python evaluate.py --exp no_decompose --task spec-to-rtl`
+  - `python evaluate.py --exp no_helper_tools --task spec-to-rtl`
+  - `python evaluate.py --exp no_memory --task spec-to-rtl`
+  - code-complete-iccad2023 同上五組
 
 ### 5/31–6/01
 

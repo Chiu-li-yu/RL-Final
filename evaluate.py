@@ -48,7 +48,7 @@ YELLOW = "\033[33m"
 CYAN   = "\033[36m"
 GRAY   = "\033[90m"
 
-VALID_EXPS    = ("agent", "baseline_a", "baseline_b")
+VALID_EXPS    = ("agent", "no_debug_hints", "no_decompose", "no_helper_tools", "no_memory")
 DEFAULT_MODEL = "gemma-4-31b-it" # "gemini-3.1-flash-lite"
 
 
@@ -64,8 +64,8 @@ def _make_save_cb(
     回傳一個 on_save closure，在每次 compile_and_test 後儲存程式碼。
 
     attempt_offset：
-      baseline_b 的三次獨立執行各自帶入 0 / 1 / 2，
-      讓程式碼依序存成 attempt_1.sv / attempt_2.sv / attempt_3.sv。
+      no_memory 的五次獨立執行各自帶入 0~4，
+      讓程式碼依序存成 attempt_1.sv … attempt_5.sv。
     """
     def on_save(attempt: int, code: str) -> None:
         save_code(
@@ -79,7 +79,14 @@ def _make_save_cb(
     return on_save
 
 
-# ── 三組實驗執行函式 ──────────────────────────────────────────────────────────
+# ── 五組實驗執行函式 ──────────────────────────────────────────────────────────
+#
+#  實驗設計（Ablation Study）：
+#    agent           — 完整 Agent（所有工具 + 記憶 + feedback）
+#    no_debug_hints  — 移除 get_debug_hints
+#    no_decompose    — 移除 decompose_spec
+#    no_helper_tools — 移除 get_debug_hints 與 decompose_spec
+#    no_memory       — 無記憶（5 次獨立 session，每次僅輸入題目描述）
 
 def _run_agent(
     problem_id: str,
@@ -96,11 +103,12 @@ def _run_agent(
         model=model,
         verbose=False,
         rate_limiter=rate_limiter,
+        enabled_tools=None,
         on_save=_make_save_cb(problem_id, task, "agent"),
     )
 
 
-def _run_baseline_a(
+def _run_no_debug_hints(
     problem_id: str,
     desc: str,
     task: Task,
@@ -111,15 +119,56 @@ def _run_baseline_a(
         problem_id=problem_id,
         problem_description=desc,
         task=task,
-        max_attempts=1,
+        max_attempts=5,
         model=model,
         verbose=False,
         rate_limiter=rate_limiter,
-        on_save=_make_save_cb(problem_id, task, "baseline_a"),
+        enabled_tools=frozenset({"compile_and_test", "synthesize", "decompose_spec"}),
+        on_save=_make_save_cb(problem_id, task, "no_debug_hints"),
     )
 
 
-def _run_baseline_b(
+def _run_no_decompose(
+    problem_id: str,
+    desc: str,
+    task: Task,
+    model: str,
+    rate_limiter: RateLimiter | None,
+) -> dict:
+    return run_agent(
+        problem_id=problem_id,
+        problem_description=desc,
+        task=task,
+        max_attempts=5,
+        model=model,
+        verbose=False,
+        rate_limiter=rate_limiter,
+        enabled_tools=frozenset({"compile_and_test", "synthesize", "get_debug_hints"}),
+        on_save=_make_save_cb(problem_id, task, "no_decompose"),
+    )
+
+
+def _run_no_helper_tools(
+    problem_id: str,
+    desc: str,
+    task: Task,
+    model: str,
+    rate_limiter: RateLimiter | None,
+) -> dict:
+    return run_agent(
+        problem_id=problem_id,
+        problem_description=desc,
+        task=task,
+        max_attempts=5,
+        model=model,
+        verbose=False,
+        rate_limiter=rate_limiter,
+        enabled_tools=frozenset({"compile_and_test", "synthesize"}),
+        on_save=_make_save_cb(problem_id, task, "no_helper_tools"),
+    )
+
+
+def _run_no_memory(
     problem_id: str,
     desc: str,
     task: Task,
@@ -127,11 +176,11 @@ def _run_baseline_b(
     rate_limiter: RateLimiter | None,
 ) -> dict:
     """
-    Baseline B：3 次完全獨立生成，各自建立新的 chat session，互不共享歷史。
+    無記憶：5 次完全獨立生成，各自建立新的 chat session，輸入僅包含題目描述。
     """
     last_result: dict = {}
 
-    for run_idx in range(3):
+    for run_idx in range(5):
         result = run_agent(
             problem_id=problem_id,
             problem_description=desc,
@@ -140,8 +189,9 @@ def _run_baseline_b(
             model=model,
             verbose=False,
             rate_limiter=rate_limiter,
+            enabled_tools=None,
             on_save=_make_save_cb(
-                problem_id, task, "baseline_b",
+                problem_id, task, "no_memory",
                 attempt_offset=run_idx,
             ),
         )
@@ -158,9 +208,11 @@ def _run_baseline_b(
 # ── 實驗分派 ──────────────────────────────────────────────────────────────────
 
 _EXP_RUNNERS = {
-    "agent":      _run_agent,
-    "baseline_a": _run_baseline_a,
-    "baseline_b": _run_baseline_b,
+    "agent":           _run_agent,
+    "no_debug_hints":  _run_no_debug_hints,
+    "no_decompose":    _run_no_decompose,
+    "no_helper_tools": _run_no_helper_tools,
+    "no_memory":       _run_no_memory,
 }
 
 
@@ -436,9 +488,9 @@ def main():
         ),
     )
 
-    parser.add_argument("--exp", "-e", required=True, choices=VALID_EXPS,
+    parser.add_argument("--exp", "-e", default="agent", choices=VALID_EXPS,
                         metavar="EXP", help=f"實驗類型：{' | '.join(VALID_EXPS)}")
-    parser.add_argument("--task", "-t", required=True,
+    parser.add_argument("--task", "-t", default="spec-to-rtl",
                         metavar="TASK", help="評估任務：spec-to-rtl | code-complete-iccad2023")
     parser.add_argument("--model", "-m", default=DEFAULT_MODEL,
                         help=f"Gemini model name（預設: {DEFAULT_MODEL}）")
