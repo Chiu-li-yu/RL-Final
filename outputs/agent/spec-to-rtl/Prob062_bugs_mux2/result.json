@@ -1,9 +1,13 @@
 {
   "problem_id": "Prob062_bugs_mux2",
-  "passed": false,
-  "attempts": 3,
-  "error_type": "R",
-  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob062_bugs_mux2_test.sv:47: $finish called at 570 (1ps)\nHint: Output 'out' has 111 mismatches. First mismatch occurred at time 20.\nHint: Total mismatched samples is 111 out of 114 samples\n\nSimulation finished at 570 ps\nMismatches: 111 in 114 samples",
+  "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
+  "attempts": 2,
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
+  "synth_error_log": "",
   "task": "spec-to-rtl",
   "experiment": "agent"
 }

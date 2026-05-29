@@ -7,14 +7,14 @@ module TopModule (
     logic q_neg = 0;
 
     always @(posedge clk) begin
-        q_pos <= d ^ q_neg;
+        q_pos <= d;
     end
 
     always @(negedge clk) begin
-        q_neg <= d ^ q_pos;
+        q_neg <= d;
     end
 
     always @(*) begin
-        q = q_pos ^ q_neg;
+        q = clk ? q_pos : q_neg;
     end
 endmodule

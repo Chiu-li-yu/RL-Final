@@ -7,9 +7,9 @@ module TopModule (
 
     logic [3:0] shift_reg;
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (!resetn) begin
-            shift_reg <= 4'b0;
+            shift_reg <= 4'b0000;
         end else begin
             shift_reg <= {shift_reg[2:0], in};
         end

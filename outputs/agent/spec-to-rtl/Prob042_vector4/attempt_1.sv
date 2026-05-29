@@ -4,7 +4,7 @@ module TopModule (
 );
 
     always @(*) begin
-        out = {{24{in[7]}}, in};
+        out = { {24{in[7]}}, in };
     end
 
 endmodule

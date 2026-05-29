@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob100_fsm3comb",
-  "passed": true,
-  "attempts": 1,
-  "error_type": ".",
-  "error_log": "",
-  "task": "spec-to-rtl",
-  "experiment": "agent"
-}

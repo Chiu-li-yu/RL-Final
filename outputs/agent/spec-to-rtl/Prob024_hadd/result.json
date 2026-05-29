@@ -1,9 +1,13 @@
 {
   "problem_id": "Prob024_hadd",
   "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
   "attempts": 1,
-  "error_type": ".",
-  "error_log": "",
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
+  "synth_error_log": "",
   "task": "spec-to-rtl",
   "experiment": "agent"
 }

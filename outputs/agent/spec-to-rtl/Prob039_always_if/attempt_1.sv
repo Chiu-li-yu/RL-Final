@@ -1,24 +1,21 @@
 module TopModule (
-    input  a,
-    input  b,
-    input  sel_b1,
-    input  sel_b2,
-    output out_assign,
-    output out_always
+    input a,
+    input b,
+    input sel_b1,
+    input sel_b2,
+    output logic out_assign,
+    output logic out_always
 );
 
-    // Using assign statement
+    // Implementation using assign statement
     assign out_assign = (sel_b1 && sel_b2) ? b : a;
 
-    // Using procedural always block
-    logic out_always_reg;
-    assign out_always = out_always_reg;
-
+    // Implementation using procedural if statement
     always @(*) begin
         if (sel_b1 && sel_b2) begin
-            out_always_reg = b;
+            out_always = b;
         end else begin
-            out_always_reg = a;
+            out_always = a;
         end
     end
 

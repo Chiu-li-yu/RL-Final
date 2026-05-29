@@ -6,9 +6,9 @@ module TopModule (
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            q <= 4'b0000;
+            q <= 4'd0;
         end else begin
-            q <= q + 1'b1;
+            q <= q + 4'd1;
         end
     end
 

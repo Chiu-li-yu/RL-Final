@@ -5,7 +5,7 @@ module TopModule (
     output logic Q
 );
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         case ({j, k})
             2'b00: Q <= Q;
             2'b01: Q <= 1'b0;

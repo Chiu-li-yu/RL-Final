@@ -1,19 +1,13 @@
 module TopModule (
-    input logic clk,
-    input logic in,
+    input clk,
+    input in,
     output logic out
 );
 
-    logic d_ff_out;
-
-    initial begin
-        d_ff_out = 1'b0;
-    end
+    initial out = 0;
 
     always @(posedge clk) begin
-        d_ff_out <= in ^ d_ff_out;
+        out <= in ^ out;
     end
-
-    assign out = d_ff_out;
 
 endmodule

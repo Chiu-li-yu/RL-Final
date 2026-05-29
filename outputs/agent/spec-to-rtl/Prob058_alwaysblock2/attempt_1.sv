@@ -2,23 +2,22 @@ module TopModule (
     input clk,
     input a,
     input b,
-    output out_assign,
-    output out_always_comb,
-    output out_always_ff
+    output logic out_assign,
+    output logic out_always_comb,
+    output logic out_always_ff
 );
 
+    // Method 1: XOR using an assign statement
     assign out_assign = a ^ b;
 
-    logic out_always_comb_val;
+    // Method 2: XOR using a combinational always block
     always @(*) begin
-        out_always_comb_val = a ^ b;
+        out_always_comb = a ^ b;
     end
-    assign out_always_comb = out_always_comb_val;
 
-    logic out_always_ff_val;
+    // Method 3: XOR using a clocked always block (sequential logic)
     always @(posedge clk) begin
-        out_always_ff_val <= a ^ b;
+        out_always_ff <= a ^ b;
     end
-    assign out_always_ff = out_always_ff_val;
 
 endmodule

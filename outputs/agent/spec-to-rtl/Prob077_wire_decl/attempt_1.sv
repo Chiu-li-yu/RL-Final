@@ -3,20 +3,17 @@ module TopModule (
     input b,
     input c,
     input d,
-    output out,
-    output out_n
+    output logic out,
+    output logic out_n
 );
 
-    logic and1_out;
-    logic and2_out;
+    logic w1;
+    logic w2;
 
     always @(*) begin
-        and1_out = a & b;
-        and2_out = c & d;
-    end
-
-    always @(*) begin
-        out = and1_out | and2_out;
+        w1 = a & b;
+        w2 = c & d;
+        out = w1 | w2;
         out_n = ~out;
     end
 

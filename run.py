@@ -114,10 +114,11 @@ def _make_on_save(problem_id: str, task: Task):
 
 # ── on_checkpoint：顯示結果 + 人工介入（控制流）────────────────────────────
 
-def _make_checkpoint(max_attempts: int):
+def _make_checkpoint():
     """
     回傳 on_checkpoint closure。
     儲存邏輯已移至 on_save，這裡只負責顯示結果與人工互動。
+    嘗試次數交由使用者決定，不受 max_attempts 硬上限限制。
     """
     def on_checkpoint(attempt: int, result: dict, code: str) -> bool:
 
@@ -143,14 +144,10 @@ def _make_checkpoint(max_attempts: int):
             for line in result["debug_hints"].splitlines():
                 _print(f"   {GRAY}{line}{R}")
 
-        # ── 若已到上限，不詢問 ─────────────────────────────────────────────────
-        if attempt >= max_attempts:
-            return True
-
         # ── 人工介入點（while 迴圈，v/c 看完後仍可繼續操作）─────────────────
         _print(f"\n{DLINE}")
         menu = (
-            f"{CYAN}繼續讓 Agent 嘗試？{R} "
+            f"{CYAN}繼續讓 Agent 嘗試？{R}（第 {attempt} 次） "
             f"[{BOLD}Enter{R} 繼續 / "
             f"{BOLD}a{R} 中止 / "
             f"{BOLD}v{R} 完整 log / "
@@ -191,7 +188,7 @@ def _make_checkpoint(max_attempts: int):
 
 # ── 單題執行 ──────────────────────────────────────────────────────────────────
 
-def run_problem(problem_id: str, task: Task, max_attempts: int = 3):
+def run_problem(problem_id: str, task: Task, max_attempts: int = 999):
     try:
         problem_desc = load_problem(problem_id, task)
     except FileNotFoundError:
@@ -213,7 +210,7 @@ def run_problem(problem_id: str, task: Task, max_attempts: int = 3):
         on_tool_call=_on_tool_call,
         on_tool_result=_on_tool_result,
         on_save=_make_on_save(problem_id, task),
-        on_checkpoint=_make_checkpoint(max_attempts),
+        on_checkpoint=_make_checkpoint(),
     )
 
     save_result(problem_id, result, task=task, experiment="agent")

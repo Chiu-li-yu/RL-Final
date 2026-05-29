@@ -1,16 +1,14 @@
-module TopModule(
+module TopModule (
     input clk,
     input [7:0] in,
-    output [7:0] pedge
+    output logic [7:0] pedge
 );
-    logic [7:0] prev_in;
 
-    always_ff @(posedge clk) begin
-        prev_in <= in;
-    end
+    logic [7:0] in_prev;
 
-    always @(*) begin
-        pedge = (in & ~prev_in);
+    always @(posedge clk) begin
+        in_prev <= in;
+        pedge <= in & ~in_prev;
     end
 
 endmodule

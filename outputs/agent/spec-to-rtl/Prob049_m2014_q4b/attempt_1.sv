@@ -1,11 +1,11 @@
 module TopModule (
-    input logic clk,
-    input logic ar,
-    input logic d,
+    input clk,
+    input ar,
+    input d,
     output logic q
 );
 
-    always_ff @(posedge clk or posedge ar) begin
+    always @(posedge clk or posedge ar) begin
         if (ar) begin
             q <= 1'b0;
         end else begin

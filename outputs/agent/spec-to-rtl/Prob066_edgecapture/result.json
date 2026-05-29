@@ -1,9 +1,13 @@
 {
   "problem_id": "Prob066_edgecapture",
-  "passed": false,
-  "attempts": 3,
-  "error_type": "R",
-  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob066_edgecapture_test.sv:86: $finish called at 1330 (1ps)\nHint: Output 'out' has 8 mismatches. First mismatch occurred at time 90.\nHint: Total mismatched samples is 8 out of 266 samples\n\nSimulation finished at 1330 ps\nMismatches: 8 in 266 samples",
+  "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
+  "attempts": 1,
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
+  "synth_error_log": "",
   "task": "spec-to-rtl",
   "experiment": "agent"
 }

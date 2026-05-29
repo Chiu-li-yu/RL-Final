@@ -25,8 +25,7 @@ from typing import Callable
 
 from dotenv import load_dotenv
 from google import genai
-from google.genai import types
-from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable, DeadlineExceeded
+from google.genai import types, errors as genai_errors
 
 from agent.tools import compile_and_test, synthesize
 from agent.prompts import DEBUG_HINTS
@@ -203,7 +202,23 @@ _TOOLS = types.Tool(
 
 # ── 私有工具函式 ──────────────────────────────────────────────────────────────
 
-_RETRYABLE = (ResourceExhausted, ServiceUnavailable, DeadlineExceeded)
+def _is_retryable(e: Exception) -> bool:
+    """
+    判斷例外是否值得重試。
+
+    新版 google.genai SDK（REST-based）拋出 genai_errors，
+    不使用舊版 gRPC-based 的 google.api_core.exceptions。
+
+    重試條件：
+      - ServerError（5xx）：503 Service Unavailable、500 Internal Error 等
+      - ClientError 且 code == 429：Rate limit exceeded
+    """
+    if isinstance(e, genai_errors.ServerError):
+        return True
+    if isinstance(e, genai_errors.ClientError):
+        code = getattr(e, "code", None) or getattr(e, "status_code", None)
+        return code == 429 or "429" in str(e)
+    return False
 
 
 def _with_retry(
@@ -213,18 +228,14 @@ def _with_retry(
     max_retries: int = 5,
     **kwargs,
 ):
-    """
-    以指數退避重試一個 Gemini API 呼叫。
-
-    rate_limiter: 由呼叫方（run_agent）傳入；None 表示不限速。
-    """
+    """以指數退避重試一個 Gemini API 呼叫。"""
     for attempt in range(max_retries):
         try:
             if rate_limiter:
                 rate_limiter.wait()
             return fn(*args, **kwargs)
-        except _RETRYABLE as e:
-            if attempt == max_retries - 1:
+        except Exception as e:
+            if not _is_retryable(e) or attempt == max_retries - 1:
                 raise
             wait = min(4 * (2 ** attempt) + random.uniform(0, 2), 60)
             print(f"[retry] {type(e).__name__} — {wait:.1f}s 後重試 "
@@ -286,7 +297,7 @@ def run_agent(
     problem_description: str,
     task: Task,
     max_attempts: int = 5,
-    model: str = "gemini-3.1-flash-lite",
+    model: str = "gemma-4-31b-it",#"gemini-3.1-flash-lite",
     verbose: bool = False,
     rate_limiter: RateLimiter | None = None,
     # ── 顯示 / 互動 callbacks（全部可選）────────────────────────────────────

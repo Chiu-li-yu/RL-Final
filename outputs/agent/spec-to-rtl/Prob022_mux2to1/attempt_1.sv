@@ -1,7 +1,7 @@
 module TopModule (
-    input  logic a,
-    input  logic b,
-    input  logic sel,
+    input a,
+    input b,
+    input sel,
     output logic out
 );
 

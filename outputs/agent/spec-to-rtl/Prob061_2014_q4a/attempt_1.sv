@@ -1,25 +1,17 @@
 module TopModule (
-    input logic clk,
-    input logic w,
-    input logic R,
-    input logic E,
-    input logic L,
+    input clk,
+    input w,
+    input R,
+    input E,
+    input L,
     output logic Q
 );
 
-    logic next_Q;
-
-    always_ff @(posedge clk) begin
-        Q <= next_Q;
-    end
-
-    always_comb begin
+    always @(posedge clk) begin
         if (L) begin
-            next_Q = R;
+            Q <= R;
         end else if (E) begin
-            next_Q = w;
-        end else begin
-            next_Q = Q;
+            Q <= w;
         end
     end
 

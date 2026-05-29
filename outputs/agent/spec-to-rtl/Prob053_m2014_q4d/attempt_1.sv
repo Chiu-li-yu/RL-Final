@@ -1,20 +1,11 @@
 module TopModule (
-    input logic clk,
-    input logic in,
+    input clk,
+    input in,
     output logic out
 );
 
-    logic d_ff_out;
-    logic xor_out;
-
-    always @(*) begin
-        xor_out = in ^ d_ff_out;
-    end
-
     always @(posedge clk) begin
-        d_ff_out <= xor_out;
+        out <= in ^ out;
     end
-
-    assign out = d_ff_out;
 
 endmodule

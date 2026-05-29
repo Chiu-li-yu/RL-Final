@@ -8,7 +8,7 @@ module TopModule (
 
     always @(posedge clk) begin
         if (shift_ena) begin
-            q <= {data, q[3:1]};
+            q <= {q[2:0], data};
         end else if (count_ena) begin
             q <= q - 4'd1;
         end

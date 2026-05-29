@@ -1,11 +1,11 @@
 module TopModule (
-    input logic clk,
-    input logic reset,
-    input logic [7:0] d,
+    input clk,
+    input reset,
+    input [7:0] d,
     output logic [7:0] q
 );
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (reset) begin
             q <= 8'b0;
         end else begin

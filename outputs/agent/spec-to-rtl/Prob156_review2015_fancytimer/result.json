@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob156_review2015_fancytimer",
-  "passed": false,
-  "attempts": 3,
-  "error_type": "R",
-  "error_log": "VCD info: dumpfile wave.vcd opened for output.\nHint: The first test case should count for 2000 cycles. Your circuit counted 2002\nHint: The second test case should count for 15000 cycles. Your circuit counted 15207\nHint: Your FSM didn't pass the sample timing diagram posted with the problem statement. Perhaps try debugging that?\nTIMEOUT\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob156_review2015_fancytimer_test.sv:216: $finish called at 1000000 (1ps)\nHint: Output 'count' has 163015 mismatches. First mismatch occurred at time 130.\nHint: Output 'counting' has 1516 mismatches. First mismatch occurred at time 130.\nHint: Output 'done' has 940 mismatches. First mismatch occurred at time 20130.\nHint: Total mismatched samples is 163771 out of 200000 samples\n\nSimulation finished at 1000000 ps\nMismatches: 163771 in 200000 samples",
-  "task": "spec-to-rtl",
-  "experiment": "agent"
-}

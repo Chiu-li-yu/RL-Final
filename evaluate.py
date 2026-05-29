@@ -49,7 +49,7 @@ CYAN   = "\033[36m"
 GRAY   = "\033[90m"
 
 VALID_EXPS    = ("agent", "baseline_a", "baseline_b")
-DEFAULT_MODEL = "gemini-3.1-flash-lite"
+DEFAULT_MODEL = "gemma-4-31b-it" # "gemini-3.1-flash-lite"
 
 
 # ── on_save callback（batch 模式：儲存程式碼，無互動）────────────────────────
@@ -111,7 +111,7 @@ def _run_baseline_a(
         problem_id=problem_id,
         problem_description=desc,
         task=task,
-        max_attempts=5,
+        max_attempts=1,
         model=model,
         verbose=False,
         rate_limiter=rate_limiter,
@@ -202,6 +202,7 @@ class _Progress:
         self.exp     = experiment
         self.task    = task.name
         self.pass_at: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        self.total_attempts = 0  # 累計所有通過題目的嘗試次數
 
     def update(
         self,
@@ -215,18 +216,22 @@ class _Progress:
 
             if was_skipped:
                 self.skipped += 1
-                status = f"{GRAY}skip{R}"
+                attempts = result.get("attempts", 0) if result else 0
+                status = f"{GRAY}skip {attempts}{R}" if attempts else f"{GRAY}skip{R}"
             elif result is None:
                 self.errors += 1
                 status = f"{RED}err {R}"
             elif result["passed"]:
                 self.passed += 1
-                n = min(result.get("attempts", 1), 5)
+                attempts = result.get("attempts", 1)
+                n = min(attempts, 5)
                 self.pass_at[n] = self.pass_at.get(n, 0) + 1
-                status = f"{GREEN}pass{R}"
+                self.total_attempts += attempts  # 累計嘗試次數
+                status = f"{GREEN}pass {attempts}{R}"
             elif result.get("sim_passed"):
                 self.failed += 1
-                status = f"{YELLOW}sim✓ synth✗{R}"
+                attempts = result.get("attempts", 0)
+                status = f"{YELLOW}sim✓ synth✗ {attempts}{R}" if attempts else f"{YELLOW}sim✓ synth✗{R}"
             else:
                 self.failed += 1
                 etype = result.get("sim_error_type") or result.get("error_type", "?")
@@ -236,11 +241,13 @@ class _Progress:
             rate    = self.done / elapsed if elapsed > 0 else 0
             eta     = (self.total - self.done) / rate if rate > 0 else 0
             pct     = self.done / self.total * 100
+            avg_attempts = self.total_attempts / self.passed if self.passed > 0 else 0
 
             line = (
                 f"{CYAN}[{self.exp}/{self.task}]{R} "
                 f"{self.done:>3}/{self.total} ({pct:5.1f}%) "
                 f"{GREEN}✓{self.passed}{R} {RED}✗{self.failed}{R} "
+                f"avg_attempts={avg_attempts:.1f} "
                 f"skip={self.skipped} err={self.errors}  "
                 f"ETA {eta:>5.0f}s  "
                 f"[{status}] {problem_id}"
@@ -350,7 +357,18 @@ def run_batch(
             continue
         if resume and result_exists(pid, task, experiment):
             skip_set.add(pid)
-            progress.update(None, was_skipped=True, problem_id=pid)
+            # 讀取已存在的 result.json 以取得 attempts 值
+            try:
+                import json
+                from pathlib import Path
+                result_file = Path("outputs") / experiment / task.name / pid / "result.json"
+                if result_file.exists():
+                    skip_result = json.loads(result_file.read_text(encoding="utf-8"))
+                    progress.update(skip_result, was_skipped=True, problem_id=pid)
+                else:
+                    progress.update(None, was_skipped=True, problem_id=pid)
+            except Exception:
+                progress.update(None, was_skipped=True, problem_id=pid)
 
     pending = [pid for pid in problems
                if pid in desc_map and pid not in skip_set]

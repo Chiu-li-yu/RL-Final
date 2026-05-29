@@ -4,11 +4,6 @@ module TopModule (
     output z
 );
 
-    logic z_val;
-    assign z_val = (x ^ y) & x;
-    
-    always @(*) begin
-        z = z_val;
-    end
+    assign z = (x ^ y) & x;
 
 endmodule

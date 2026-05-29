@@ -1,20 +1,24 @@
 module TopModule (
-    input logic clk,
-    input logic load,
-    input logic [9:0] data,
-    output logic tc
+    input clk,
+    input load,
+    input [9:0] data,
+    output tc
 );
 
-    logic [9:0] counter;
+    logic [9:0] count;
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (load) begin
-            counter <= data;
-        end else if (counter > 10'd0) begin
-            counter <= counter - 10'd1;
+            count <= data;
+        end else begin
+            if (count > 0) begin
+                count <= count - 1'b1;
+            end else begin
+                count <= 10'd0;
+            end
         end
     end
 
-    assign tc = (counter == 10'd0);
+    assign tc = (count == 10'd0);
 
 endmodule

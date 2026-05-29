@@ -1,6 +1,6 @@
 module TopModule (
-    input logic a,
-    input logic b,
+    input a,
+    input b,
     output logic sum,
     output logic cout
 );
