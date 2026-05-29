@@ -256,6 +256,51 @@ S_S1:   next_state = state_t'(data ? S_S11 : S_IDLE);
 
 ---
 
+## #5 — `get_interface` 工具依賴 benchmark ground truth，不適用真實場景（設計缺陷）
+
+**時間**：2026-05-28，架構審查時發現  
+**發生位置**：`agent/tools.py::get_interface()`，`spec-to-rtl` prompt 步驟一
+
+### 問題描述
+
+`get_interface` 工具從 `ref.sv`（VerilogEval 的參考答案）讀取 TopModule 的 port 介面宣告。在 benchmark 中，這讓 LLM 可以直接得到「正確」的 port 名稱，避免觸發 `p`/`c` 類 compile error。
+
+```python
+# tools.py（舊版）— 直接讀 ground truth
+ref_sv = dataset_dir / f"{problem_id}_ref.sv"
+content = ref_sv.read_text(encoding="utf-8")
+```
+
+### 為什麼這是問題
+
+| 情境 | `get_interface` 可用？ | 說明 |
+|------|----------------------|------|
+| VerilogEval benchmark | ✅ 可用 | ref.sv 存在 |
+| 真實 RTL 設計 | ❌ 不可用 | 沒有 ref.sv，介面要從規格設計 |
+
+使用此工具會讓系統在 benchmark 上比真實場景多一個優勢：LLM 知道正確 port 名稱，`p`/`c` 錯誤比例會被人工壓低，不反映真實設計難度。
+
+對於 `code-complete-iccad2023`，port 介面已在問題描述中給出（`_ifc.txt`），呼叫 `get_interface` 只是重讀已知資訊，同樣沒有必要。
+
+### 修復
+
+移除 `get_interface` 工具，同時更新 `spec-to-rtl` prompt：
+
+```
+# 舊 prompt（三步驟，step 1 依賴 ground truth）
+1. 先呼叫 get_interface 取得正確的 port 介面宣告
+2. ...
+
+# 新 prompt（從規格自行設計介面）
+- port 名稱與方向必須與題目規格完全一致
+```
+
+### 影響
+
+移除後，`p`/`c` 類 compile error 出現率可能上升。這是正確的行為——它反映了 LLM 真正的 spec 理解能力，而非依賴 ground truth 的人工優勢。在報告中可作為「benchmark 設定的 limitation」討論點。
+
+---
+
 ## 快速參考：google.genai tools 正確寫法
 
 ```python

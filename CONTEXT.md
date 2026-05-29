@@ -129,9 +129,9 @@ compile() + simulate()
 | 評估資料集 | VerilogEval code-complete-iccad2023 + spec-to-rtl（各 156 題） | 現成 testbench，有基準比較數據          |
 | SDK        | `google-genai`（新版）                                         | `google-generativeai` 已棄用            |
 
-## 實作架構（2026-05-26 確定，2026-05-27 更新）
+## 實作架構（2026-05-26 確定，2026-05-28 更新）
 
-### Error Classification（13-code 細粒度分類）
+### Error Classification（15-code 細粒度分類）
 
 直接移植 VerilogEval `sv-iv-analyze` 腳本的 `analyze_result()` 邏輯，
 讓我們的結果可以直接與 VerilogEval 公開基準比較。
@@ -151,8 +151,24 @@ compile() + simulate()
 | `T`  | Timeout                      | Simulation Error | log 含 `"TIMEOUT"` 或 Python `TimeoutExpired`    |
 | `r`  | Async Reset（靜態分析）      | Simulation Error | verilog source 含 `posedge/negedge reset`        |
 | `R`  | Runtime Error / Mismatch     | Simulation Error | `Mismatches: N > 0`，或無法識別輸出              |
+| `Y`  | Synthesis Pass               | ✅ 合成成功      | yosys returncode == 0                            |
+| `Ys` | Synthesis Error              | Synthesis Error  | yosys returncode != 0                            |
 
-實作在 `agent/tools.py` 的 `_classify_compile()` 和 `_classify_sim()` 兩個私有函式。
+實作在 `agent/tools.py`：模擬分類由 `_classify_compile()` 和 `_classify_sim()` 負責；合成分類內嵌於 `synthesize()` 函式。
+
+公開常數供 evaluate.py 使用：
+
+```python
+from agent.tools import (
+    COMPILE_ERROR_CODES, SIM_ERROR_CODES, SYNTH_ERROR_CODES,
+    PASS_CODE, SYNTH_PASS_CODE,
+)
+COMPILE_ERROR_CODES = frozenset({"S", "C", "e", "0", "n", "w", "m", "p", "c"})
+SIM_ERROR_CODES     = frozenset({"R", "T", "r"})
+SYNTH_ERROR_CODES   = frozenset({"Ys"})
+PASS_CODE           = "."
+SYNTH_PASS_CODE     = "Y"
+```
 
 #### DEBUG_HINTS — 按 error code 索引的除錯提示清單
 
@@ -167,21 +183,11 @@ if error_code in DEBUG_HINTS:
 
 **`R`（Runtime mismatch）** — 6 項子類型假設清單，讓 LLM 逐項對照程式碼：timing offset、狀態轉移條件、組合邏輯錯誤、reset 初始值、計數器邊界、輸出時序（Mealy/Moore）。
 
-**`e`（Explicit cast required）** — 3 項觸發原因 + 修正方式 + 根本解法（改用 localparam + logic）：
-1. 把整數常數賦值給 enum 變數
-2. 三元運算符兩側混用 enum 和整數
-3. 對 enum 變數做算術運算
+**`e`（Explicit cast required）** — 3 項觸發原因 + 修正方式 + 根本解法（改用 localparam + logic）。
+
+**`Ys`（Synthesis Error）** — 4 項 yosys 常見合成錯誤：不可合成語法（initial/delay）、未定義 module、多重驅動、yosys 不支援的 SV 語法。
 
 設計原則：只對有診斷價值的 error code 附加（T / r / S 等不附加）。新增 hint 只需改 `prompts.py` 的 `DEBUG_HINTS`，`tools.py` 不需動。
-公開常數供 `evaluate.py` 使用：
-
-```python
-from agent.tools import COMPILE_ERROR_CODES, SIM_ERROR_CODES, PASS_CODE
-
-COMPILE_ERROR_CODES = frozenset({"S", "C", "e", "0", "n", "w", "m", "p", "c"})
-SIM_ERROR_CODES     = frozenset({"R", "T", "r"})
-PASS_CODE           = "."
-```
 
 #### System Prompt FSM 規範
 
@@ -195,6 +201,99 @@ PASS_CODE           = "."
 ```
 
 動機：LLM 在 FSM 題目中傾向使用 `enum + 三元運算符`，但 iverilog 的嚴格型別檢查會觸發 `e` 錯誤。提供正向模板比純禁止清單更有效，讓模型直接走 localparam 路徑。
+
+### 合成工具（synthesize）
+
+`agent/tools.py::synthesize(verilog_code)` 使用 yosys 對程式碼進行合成性檢查：
+
+```bash
+yosys -q -p "read_verilog -sv {file}; synth -top TopModule -flatten"
+```
+
+- 只做合成性驗證，不產生 netlist
+- **不**將 latch 警告視為失敗（無法保證題目設計不需要 latch）
+- yosys 未安裝時回傳友好錯誤訊息（`error_type: "Ys"`, `error_log: "yosys not found"`）
+- 安裝：`sudo apt install yosys`
+
+### Two-Phase Pass System（兩階段通過）
+
+Pass 的定義從「模擬 Mismatches=0」改為「模擬通過 **AND** 合成通過」。
+
+```
+result["passed"] = result["sim_passed"] AND result["synth_passed"]
+```
+
+**Episode 最佳結果追蹤：**
+
+```python
+# 分數：sim+synth=2 > sim-only=1 > 未通過=0
+# 每次 compile_and_test 或 synthesize 後更新 _best
+ep.record_sim(sim_result, code)    # 重置 synth 狀態
+ep.record_synth(synth_result)      # 更新 best
+ep.to_result()                     # 回傳歷史最佳
+```
+
+**更新後的 `result.json` 格式：**
+
+```json
+{
+  "problem_id":       "Prob001_zero",
+  "passed":           true,
+  "sim_passed":       true,
+  "synth_passed":     true,
+  "attempts":         2,
+  "sim_error_type":   ".",
+  "sim_error_log":    "",
+  "synth_error_type": "Y",
+  "synth_error_log":  "",
+  "task":             "spec-to-rtl",
+  "experiment":       "agent"
+}
+```
+
+`max_attempts` 從 3 改為 **5**（合成驗證可能需要更多 attempt 修復）。
+
+### 合成排除清單（agent/dataset.py）
+
+部分 VerilogEval 題目的 ref.sv 使用 `initial` 設定上電初始值，這在 FPGA 合成中合法，但 yosys generic `synth` 不支援，會對正確答案誤判為合成失敗。
+
+掃描全部 156 題 ref.sv 的結果：
+- `initial` 出現：Prob031、034、053、104
+- tri-state / `inout` / `readmemh` / `real` / `time`：無
+
+Prob031 的正解不需要 `initial` 也能通過，故保留。其餘三題從實驗資料集排除，實際跑 **153 題**。
+
+```python
+# agent/dataset.py
+_SYNTH_EXCLUDED: frozenset[str] = frozenset({
+    "Prob034_dff8",
+    "Prob053_m2014_q4d",
+    "Prob104_mt2015_muxdff",
+})
+
+def list_problems(task: Task) -> list[str]:
+    # 過濾排除清單，回傳 153 題
+```
+
+### Task 配置模組（agent/task.py）
+
+所有 task-specific 知識（dataset 路徑、system prompt、名稱字串）集中在 `agent/task.py`，其餘模組不再各自定義 `_DATASET_DIRS`：
+
+```python
+@dataclass(frozen=True)
+class Task:
+    name:          str    # "spec-to-rtl" 或 "code-complete-iccad2023"
+    dataset_dir:   Path   # ref.sv / test.sv / ifc.txt
+    prompt_dir:    Path   # _prompt.txt（自然語言描述）
+    system_prompt: str    # 直接傳給 Gemini
+
+SPEC_TO_RTL           = Task(name="spec-to-rtl",           ...)
+CODE_COMPLETE_ICCAD2023 = Task(name="code-complete-iccad2023", ...)
+
+def get_task(name: str) -> Task: ...   # CLI --task 解析用
+```
+
+`tools.py` 改接 `dataset_dir: Path`（不再知道 task 名稱），`dataset.py` / `agent.py` 改接 `task: Task`。
 
 ### API Retry 機制
 
@@ -220,16 +319,19 @@ types.Tool(function_declarations=[types.FunctionDeclaration(...)])
 
 ### Agent Callback 架構
 
-`agent/agent.py::run_agent()` 提供 4 個可選 callback，讓顯示層與邏輯層分離：
+`agent/agent.py::run_agent()` 提供 5 個可選 callback，讓顯示層與邏輯層分離：
 
 ```
 run_agent(
     on_thinking(text)              ← Gemini 的文字思考輸出
     on_tool_call(name, args, n)    ← 工具呼叫前
     on_tool_result(name, res, n)   ← 工具呼叫後
+    on_save(n, code)               ← compile_and_test 後，純 I/O，儲存程式碼
     on_checkpoint(n, res, code)→bool ← compile_and_test 後，False 可中止
 )
 ```
+
+`on_save` 與 `on_checkpoint` 職責分離：`on_save` 只負責存檔（無回傳值），`on_checkpoint` 只負責控制流與人工互動。
 
 不傳任何 callback 時，`verbose=True` 仍可印出簡易進度，兩者可並用。
 

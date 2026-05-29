@@ -28,19 +28,33 @@ from agent.task import Task
 _BASE_DIR   = Path(__file__).parent.parent
 _OUTPUT_DIR = _BASE_DIR / "outputs"
 
+# ref.sv 中含有 initial block 且移除後無法由 LLM 自行補回的題目。
+# 這些題目的正解依賴 initial 設定上電初始值，yosys generic synth 不支援，
+# 因此從實驗資料集中排除，避免合成階段對正確答案誤判為失敗。
+# （Prob031 的正解不需要 initial 也能通過，故保留。）
+_SYNTH_EXCLUDED: frozenset[str] = frozenset({
+    "Prob034_dff8",
+    "Prob053_m2014_q4d",
+    "Prob104_mt2015_muxdff",
+})
+
 
 # ── 公開：題目列舉 ─────────────────────────────────────────────────────────────
 
 def list_problems(task: Task) -> list[str]:
     """
-    回傳指定 task 的所有題目 ID，按字母排序。
+    回傳指定 task 的題目 ID，按字母排序。
+
+    排除 _SYNTH_EXCLUDED 中的題目（ref.sv 含有 initial，
+    yosys 合成驗證會對正確答案誤判為失敗）。
 
     Returns:
-        排序後的 problem_id 清單，例如 ["Prob001_zero", ..., "Prob156_..."]
+        排序後的 problem_id 清單（153 題）
     """
     return sorted(
         f.stem.removesuffix("_prompt")
         for f in task.prompt_dir.glob("*_prompt.txt")
+        if f.stem.removesuffix("_prompt") not in _SYNTH_EXCLUDED
     )
 
 

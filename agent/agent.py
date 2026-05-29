@@ -28,7 +28,7 @@ from google import genai
 from google.genai import types
 from google.api_core.exceptions import ResourceExhausted, ServiceUnavailable, DeadlineExceeded
 
-from agent.tools import compile_and_test
+from agent.tools import compile_and_test, synthesize
 from agent.prompts import DEBUG_HINTS
 from agent.task import Task
 
@@ -68,26 +68,76 @@ class RateLimiter:
 class Episode:
     """
     一道題目從第一次嘗試到結束的執行狀態。
+
+    Pass 定義為 sim_passed AND synth_passed（兩階段均通過）。
+    每次 compile_and_test 後、每次 synthesize 後都評估一次 best result，
+    取分數最高者（sim+synth > sim-only > 未通過）作為最終回傳。
     """
     problem_id: str
     attempts:   int  = 0
     final_code: str  = ""
-    last_result: dict = field(default_factory=lambda: {
-        "passed":         False,
-        "error_type":     "simulation_error",
-        "error_log":      "未執行任何測試",
-        "mismatch_count": 0,
-    })
 
-    def to_result(self) -> dict:
+    # 當前 attempt 的狀態
+    _sim_result:   dict = field(default_factory=dict)
+    _synth_result: dict = field(default_factory=dict)
+
+    # 歷史最佳結果（sim+synth > sim-only > none）
+    _best: dict = field(default_factory=dict)
+
+    # ── 分數計算（用於比較哪個 attempt 結果更好）─────────────────────────────
+    @staticmethod
+    def _score(d: dict) -> int:
+        if d.get("sim_passed") and d.get("synth_passed"):
+            return 2
+        if d.get("sim_passed"):
+            return 1
+        return 0
+
+    # ── 記錄本次 attempt 的模擬結果 ──────────────────────────────────────────
+    def record_sim(self, result: dict, code: str) -> None:
+        self._sim_result   = result
+        self._synth_result = {}       # 新的模擬 → 重置合成狀態
+        self.final_code    = code
+        self._maybe_update_best()
+
+    # ── 記錄本次 attempt 的合成結果 ──────────────────────────────────────────
+    def record_synth(self, result: dict) -> None:
+        self._synth_result = result
+        self._maybe_update_best()
+
+    # ── 更新最佳結果 ─────────────────────────────────────────────────────────
+    def _maybe_update_best(self) -> None:
+        current = self._snapshot()
+        if self._score(current) > self._score(self._best):
+            self._best = current
+
+    def _snapshot(self) -> dict:
+        sim_passed   = self._sim_result.get("passed", False)
+        synth_passed = self._synth_result.get("passed", False)
         return {
-            "problem_id": self.problem_id,
-            "passed":     self.last_result["passed"],
-            "attempts":   self.attempts,
-            "final_code": self.final_code,
-            "error_type": self.last_result["error_type"],
-            "error_log":  self.last_result["error_log"],
+            "problem_id":      self.problem_id,
+            "passed":          sim_passed and synth_passed,
+            "sim_passed":      sim_passed,
+            "synth_passed":    synth_passed,
+            "attempts":        self.attempts,
+            "final_code":      self.final_code,
+            "sim_error_type":  self._sim_result.get("error_type", ""),
+            "sim_error_log":   self._sim_result.get("error_log", ""),
+            "synth_error_type": self._synth_result.get("error_type", ""),
+            "synth_error_log": self._synth_result.get("error_log", ""),
         }
+
+    # ── 便利查詢 ─────────────────────────────────────────────────────────────
+    def sim_passed(self) -> bool:
+        return self._sim_result.get("passed", False)
+
+    def fully_passed(self) -> bool:
+        return self._sim_result.get("passed", False) and \
+               self._synth_result.get("passed", False)
+
+    # ── 最終回傳 ─────────────────────────────────────────────────────────────
+    def to_result(self) -> dict:
+        return self._best if self._best else self._snapshot()
 
 
 # ── Tool schemas ──────────────────────────────────────────────────────────────
@@ -107,6 +157,24 @@ _TOOLS = types.Tool(
                     "verilog_code": types.Schema(
                         type=types.Type.STRING,
                         description="完整的 TopModule Verilog 程式碼（從 module TopModule 到 endmodule）",
+                    ),
+                },
+                required=["verilog_code"],
+            ),
+        ),
+        types.FunctionDeclaration(
+            name="synthesize",
+            description=(
+                "使用 yosys 對 Verilog 程式碼進行合成性驗證。"
+                "模擬通過（passed=true）後必須呼叫此工具。"
+                "回傳 passed（bool）、error_type（Y=通過 / Ys=合成錯誤）、error_log。"
+            ),
+            parameters=types.Schema(
+                type=types.Type.OBJECT,
+                properties={
+                    "verilog_code": types.Schema(
+                        type=types.Type.STRING,
+                        description="完整的 TopModule Verilog 程式碼",
                     ),
                 },
                 required=["verilog_code"],
@@ -217,7 +285,7 @@ def run_agent(
     problem_id: str,
     problem_description: str,
     task: Task,
-    max_attempts: int = 3,
+    max_attempts: int = 5,
     model: str = "gemini-3.1-flash-lite",
     verbose: bool = False,
     rate_limiter: RateLimiter | None = None,
@@ -248,7 +316,14 @@ def run_agent(
         on_checkpoint:       compile_and_test 完成後呼叫（控制流用），回傳 False 中止
 
     Returns:
-        {"problem_id", "passed", "attempts", "final_code", "error_type", "error_log"}
+        {
+            "problem_id", "passed",         # passed = sim_passed AND synth_passed
+            "sim_passed", "synth_passed",   # 分階段狀態
+            "attempts",   "final_code",
+            "sim_error_type",  "sim_error_log",
+            "synth_error_type", "synth_error_log",
+        }
+        回傳歷史最佳結果（sim+synth > sim-only > 未通過）。
     """
     # 建立 retry 包裝，捕獲 rate_limiter
     def retry(fn, *args, **kwargs):
@@ -299,37 +374,65 @@ def run_agent(
                 elif verbose:
                     print(f"[agent] compile_and_test (attempt {ep.attempts}/{max_attempts})")
 
-                # 執行工具（bare result，不含 debug_hints）
                 result = compile_and_test(verilog_code, problem_id, task.dataset_dir)
 
-                # dispatch handler 附加 debug_hints（候選 2：移出 tools.py）
+                # 附加 debug_hints
                 error_code = result.get("error_type", "")
                 if error_code in DEBUG_HINTS:
                     result = dict(result)
                     result["debug_hints"] = DEBUG_HINTS[error_code]
 
-                ep.last_result = result
+                ep.record_sim(result, verilog_code)
 
                 if on_tool_result:
                     on_tool_result("compile_and_test", result, ep.attempts)
                 elif verbose:
-                    status = "✅ PASS" if result["passed"] else f"❌ {result['error_type']}"
+                    status = "✅ SIM PASS" if result["passed"] else f"❌ {result['error_type']}"
                     print(f"[agent]   → {status}  (attempt {ep.attempts}/{max_attempts})")
 
-                if result["passed"]:
-                    should_stop = True
-
-                # 儲存 callback（無回傳值，不控制流程）
+                # 儲存 callback
                 if on_save:
                     on_save(ep.attempts, verilog_code)
 
-                # 控制流 callback
+                # 控制流 callback（sim 通過時不停止，等待 synthesize）
                 if on_checkpoint:
                     if not on_checkpoint(ep.attempts, result, verilog_code):
                         should_stop = True
 
                 tool_results.append(types.Part.from_function_response(
                     name="compile_and_test", response=result,
+                ))
+
+            elif fc.name == "synthesize":
+                verilog_code = fc.args["verilog_code"]
+
+                if on_tool_call:
+                    on_tool_call("synthesize", {"verilog_code": verilog_code}, ep.attempts)
+                elif verbose:
+                    print("[agent] synthesize ...")
+
+                synth_result = synthesize(verilog_code)
+
+                # 附加 debug_hints
+                synth_code = synth_result.get("error_type", "")
+                if synth_code in DEBUG_HINTS:
+                    synth_result = dict(synth_result)
+                    synth_result["debug_hints"] = DEBUG_HINTS[synth_code]
+
+                ep.record_synth(synth_result)
+
+                if on_tool_result:
+                    on_tool_result("synthesize", synth_result, ep.attempts)
+                elif verbose:
+                    status = "✅ SYNTH PASS" if synth_result["passed"] else f"❌ {synth_result['error_type']}"
+                    print(f"[agent]   → {status}")
+
+                # 兩階段都過 → 停止
+                if ep.fully_passed():
+                    should_stop = True
+
+                tool_results.append(types.Part.from_function_response(
+                    name="synthesize", response=synth_result,
                 ))
 
             elif fc.name == "decompose_spec":

@@ -75,13 +75,30 @@ def _on_tool_call(name: str, args: dict, attempt: int):
         _print(preview)
         _print(LINE)
 
+    elif name == "synthesize":
+        _print(f"\n{YELLOW}⚙️   synthesize{R}  (attempt {attempt})")
+
     elif name == "decompose_spec":
         desc = args.get("problem_description", "")
         _print(f"\n{YELLOW}🔍  decompose_spec{R}")
         _print(f"{GRAY}{desc[:200]}…{R}")
 
+
 def _on_tool_result(name: str, result: dict, attempt: int):
-    if name == "decompose_spec":
+    if name == "synthesize":
+        if result["passed"]:
+            _print(f"{GREEN}{BOLD}✅  Synthesis PASS{R}")
+        else:
+            _print(f"{RED}❌  Ys  synthesis error{R}")
+            if result.get("error_log"):
+                for line in result["error_log"].splitlines()[:6]:
+                    _print(f"   {GRAY}{line}{R}")
+            if result.get("debug_hints"):
+                _print(f"\n{CYAN}💡  Debug hints:{R}")
+                for line in result["debug_hints"].splitlines():
+                    _print(f"   {GRAY}{line}{R}")
+
+    elif name == "decompose_spec":
         sub_goals = result.get("sub_goals", "")
         _print(f"{GRAY}{sub_goals[:400]}{R}")
 
@@ -106,7 +123,7 @@ def _make_checkpoint(problem_id: str, task: Task, max_attempts: int):
 
         # ── 顯示結果 ───────────────────────────────────────────────────────────
         if result["passed"]:
-            _print(f"\n{GREEN}{BOLD}✅  PASS{R}")
+            _print(f"\n{GREEN}{BOLD}✅  simulation PASS — 呼叫 synthesize 驗證可合成性{R}")
             return True
 
         etype  = result["error_type"]
@@ -192,8 +209,13 @@ def run_problem(problem_id: str, task: Task, max_attempts: int = 3):
 
     out_prefix = f"outputs/agent/{task.name}/{problem_id}"
     _print(f"\n{DLINE}")
+    sim_ok   = result.get("sim_passed",   result.get("passed", False))
+    synth_ok = result.get("synth_passed", False)
     if result["passed"]:
-        _print(f"{GREEN}{BOLD}🎉  完成！  共 {result['attempts']} 次嘗試{R}")
+        _print(f"{GREEN}{BOLD}🎉  完成！模擬✅ 合成✅  共 {result['attempts']} 次嘗試{R}")
+        _print(f"📄  {out_prefix}/attempt_{result['attempts']}.sv")
+    elif sim_ok:
+        _print(f"{YELLOW}⚠️   模擬✅ 合成✗  共 {result['attempts']} 次嘗試{R}")
         _print(f"📄  {out_prefix}/attempt_{result['attempts']}.sv")
     else:
         _print(f"{RED}😞  未通過  共 {result['attempts']} 次嘗試{R}")

@@ -33,7 +33,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from agent.tools import compile_and_test, _classify_compile, _classify_sim
+from agent.tools import compile_and_test, synthesize, _classify_compile, _classify_sim
+from agent.task import SPEC_TO_RTL
 
 # ── ANSI colors ───────────────────────────────────────────────────────────────
 _G = "\033[92m"   # green
@@ -197,7 +198,7 @@ else:
         """執行一個 compile_and_test 案例並印出結果。"""
         global _skip
         try:
-            result = compile_and_test(code, problem_id, "spec-to-rtl")
+            result = compile_and_test(code, problem_id, SPEC_TO_RTL.dataset_dir)
         except FileNotFoundError as exc:
             _skip += 1
             print(f"  {_Y}[SKIP]{_X} [{expected_type}] {name}")
@@ -376,6 +377,61 @@ endmodule""",
   T  Python-level TimeoutExpired 需等 60 秒才觸發；
      可手動降低 compile_and_test() timeout 驗證。
   C  Generic catch-all，已由 Section 1A mock log 覆蓋。{_X}""")
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Section 3 — synthesize() 整合測試（需要 yosys）
+# ═════════════════════════════════════════════════════════════════════════════
+
+_section("Section 3：synthesize() 整合測試（需要 yosys）")
+
+SYNTH_CASES = [
+    # (name, code, expected_type, expected_passed)
+    ("Y  — 正確答案（純組合邏輯）",
+     "module TopModule (output logic zero);\n  assign zero = 1'b0;\nendmodule",
+     "Y", True),
+
+    ("Y  — 正確 DFF",
+     """\
+module TopModule (input clk, input d, output logic q);
+  always @(posedge clk) q <= d;
+endmodule""",
+     "Y", True),
+
+    ("Ys — 含 initial block（yosys generic synth 不支援）",
+     """\
+module TopModule (output logic zero);
+  initial zero = 0;
+  assign zero = 1'b0;
+endmodule""",
+     "Ys", False),
+]
+
+for name, code, expected_type, expected_passed in SYNTH_CASES:
+    try:
+        result = synthesize(code)
+    except Exception as exc:
+        _skip += 1
+        print(f"  {_Y}[SKIP]{_X} [{expected_type}] {name}")
+        print(f"         例外：{exc}")
+        continue
+
+    actual_type   = result["error_type"]
+    actual_passed = result["passed"]
+
+    if actual_type == "Ys" and "yosys not found" in result.get("error_log", ""):
+        _skip += 1
+        print(f"  {_Y}[SKIP]{_X} [{expected_type}] {name}  （yosys 未安裝）")
+        continue
+
+    ok = (actual_type == expected_type and actual_passed == expected_passed)
+    print(f"  {_ok(ok)} [{expected_type}] {name}")
+    if not ok:
+        print(f"         期望 type={expected_type!r}  passed={expected_passed}")
+        print(f"         實際 type={actual_type!r}  passed={actual_passed}")
+    if result["error_log"]:
+        line0 = result["error_log"].splitlines()[0]
+        print(f"         {_D}↳ {line0[:110]}{_X}")
+
 
 # ═════════════════════════════════════════════════════════════════════════════
 # 彙總

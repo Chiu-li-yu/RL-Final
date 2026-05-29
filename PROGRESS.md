@@ -93,6 +93,7 @@
 - [x] `google-genai`（新官方 SDK）安裝並驗證 OK
   - ⚠️ `google-generativeai` 已棄用，改用 `google.genai`
 - [x] VS Code WSL Remote 擴充設定完成（`code .` 從 WSL 開啟）
+- [x] VS Code Verilog-HDL/SystemVerilog 擴充套件
 
 #### 環境重現指令（供 Docker / 新機器使用）
 
@@ -673,6 +674,28 @@ decompose_spec = {
   - `on_checkpoint` 在 R 類錯誤後顯示 `💡 Debug hints`
   - 人工介入迴圈改為 `while True`，`v` 看完 log 或 `c` 看完程式碼後仍可繼續切換，不再只剩 Enter/a
 - [x] Prompt FSM 規範改版：兩個 prompt 的 enum 規則從「禁止清單」改為「正向模板」，推薦 `localparam + logic`，消除 LLM 傾向使用 `enum + 三元運算符` 的根本原因
+
+### 5/28
+
+- [x] **架構重構**（`/improve-codebase-architecture` 5 個候選項）：
+  - **候選 1**：新建 `agent/task.py`（Task dataclass），消除 `_DATASET_DIRS` 在 3 個模組中各自定義的問題；`tools.py` 改接 `dataset_dir: Path`
+  - **候選 2**：`compile_and_test` / `synthesize` 不附加 hints，改由 `agent.py` dispatch handler 負責；`tools.py` 不再 import `prompts`
+  - **候選 3**：`prompts.py` 抽出 `_RULES_COMMON`，兩個 prompt 用 f-string 組合，消除重複的 FSM 規範段落
+  - **候選 4**：`on_save(attempt, code)` 與 `on_checkpoint(attempt, result, code)->bool` 職責分離；`evaluate.py` 使用 `on_save`，不再需要假裝 `on_checkpoint`
+  - **候選 5**：`RateLimiter` 公開化，透過 `run_agent(rate_limiter=...)` 參數傳遞，移除全域 `configure_rate_limit()`
+- [x] **移除 `get_interface` 工具**：此工具直接讀取 `ref.sv`（benchmark ground truth），在真實世界無對應物，設計上屬 benchmark-only，予以移除避免報告結果偏差
+- [x] **新增 `synthesize` 工具**（`agent/tools.py`）：呼叫 yosys 進行合成性檢查，新增 error code `Y`（合成通過）/ `Ys`（合成錯誤）
+- [x] **兩階段通過系統**（`agent/agent.py`）：
+  - `passed = sim_passed AND synth_passed`
+  - Episode 重構：`record_sim()` / `record_synth()` / `_best` 追蹤歷史最佳（sim+synth > sim-only > 未通過）
+  - `max_attempts` 從 3 改為 **5**
+  - `result.json` 加入 `sim_passed`、`synth_passed`、`sim_error_type`、`synth_error_type` 欄位
+- [x] **DEBUG_HINTS 新增 `Ys`**：yosys 合成錯誤的 4 項常見原因與修正方式
+- [x] **Prompt 更新**：兩個 task 的驗證流程改為「compile_and_test → synthesize」兩步，模擬通過後必須呼叫 synthesize
+- [x] **合成排除清單** `_SYNTH_EXCLUDED`（`agent/dataset.py`）：
+  - 掃描全部 156 題 ref.sv，確認只有 `initial` 會導致 yosys 對正解誤判
+  - 排除 Prob034 / Prob053 / Prob104（ref.sv 含 `initial` 且正解需依賴它）
+  - 實驗資料集從 156 題縮減為 **153 題**，`list_problems()` 自動過濾
 
 ### 5/29–5/30
 

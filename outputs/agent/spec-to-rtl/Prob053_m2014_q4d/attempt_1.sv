@@ -1,6 +1,6 @@
-module TopModule (
-    input logic clk,
-    input logic in,
+module TopModule(
+    input clk,
+    input in,
     output logic out
 );
 

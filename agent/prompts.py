@@ -32,6 +32,14 @@ DEBUG_HINTS: dict[str, str] = {
         "5. 計數器邊界：off-by-one（計數到幾才觸發）\n"
         "6. 輸出時序：z 應在哪個 state 輸出、是 Mealy 還是 Moore"
     ),
+    "Ys": (
+        "yosys 合成錯誤常見原因：\n"
+        "1. 不可合成語法：initial block、#delay、task/function 含不支援的語法\n"
+        "2. 未定義的 module：引用了不存在的 submodule\n"
+        "3. 多重驅動：同一訊號被兩個 always block 驅動\n"
+        "4. 合成器無法識別的語法：部分 SystemVerilog 語法 yosys 不支援\n"
+        "修正方式：查看 error_log 中的行號，移除或替換不可合成的語法。"
+    ),
     "e": (
         "Explicit cast 錯誤常見原因（iverilog 要求明確型別轉換）：\n"
         "1. 把整數常數賦值給 enum 變數（改用 enum 成員名稱，如 state <= IDLE 而非 state <= 2'd0）\n"
@@ -53,9 +61,13 @@ CODE_COMPLETE_PROMPT = f"""你是一個 Verilog RTL 設計師。
 - module 的 port 介面已在題目中給定，不需修改
 {_RULES_COMMON}
 
-可使用的工具列表:
-- decompose_spec, 可用來分析題目，若因邏輯錯誤失敗超過一次，可呼叫並用於分析。
-- compile_and_test, 在完成程式碼時用來驗證結果。
+驗證流程（必須依序完成）：
+1. 呼叫 compile_and_test 驗證模擬正確性
+2. 模擬通過後，呼叫 synthesize 驗證可合成性
+3. 兩者皆通過才算完成
+
+其他可用工具：
+- decompose_spec, 若因邏輯錯誤失敗超過一次，可呼叫並用於分析。
 """
 
 SPEC_TO_RTL_PROMPT = f"""你是一個 Verilog RTL 設計師。
@@ -66,6 +78,11 @@ SPEC_TO_RTL_PROMPT = f"""你是一個 Verilog RTL 設計師。
 - port 名稱與方向必須與題目規格完全一致
 {_RULES_COMMON}
 
-完成程式碼後，立刻呼叫 compile_and_test 工具驗證。
-若因邏輯錯誤失敗超過一次，請先呼叫 decompose_spec 分析題目，再重新撰寫。
+驗證流程（必須依序完成）：
+1. 呼叫 compile_and_test 驗證模擬正確性
+2. 模擬通過後，呼叫 synthesize 驗證可合成性
+3. 兩者皆通過才算完成
+
+其他可用工具：
+- decompose_spec, 若因邏輯錯誤失敗超過一次，可呼叫並用於分析。
 """

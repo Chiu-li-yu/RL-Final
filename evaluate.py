@@ -92,7 +92,7 @@ def _run_agent(
         problem_id=problem_id,
         problem_description=desc,
         task=task,
-        max_attempts=3,
+        max_attempts=5,
         model=model,
         verbose=False,
         rate_limiter=rate_limiter,
@@ -111,7 +111,7 @@ def _run_baseline_a(
         problem_id=problem_id,
         problem_description=desc,
         task=task,
-        max_attempts=1,
+        max_attempts=5,
         model=model,
         verbose=False,
         rate_limiter=rate_limiter,
@@ -201,7 +201,7 @@ class _Progress:
         self._start  = time.monotonic()
         self.exp     = experiment
         self.task    = task.name
-        self.pass_at: dict[int, int] = {1: 0, 2: 0, 3: 0}
+        self.pass_at: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 
     def update(
         self,
@@ -221,12 +221,15 @@ class _Progress:
                 status = f"{RED}err {R}"
             elif result["passed"]:
                 self.passed += 1
-                n = min(result.get("attempts", 1), 3)
+                n = min(result.get("attempts", 1), 5)
                 self.pass_at[n] = self.pass_at.get(n, 0) + 1
                 status = f"{GREEN}pass{R}"
+            elif result.get("sim_passed"):
+                self.failed += 1
+                status = f"{YELLOW}sim✓ synth✗{R}"
             else:
                 self.failed += 1
-                etype = result.get("error_type", "?")
+                etype = result.get("sim_error_type") or result.get("error_type", "?")
                 status = f"{RED}FAIL[{etype}]{R}"
 
             elapsed = time.monotonic() - self._start

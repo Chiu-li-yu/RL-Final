@@ -36,7 +36,9 @@ from pathlib import Path
 # 公開常數：供 evaluate.py 等呼叫者分類 error_type
 COMPILE_ERROR_CODES = frozenset({"S", "C", "e", "0", "n", "w", "m", "p", "c"})
 SIM_ERROR_CODES     = frozenset({"R", "T", "r"})
+SYNTH_ERROR_CODES   = frozenset({"Ys"})
 PASS_CODE           = "."
+SYNTH_PASS_CODE     = "Y"
 
 
 # ── 私有：錯誤分類 ────────────────────────────────────────────────────────────
@@ -104,6 +106,68 @@ def _classify_sim(sim_log: str, verilog_code: str) -> tuple[str, int]:
             return "r", -1
 
     return "R", -1
+
+
+# ── 公開：合成驗證 ────────────────────────────────────────────────────────────
+
+def synthesize(verilog_code: str) -> dict:
+    """
+    使用 yosys 對 Verilog 程式碼進行合成性檢查。
+
+    只驗證能否被合成，不產生輸出 netlist。
+    不將 latch 警告視為失敗（無法保證題目不需要 latch）。
+
+    Args:
+        verilog_code: 完整的 TopModule Verilog 程式碼
+
+    Returns:
+        {
+            "passed":     bool,
+            "error_type": str,   # "Y"（通過）或 "Ys"（合成錯誤）
+            "error_log":  str,   # 通過時為空字串
+        }
+    """
+    fd, gen_sv = tempfile.mkstemp(suffix=".sv")
+    try:
+        os.write(fd, verilog_code.encode("utf-8"))
+        os.close(fd)
+
+        result = subprocess.run(
+            ["yosys", "-q", "-p",
+             f"read_verilog -sv {gen_sv}; synth -top TopModule -flatten"],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        log = result.stderr + result.stdout
+
+        if result.returncode != 0:
+            return {
+                "passed":     False,
+                "error_type": "Ys",
+                "error_log":  log.strip(),
+            }
+        return {
+            "passed":     True,
+            "error_type": "Y",
+            "error_log":  "",
+        }
+
+    except subprocess.TimeoutExpired:
+        return {
+            "passed":     False,
+            "error_type": "Ys",
+            "error_log":  "yosys timed out after 120s",
+        }
+    except FileNotFoundError:
+        return {
+            "passed":     False,
+            "error_type": "Ys",
+            "error_log":  "yosys not found — please install: sudo apt install yosys",
+        }
+    finally:
+        if os.path.exists(gen_sv):
+            os.unlink(gen_sv)
 
 
 # ── 公開：編譯與模擬 ──────────────────────────────────────────────────────────
