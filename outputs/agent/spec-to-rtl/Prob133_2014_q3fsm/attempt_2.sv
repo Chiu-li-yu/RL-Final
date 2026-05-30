@@ -3,53 +3,48 @@ module TopModule (
     input reset,
     input s,
     input w,
-    output z
+    output logic z
 );
-    localparam A = 3'd0, B = 3'd1, C = 3'd2, D = 3'd3, E = 3'd4;
-    logic [2:0] state, next_state;
-    logic [1:0] count, next_count;
 
-    always @(*) begin
-        next_state = state;
-        next_count = count;
-        case (state)
-            A: begin
-                if (s) next_state = B;
-                else next_state = A;
-                next_count = 2'd0;
-            end
-            B: begin
-                next_state = C;
-                next_count = (w ? 2'd1 : 2'd0);
-            end
-            C: begin
-                next_state = D;
-                next_count = count + (w ? 2'd1 : 2'd0);
-            end
-            D: begin
-                next_state = E;
-                next_count = count + (w ? 2'd1 : 2'd0);
-            end
-            E: begin
-                next_state = B;
-                next_count = 2'd0;
-            end
-            default: begin
-                next_state = A;
-                next_count = 2'd0;
-            end
-        endcase
-    end
+    localparam STATE_A = 1'b0;
+    localparam STATE_B = 1'b1;
 
-    always @(posedge clk) begin
+    logic current_state, next_state;
+    logic [1:0] counter;
+    logic [1:0] w_count;
+
+    always_ff @(posedge clk) begin
         if (reset) begin
-            state <= A;
-            count <= 2'd0;
+            current_state <= STATE_A;
+            counter <= 2'b00;
+            w_count <= 2'b00;
+            z <= 1'b0;
         end else begin
-            state <= next_state;
-            count <= next_count;
+            current_state <= next_state;
+            if (current_state == STATE_B) begin
+                if (counter == 2'd2) begin
+                    counter <= 2'b00;
+                    w_count <= 2'b00;
+                    z <= ((w_count + (w ? 1'b1 : 1'b0)) == 2'd2);
+                end else begin
+                    counter <= counter + 1'b1;
+                    w_count <= w_count + (w ? 1'b1 : 1'b0);
+                    z <= 1'b0;
+                end
+            end else begin
+                counter <= 2'b00;
+                w_count <= 2'b00;
+                z <= 1'b0;
+            end
         end
     end
 
-    assign z = (state == E && count == 2'd2);
+    always @(*) begin
+        case (current_state)
+            STATE_A: next_state = s ? STATE_B : STATE_A;
+            STATE_B: next_state = STATE_B;
+            default: next_state = STATE_A;
+        endcase
+    end
+
 endmodule

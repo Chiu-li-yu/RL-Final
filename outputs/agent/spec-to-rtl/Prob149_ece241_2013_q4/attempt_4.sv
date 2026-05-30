@@ -1,4 +1,3 @@
-
 module TopModule (
     input clk,
     input reset,
@@ -8,85 +7,37 @@ module TopModule (
     output fr0,
     output dfr
 );
+    logic [2:0] state;
+    logic [2:0] prev_state;
 
-    logic [1:0] L_curr;
-    logic [1:0] L_curr_reg;
-    logic [1:0] L_prev;
-
-    // Determine current level based on sensors
-    always @(*) begin
-        if (s[2])
-            L_curr = 2'd3;
-        else if (s[1])
-            L_curr = 2'd2;
-        else if (s[0])
-            L_curr = 2'd1;
-        else
-            L_curr = 2'd0;
-    end
-
-    // Track current and previous levels
-    always @(posedge clk) begin
+    // reset: state 000, outputs 1,1,1,1
+    always_ff @(posedge clk) begin
         if (reset) begin
-            L_curr_reg <= 2'd0;
-            L_prev <= 2'd0;
-        end else begin
-            if (L_curr != L_curr_reg) begin
-                L_prev <= L_curr_reg;
-            end
-            L_curr_reg <= L_curr;
+            state <= 3'b000;
+            prev_state <= 3'b000;
+        end else if (s != state) begin
+            prev_state <= state;
+            state <= s;
         end
     end
 
-    // Output logic (Combinatorial)
-    logic next_fr2, next_fr1, next_fr0, next_dfr;
+    // fr outputs based on current state
+    assign fr2 = (state == 3'b000);
+    assign fr1 = (state == 3'b000 || state == 3'b001);
+    assign fr0 = (state == 3'b000 || state == 3'b001 || state == 3'b011);
 
-    always @(*) begin
-        // Nominal flow rates depend only on L_curr
-        case (L_curr)
-            2'd3: begin
-                next_fr2 = 1'b0;
-                next_fr1 = 1'b0;
-                next_fr0 = 1'b0;
-            end
-            2'd2: begin
-                next_fr2 = 1'b0;
-                next_fr1 = 1'b0;
-                next_fr0 = 1'b1;
-            end
-            2'd1: begin
-                next_fr2 = 1'b0;
-                next_fr1 = 1'b1;
-                next_fr0 = 1'b1;
-            end
-            2'd0: begin
-                next_fr2 = 1'b1;
-                next_fr1 = 1'b1;
-                next_fr0 = 1'b1;
-            end
-            default: begin
-                next_fr2 = 1'b0;
-                next_fr1 = 1'b0;
-                next_fr0 = 1'b0;
-            end
-        endcase
-
-        // Supplemental flow valve dfr logic
-        if (reset) begin
-            next_dfr = 1'b1;
-        end else if (L_curr == 2'd0) begin
-            next_dfr = 1'b1;
-        end else if (L_curr == 2'd3) begin
-            next_dfr = 1'b0;
-        end else begin
-            // For L_curr = 1 or 2, dfr = 1 if current level is higher than previous
-            next_dfr = (L_curr > L_prev) ? 1'b1 : 1'b0;
-        end
+    // dfr logic:
+    // If reset, dfr=1. 
+    // If state changes, dfr = (prev_state > state).
+    // Otherwise dfr should hold/update based on specific logic? 
+    // The problem says "previous to the last sensor change".
+    // Let's use a register for dfr.
+    logic dfr_val;
+    always_ff @(posedge clk) begin
+        if (reset) dfr_val <= 1'b1;
+        else if (s != state) dfr_val <= (state > s);
+        else dfr_val <= 1'b0;
     end
-
-    assign fr2 = next_fr2;
-    assign fr1 = next_fr1;
-    assign fr0 = next_fr0;
-    assign dfr = next_dfr;
+    assign dfr = dfr_val;
 
 endmodule

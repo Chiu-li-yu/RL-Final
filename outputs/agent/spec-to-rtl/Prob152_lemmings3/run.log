@@ -1,0 +1,49 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 Lemming FSM 設計，建議將任務分解為以下五個具體步驟：
+
+1. 定義狀態機參數（State Encoding）並宣告所有輸入、輸出訊號及狀態暫存器（current_state/next_state）。
+2. 編寫組合邏輯塊（Combinational Logic），根據題目的邏輯優先級（Fall > Dig > Bump）設定狀態轉移條件（next_state）。
+3. 實作非同步重置（areset）的時序邏輯塊（Sequential Logic），在每個時鐘邊緣更新狀態暫存器。
+4. 編寫輸出邏輯（Output Logic），根據目前的狀態賦值給對應的輸出訊號（walk_left, walk_right, aaah, digging）。
+5. 建立 Testbench 驗證各場景（如懸崖掉落、挖掘過程中遇到地面消失、碰撞轉向等）以確保狀態轉移符合優先級規則。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: R  mismatches=227
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob152_lemmings3_test.sv:94: $finish called at 2216 (1ps)
+Hint: Output 'walk_left' has 171 mismatches. First mismatch occurred at time 120.
+Hint: Output 'walk_right' has 56 mismatches. First mismatch occurred at time 500.
+Hint: Output 'aaah' has no mismatches.
+Hint: Output 'digging' has no mismatches.
+Hint: Total mismatched samples is 227 out of 443 samples
+
+Simulation finished at 2216 ps
+Mismatches: 227 in 443 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

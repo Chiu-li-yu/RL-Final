@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob120_fsm3s",
-  "passed": false,
-  "attempts": 1,
-  "error_type": "e",
-  "error_log": "/tmp/tmpn9tomw95.sv:28: error: This assignment requires an explicit cast.\n/tmp/tmpn9tomw95.sv:32: error: This assignment requires an explicit cast.\n/tmp/tmpn9tomw95.sv:36: error: This assignment requires an explicit cast.\n/tmp/tmpn9tomw95.sv:40: error: This assignment requires an explicit cast.\n4 error(s) during elaboration.",
-  "task": "spec-to-rtl",
-  "experiment": "baseline_a"
-}

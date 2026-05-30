@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob135_m2014_q6b",
-  "passed": false,
-  "attempts": 1,
-  "error_type": "R",
-  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob135_m2014_q6b_test.sv:17: $finish called at 501 (1ps)\nHint: Output 'Y1' has 45 mismatches. First mismatch occurred at time 10.\nHint: Total mismatched samples is 45 out of 100 samples\n\nSimulation finished at 501 ps\nMismatches: 45 in 100 samples",
-  "task": "spec-to-rtl",
-  "experiment": "baseline_a"
-}

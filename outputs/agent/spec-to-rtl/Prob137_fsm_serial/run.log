@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了實現此串列傳輸接收器（UART Receiver），建議將任務分解為以下 5 個具體子目標：
+
+1. 定義狀態機（FSM）的狀態（Idle, Start, Data, Stop, Error）並建立一個 3 位元計數器來追蹤已接收的數據位元數。
+2. 實作啟動偵測邏輯：在 Idle 狀態下偵測輸入訊號由高轉低（start bit），確認後轉移至 Data 狀態。
+3. 實作移位暫存器（Shift Register）：在 Data 狀態下，每經過一個時脈週期將輸入位元存入暫存器，直到收集滿 8 位元（LSB first）。
+4. 實作停止位元驗證與完成訊號：在 Stop 狀態檢查輸入是否為 '1'，若正確則將 'done' 訊號拉高一個週期，並返回 Idle。
+5. 實作錯誤處理與重置機制：若 Stop 位元錯誤，則進入等待狀態直到輸入變回 '1'，並加入同步高電位有效（Active-High）的 Reset 邏輯。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input in,
+    output done
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

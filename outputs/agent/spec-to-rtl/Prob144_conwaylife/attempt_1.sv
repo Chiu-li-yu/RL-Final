@@ -1,61 +1,44 @@
-
-module TopModule (
-    input  clk,
-    input  load,
-    input  [255:0] data,
-    output [255:0] q
+module TopModule(
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
 );
 
-    logic [255:0] current_q;
     logic [255:0] next_q;
+    logic [3:0] neighbors;
+    integer i, j, x, y, nx, ny;
+    integer dx, dy;
 
-    // State update logic
     always @(*) begin
-        next_q = 256'b0;
-        for (int r = 0; r < 16; r = r + 1) begin
-            for (int c = 0; c < 16; c = c + 1) begin
-                // Neighbors wrap-around coordinates
-                int r_up = (r == 0) ? 15 : r - 1;
-                int r_down = (r == 15) ? 0 : r + 1;
-                int c_left = (c == 0) ? 15 : c - 1;
-                int c_right = (c == 15) ? 0 : c + 1;
-
-                // Count neighbors
-                logic [3:0] neighbors;
-                neighbors = current_q[r_up * 16 + c_left] +
-                            current_q[r_up * 16 + c]       +
-                            current_q[r_up * 16 + c_right]  +
-                            current_q[r * 16 + c_left]      +
-                            current_q[r * 16 + c_right]     +
-                            current_q[r_down * 16 + c_left] +
-                            current_q[r_down * 16 + c]       +
-                            current_q[r_down * 16 + c_right];
-
-                // Game of Life rules:
-                // (1) 0-1 neighbour: Cell becomes 0.
-                // (2) 2 neighbours: Cell state does not change.
-                // (3) 3 neighbours: Cell becomes 1.
-                // (4) 4+ neighbours: Cell becomes 0.
-                if (neighbors == 3) begin
-                    next_q[r * 16 + c] = 1'b1;
-                end else if (neighbors == 2) begin
-                    next_q[r * 16 + c] = current_q[r * 16 + c];
-                end else begin
-                    next_q[r * 16 + c] = 1'b0;
+        for (y = 0; y < 16; y = y + 1) begin
+            for (x = 0; x < 16; x = x + 1) begin
+                neighbors = 0;
+                for (dy = -1; dy <= 1; dy = dy + 1) begin
+                    for (dx = -1; dx <= 1; dx = dx + 1) begin
+                        if (!(dx == 0 && dy == 0)) begin
+                            nx = (x + dx + 16) % 16;
+                            ny = (y + dy + 16) % 16;
+                            neighbors = neighbors + q[ny * 16 + nx];
+                        end
+                    end
                 end
+
+                if (neighbors < 2 || neighbors > 3)
+                    next_q[y * 16 + x] = 0;
+                else if (neighbors == 3)
+                    next_q[y * 16 + x] = 1;
+                else
+                    next_q[y * 16 + x] = q[y * 16 + x];
             end
         end
     end
 
-    // Sequential logic
     always @(posedge clk) begin
-        if (load) begin
-            current_q <= data;
-        end else begin
-            current_q <= next_q;
-        end
+        if (load)
+            q <= data;
+        else
+            q <= next_q;
     end
-
-    assign q = current_q;
 
 endmodule

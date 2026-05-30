@@ -114,11 +114,15 @@ class Episode:
 
     # ── 記錄本次 attempt 的合成結果 ──────────────────────────────────────────
     def record_synth(self, result: dict) -> None:
+        # record_sim() 必須先於 record_synth() 呼叫；此斷言讓違序呼叫立即報錯，
+        # 而非靜默地寫到錯誤的 index。
+        assert self._synth_error_sequence, (
+            f"record_synth() called for {self.problem_id!r} "
+            "before any record_sim() — caller must call record_sim first."
+        )
         self._synth_result = result
-        # 更新最後一次 attempt 的 synth 錯誤
-        if self._synth_error_sequence:
-            synth_error = result.get("error_type", "?")
-            self._synth_error_sequence[-1] = synth_error
+        synth_error = result.get("error_type", "?")
+        self._synth_error_sequence[-1] = synth_error
         self._maybe_update_best()
 
     # ── 更新最佳結果 ─────────────────────────────────────────────────────────
@@ -202,8 +206,8 @@ _TOOL_DECLARATIONS: list[types.FunctionDeclaration] = [
     types.FunctionDeclaration(
         name="decompose_spec",
         description=(
-            "將題目規格分解成 3-5 個具體子目標清單。"
-            "若題目複雜度高且多次修改仍無效時建議呼叫。"
+            "將題目需求規格分解成 3-7 個具體子目標清單，描述電路該有的行為。"
+            "若題目複雜度高或多次修改後仍無效時呼叫。"
         ),
         parameters=types.Schema(
             type=types.Type.OBJECT,
@@ -360,6 +364,202 @@ def _build_initial_message(problem_id: str, problem_description: str, task: Task
         )
 
 
+# ── Tool dispatch infrastructure ─────────────────────────────────────────────
+
+@dataclass
+class _DispatchCtx:
+    """Shared context threaded through every tool handler, avoiding long arg lists."""
+    ep:             Episode
+    log:            list[str]
+    problem_id:     str
+    task:           "Task"
+    model:          str
+    rate_limiter:   "RateLimiter | None"
+    verbose:        bool
+    max_attempts:   int
+    on_tool_call:   Callable | None
+    on_tool_result: Callable | None
+    on_save:        Callable | None
+    on_checkpoint:  Callable | None
+
+
+@dataclass
+class _DispatchOut:
+    """Return value from each tool handler."""
+    part:        "types.Part"
+    should_stop: bool        = False
+    user_hint:   str | None  = None
+
+
+def _handle_compile_and_test(fc, ctx: _DispatchCtx) -> _DispatchOut:
+    ep = ctx.ep
+    code = fc.args["verilog_code"]
+    ep.final_code = code
+    ep.attempts  += 1
+
+    preview = "\n".join(code.splitlines()[:6])
+    ctx.log.append(f"\n[attempt {ep.attempts}] → compile_and_test\n{preview}")
+
+    if ctx.on_tool_call:
+        ctx.on_tool_call("compile_and_test", {"verilog_code": code}, ep.attempts)
+    elif ctx.verbose:
+        print(f"[agent] compile_and_test (attempt {ep.attempts}/{ctx.max_attempts})")
+
+    result = compile_and_test(code, ctx.problem_id, ctx.task.dataset_dir)
+    ep.record_sim(result, code)
+
+    etype = result["error_type"]
+    mc    = result.get("mismatch_count", 0)
+    ctx.log.append(
+        f"[attempt {ep.attempts}] ← compile_and_test: {etype}"
+        + (f"  mismatches={mc}" if mc > 0 else "")
+    )
+    if result.get("error_log"):
+        ctx.log.append(result["error_log"][:1000])
+
+    if ctx.on_tool_result:
+        ctx.on_tool_result("compile_and_test", result, ep.attempts)
+    elif ctx.verbose:
+        status = "✅ SIM PASS" if result["passed"] else f"❌ {etype}"
+        print(f"[agent]   → {status}  (attempt {ep.attempts}/{ctx.max_attempts})")
+
+    if ctx.on_save:
+        ctx.on_save(ep.attempts, code)
+
+    should_stop = False
+    user_hint: str | None = None
+
+    if ctx.on_checkpoint:
+        _cr = ctx.on_checkpoint(ep.attempts, result, code)
+        if _cr is False:
+            should_stop = True
+        elif isinstance(_cr, str) and _cr.strip():
+            user_hint = _cr.strip()
+            ctx.log.append(f"[attempt {ep.attempts}] [user_direction] {user_hint}")
+            result = dict(result)
+            result["user_direction"] = user_hint
+
+    # 最後一次嘗試模擬通過時，Gemini 不會再有機會呼叫 synthesize，
+    # 因此在此自動執行合成，確保兩階段驗證均被記錄。
+    if not should_stop and result.get("passed") and ep.attempts >= ctx.max_attempts:
+        ctx.log.append(f"\n[attempt {ep.attempts}] → synthesize (auto, last attempt)")
+        if ctx.on_tool_call:
+            ctx.on_tool_call("synthesize", {"verilog_code": code}, ep.attempts)
+        elif ctx.verbose:
+            print("[agent] synthesize (auto) ...")
+        synth_result = synthesize(code)
+        ep.record_synth(synth_result)
+        ctx.log.append(
+            f"[attempt {ep.attempts}] ← synthesize: {synth_result['error_type']}"
+        )
+        if synth_result.get("error_log"):
+            ctx.log.append(synth_result["error_log"][:500])
+        if ctx.on_tool_result:
+            ctx.on_tool_result("synthesize", synth_result, ep.attempts)
+        elif ctx.verbose:
+            s = "✅ SYNTH PASS" if synth_result["passed"] else f"❌ {synth_result['error_type']}"
+            print(f"[agent]   → {s} (auto)")
+
+    return _DispatchOut(
+        part=types.Part.from_function_response(name="compile_and_test", response=result),
+        should_stop=should_stop or ep.fully_passed(),
+        user_hint=user_hint,
+    )
+
+
+def _handle_synthesize(fc, ctx: _DispatchCtx) -> _DispatchOut:
+    ep = ctx.ep
+    code = fc.args["verilog_code"]
+
+    ctx.log.append(f"\n[attempt {ep.attempts}] → synthesize")
+
+    if ctx.on_tool_call:
+        ctx.on_tool_call("synthesize", {"verilog_code": code}, ep.attempts)
+    elif ctx.verbose:
+        print("[agent] synthesize ...")
+
+    synth_result = synthesize(code)
+    ep.record_synth(synth_result)
+
+    ctx.log.append(f"[attempt {ep.attempts}] ← synthesize: {synth_result['error_type']}")
+    if synth_result.get("error_log"):
+        ctx.log.append(synth_result["error_log"][:500])
+
+    if ctx.on_tool_result:
+        ctx.on_tool_result("synthesize", synth_result, ep.attempts)
+    elif ctx.verbose:
+        status = "✅ SYNTH PASS" if synth_result["passed"] else f"❌ {synth_result['error_type']}"
+        print(f"[agent]   → {status}")
+
+    return _DispatchOut(
+        part=types.Part.from_function_response(name="synthesize", response=synth_result),
+        should_stop=ep.fully_passed(),
+    )
+
+
+def _handle_decompose_spec(fc, ctx: _DispatchCtx) -> _DispatchOut:
+    ep = ctx.ep
+    problem_desc = fc.args["problem_description"]
+    ep.decompose_spec_calls += 1
+
+    ctx.log.append(f"\n[attempt {ep.attempts}] → decompose_spec")
+
+    if ctx.on_tool_call:
+        ctx.on_tool_call("decompose_spec", {"problem_description": problem_desc}, ep.attempts)
+    elif ctx.verbose:
+        print("[agent] decompose_spec ...")
+
+    decomposed = _decompose_spec(problem_desc, ctx.model, rate_limiter=ctx.rate_limiter)
+    ctx.log.append(f"[attempt {ep.attempts}] ← decompose_spec:\n{decomposed[:600]}")
+
+    if ctx.on_tool_result:
+        ctx.on_tool_result("decompose_spec", {"sub_goals": decomposed}, ep.attempts)
+    elif ctx.verbose:
+        print("[agent]   → 子目標清單取得完成")
+
+    return _DispatchOut(
+        part=types.Part.from_function_response(
+            name="decompose_spec", response={"sub_goals": decomposed}
+        ),
+    )
+
+
+def _handle_get_debug_hints(fc, ctx: _DispatchCtx) -> _DispatchOut:
+    ep = ctx.ep
+    error_type = fc.args["error_type"]
+    hints      = DEBUG_HINTS.get(error_type, "")
+    hint_result = {"error_type": error_type, "hints": hints}
+    ep.get_debug_hints_calls += 1
+
+    ctx.log.append(f"\n[attempt {ep.attempts}] → get_debug_hints(error_type={error_type!r})")
+    ctx.log.append(
+        f"[attempt {ep.attempts}] ← get_debug_hints: "
+        + (hints[:200] if hints else "(no hints)")
+    )
+
+    if ctx.on_tool_call:
+        ctx.on_tool_call("get_debug_hints", {"error_type": error_type}, ep.attempts)
+    elif ctx.verbose:
+        print(f"[agent] get_debug_hints({error_type!r})")
+
+    if ctx.on_tool_result:
+        ctx.on_tool_result("get_debug_hints", hint_result, ep.attempts)
+    elif ctx.verbose:
+        print(f"[agent]   → {'有提示' if hints else '無對應提示'}")
+
+    return _DispatchOut(
+        part=types.Part.from_function_response(name="get_debug_hints", response=hint_result),
+    )
+
+
+_DISPATCH_TABLE: dict[str, Callable] = {
+    "compile_and_test": _handle_compile_and_test,
+    "synthesize":       _handle_synthesize,
+    "decompose_spec":   _handle_decompose_spec,
+    "get_debug_hints":  _handle_get_debug_hints,
+}
+
+
 # ── 主要公開介面 ──────────────────────────────────────────────────────────────
 
 def run_agent(
@@ -455,146 +655,32 @@ def run_agent(
             )
             continue
 
+        ctx = _DispatchCtx(
+            ep=ep, log=_log,
+            problem_id=problem_id, task=task,
+            model=model, rate_limiter=rate_limiter,
+            verbose=verbose, max_attempts=max_attempts,
+            on_tool_call=on_tool_call, on_tool_result=on_tool_result,
+            on_save=on_save, on_checkpoint=on_checkpoint,
+        )
+
         tool_results = []
         should_stop  = False
-        _user_hint: str | None = None
 
         for fc in fc_list:
-            if fc.name == "compile_and_test":
-                verilog_code  = fc.args["verilog_code"]
-                ep.final_code = verilog_code
-                ep.attempts  += 1
-
-                code_preview = "\n".join(verilog_code.splitlines()[:6])
-                _log.append(f"\n[attempt {ep.attempts}] → compile_and_test\n{code_preview}")
-
-                if on_tool_call:
-                    on_tool_call("compile_and_test", {"verilog_code": verilog_code}, ep.attempts)
-                elif verbose:
-                    print(f"[agent] compile_and_test (attempt {ep.attempts}/{max_attempts})")
-
-                result = compile_and_test(verilog_code, problem_id, task.dataset_dir)
-
-                ep.record_sim(result, verilog_code)
-
-                etype = result["error_type"]
-                mc    = result.get("mismatch_count", 0)
-                _log.append(f"[attempt {ep.attempts}] ← compile_and_test: {etype}"
-                            + (f"  mismatches={mc}" if mc > 0 else ""))
-                if result.get("error_log"):
-                    _log.append(result["error_log"][:1000])
-
-                if on_tool_result:
-                    on_tool_result("compile_and_test", result, ep.attempts)
-                elif verbose:
-                    status = "✅ SIM PASS" if result["passed"] else f"❌ {result['error_type']}"
-                    print(f"[agent]   → {status}  (attempt {ep.attempts}/{max_attempts})")
-
-                # 儲存 callback
-                if on_save:
-                    on_save(ep.attempts, verilog_code)
-
-                # 控制流 callback（sim 通過時不停止，等待 synthesize）
-                if on_checkpoint:
-                    _cr = on_checkpoint(ep.attempts, result, verilog_code)
-                    if _cr is False:
-                        should_stop = True
-                    elif isinstance(_cr, str) and _cr.strip():
-                        _user_hint = _cr.strip()
-                        _log.append(f"[attempt {ep.attempts}] [user_direction] {_user_hint}")
-                        # 將 hint 嵌入 function response，確保 agent 一定看到
-                        result = dict(result)
-                        result["user_direction"] = _user_hint
-
-                tool_results.append(types.Part.from_function_response(
-                    name="compile_and_test", response=result,
-                ))
-
-            elif fc.name == "synthesize":
-                verilog_code = fc.args["verilog_code"]
-
-                _log.append(f"\n[attempt {ep.attempts}] → synthesize")
-
-                if on_tool_call:
-                    on_tool_call("synthesize", {"verilog_code": verilog_code}, ep.attempts)
-                elif verbose:
-                    print("[agent] synthesize ...")
-
-                synth_result = synthesize(verilog_code)
-
-                ep.record_synth(synth_result)
-
-                _log.append(f"[attempt {ep.attempts}] ← synthesize: {synth_result['error_type']}")
-                if synth_result.get("error_log"):
-                    _log.append(synth_result["error_log"][:500])
-
-                if on_tool_result:
-                    on_tool_result("synthesize", synth_result, ep.attempts)
-                elif verbose:
-                    status = "✅ SYNTH PASS" if synth_result["passed"] else f"❌ {synth_result['error_type']}"
-                    print(f"[agent]   → {status}")
-
-                # 兩階段都過 → 停止
-                if ep.fully_passed():
-                    should_stop = True
-
-                tool_results.append(types.Part.from_function_response(
-                    name="synthesize", response=synth_result,
-                ))
-
-            elif fc.name == "decompose_spec":
-                problem_desc = fc.args["problem_description"]
-                ep.decompose_spec_calls += 1
-
-                _log.append(f"\n[attempt {ep.attempts}] → decompose_spec")
-
-                if on_tool_call:
-                    on_tool_call("decompose_spec", {"problem_description": problem_desc}, ep.attempts)
-                elif verbose:
-                    print("[agent] decompose_spec ...")
-
-                decomposed = _decompose_spec(problem_desc, model, rate_limiter=rate_limiter)
-
-                _log.append(f"[attempt {ep.attempts}] ← decompose_spec:\n{decomposed[:600]}")
-
-                if on_tool_result:
-                    on_tool_result("decompose_spec", {"sub_goals": decomposed}, ep.attempts)
-                elif verbose:
-                    print("[agent]   → 子目標清單取得完成")
-
-                tool_results.append(types.Part.from_function_response(
-                    name="decompose_spec", response={"sub_goals": decomposed},
-                ))
-
-            elif fc.name == "get_debug_hints":
-                error_type = fc.args["error_type"]
-                hints = DEBUG_HINTS.get(error_type, "")
-                hint_result = {"error_type": error_type, "hints": hints}
-                ep.get_debug_hints_calls += 1
-
-                _log.append(f"\n[attempt {ep.attempts}] → get_debug_hints(error_type={error_type!r})")
-                _log.append(f"[attempt {ep.attempts}] ← get_debug_hints: "
-                            + (hints[:200] if hints else "(no hints)"))
-
-                if on_tool_call:
-                    on_tool_call("get_debug_hints", {"error_type": error_type}, ep.attempts)
-                elif verbose:
-                    print(f"[agent] get_debug_hints({error_type!r})")
-
-                if on_tool_result:
-                    on_tool_result("get_debug_hints", hint_result, ep.attempts)
-                elif verbose:
-                    print(f"[agent]   → {'有提示' if hints else '無對應提示'}")
-
-                tool_results.append(types.Part.from_function_response(
-                    name="get_debug_hints", response=hint_result,
-                ))
-
-            else:
+            handler = _DISPATCH_TABLE.get(fc.name)
+            if handler is None:
                 tool_results.append(types.Part.from_function_response(
                     name=fc.name,
                     response={"error": f"Unknown tool: {fc.name}"},
                 ))
+                continue
+            out = handler(fc, ctx)
+            tool_results.append(out.part)
+            if out.should_stop:
+                should_stop = True
+            if out.user_hint:
+                pass  # hint already embedded in out.part by handler
 
         if should_stop:
             break
@@ -602,9 +688,6 @@ def run_agent(
         if ep.attempts >= max_attempts:
             break
 
-        # hint 已在 on_checkpoint 時嵌入 compile result 的 user_direction 欄位，
-        # 此處直接送 tool_results 即可，不需額外的 text Part。
-        _user_hint = None
         response = retry(chat.send_message, tool_results)
 
     result = ep.to_result()

@@ -132,7 +132,7 @@ compile() + simulate()
 | 評估資料集 | VerilogEval code-complete-iccad2023 + spec-to-rtl（各 156 題） | 現成 testbench，有基準比較數據          |
 | SDK        | `google-genai`（新版）                                         | `google-generativeai` 已棄用            |
 
-## 實作架構（2026-05-26 確定，2026-05-28 更新）
+## 實作架構（2026-05-26 確定，2026-05-30 更新）
 
 ### Error Classification（15-code 細粒度分類）
 
@@ -326,6 +326,28 @@ types.Tool(function_declarations=[types.FunctionDeclaration(...)])
 
 不可用 flat dict `{"name":..., "description":..., "parameters":...}`（這是 OpenAI / 舊版格式）。
 
+### Experiment 登錄表（agent/experiments.py）
+
+實驗配置的單一來源，`evaluate.py` 與 `run.py` 從此 import，不再各自維護：
+
+```python
+@dataclass(frozen=True)
+class Experiment:
+    id:               str
+    enabled_tools:    frozenset[str] | None  # None = 全部工具
+    max_attempts:     int                    # 每次 run_agent() 的上限
+    independent_runs: int                    # 1 = 有記憶；>1 = no_memory 模式
+    description:      str
+```
+
+| id | enabled_tools | independent_runs |
+|----|--------------|-----------------|
+| `agent` | 全部 | 1 |
+| `no_debug_hints` | compile + synthesize + decompose_spec | 1 |
+| `no_decompose` | compile + synthesize + get_debug_hints | 1 |
+| `no_helper_tools` | compile + synthesize | 1 |
+| `no_memory` | 全部 | 5（每次 max_attempts=1）|
+
 ### Agent Callback 架構
 
 `agent/agent.py::run_agent()` 提供 5 個可選 callback，讓顯示層與邏輯層分離：
@@ -342,51 +364,68 @@ run_agent(
 ```
 
 `on_checkpoint` 回傳值語意：
-
 - `False`：中止 agent
 - `True`：繼續
-- `str`（非空）：繼續，並將此字串作為獨立 user turn 注入對話——讓使用者可以在失敗後直接補充修改方向給 Gemini
+- `str`（非空）：繼續，**並將此字串嵌入 compile_and_test 的 function response 的 `user_direction` 欄位**——確保 agent 在同一輪 API call 中同時看到 compile 結果與使用者修改方向，避免 chat history 不一致
 
-不傳任何 callback 時，`verbose=True` 仍可印出簡易進度，兩者可並用。
+**Callback Adapter 設計：**
+- `run.py` 互動模式使用 `RunObserver(problem_id, task, experiment)` class，持有 per-problem 上下文，取代 5 個分散的 closure 函式
+- `evaluate.py` 批次模式使用 `BatchObserver(problem_id, task, experiment, attempt_offset)` class，只實作 `on_save`
+
+### Tool Dispatch 架構（agent/agent.py）
+
+工具呼叫透過 `_DISPATCH_TABLE` 路由，每個工具有獨立 handler 函式：
+
+```
+_DISPATCH_TABLE = {
+    "compile_and_test": _handle_compile_and_test,
+    "synthesize":       _handle_synthesize,
+    "decompose_spec":   _handle_decompose_spec,
+    "get_debug_hints":  _handle_get_debug_hints,
+}
+```
+
+每個 handler 接收 `(fc, _DispatchCtx)` → 回傳 `_DispatchOut(part, should_stop, user_hint)`。
+新增工具只需加一個 handler 函式 + 一個 dict entry。
 
 ### 互動式 CLI（run.py）
-
-參考 `learn-claude-code/s01_agent_loop/` 的 agent loop 模式設計。
 
 ```
 run.py
 ├── REPL 主迴圈：while True: input(">> ")
-├── run_problem(problem_id, task)
-│   ├── 讀取 dataset_spec-to-rtl/{id}_prompt.txt 作為題目描述
-│   ├── 呼叫 run_agent() with callbacks
-│   ├── 自動儲存 outputs/agent/{task}/{id}/attempt_N.sv
-│   └── 儲存 outputs/agent/{task}/{id}/result.json
-└── Callbacks（顯示層）
-    ├── _on_thinking()     → 灰色文字
-    ├── _on_tool_call()    → 黃色標題 + 程式碼預覽（前 25 行）
-    ├── _on_tool_result()  → decompose_spec 子目標顯示
-    └── _make_checkpoint() → pass/fail + 儲存 + 人工介入
+├── run_problem(problem_id, task, experiment)
+│   ├── get_experiment(experiment) → Experiment config
+│   ├── obs = RunObserver(problem_id, task, experiment)
+│   ├── run_agent(..., enabled_tools=exp.enabled_tools, on_*=obs.*)
+│   └── save_result(...)
+└── RunObserver（顯示層 + I/O + 控制流，集中於一個 class）
+    ├── on_thinking()      → 灰色文字
+    ├── on_tool_call()     → 黃色標題 + 程式碼預覽
+    ├── on_tool_result()   → 工具結果顯示
+    ├── on_save()          → 儲存 attempt_N.sv
+    └── on_checkpoint()    → pass/fail + 人工介入（Enter/a/v/c/h）
 ```
 
 人工介入選項（每次 compile_and_test 失敗後）：
-
 - `Enter` → 繼續讓 Agent 嘗試
 - `a` → 中止當前題目
-- `v` → 查看完整 error log，再決定
-- `c` → 查看完整程式碼，再決定
+- `v` → 查看完整 error log
+- `c` → 查看完整程式碼
+- `h` → 補充修改方向（嵌入 function response）
 
 ### 輸出目錄結構
 
-三組實驗（agent / baseline_a / baseline_b）分層存放，避免結果互蓋：
+五組實驗分層存放：
 
 ```
 outputs/
-  {experiment}/              ← "agent" | "baseline_a" | "baseline_b"
+  {experiment}/              ← "agent" | "no_debug_hints" | "no_decompose" | ...
     {task}/                  ← "spec-to-rtl" | "code-complete-iccad2023"
       {problem_id}/
         attempt_1.sv         ← 每次 compile_and_test 的程式碼（不論通過與否）
         attempt_2.sv
-        result.json          ← 見下方格式
+        result.json          ← 統計數據
+        run.log              ← 完整執行紀錄（think + 工具呼叫序列 + error log）
 ```
 
 `result.json` 格式（`task` 與 `experiment` 自動注入，方便跨組分析）：

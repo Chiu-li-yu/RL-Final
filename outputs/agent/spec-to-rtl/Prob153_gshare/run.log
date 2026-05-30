@@ -1,0 +1,95 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該 gshare 分支預測器實作分解為 5 個具體子目標的建議：
+
+1. 定義 7-bit PHT 陣列（128 個 2-bit 計數器）與 GHR 暫存器，並實作包含非同步 Reset 的狀態更新邏輯。
+2. 實作組合邏輯 Hash 運算（PC ^ GHR）以產生 7-bit 索引，並完成分支預測與 GHR 移位更新邏輯。
+3. 實作 PHT 的 2-bit 飽和計數器更新機制，確保其根據 `train_taken` 訊號執行遞增或遞減。
+4. 建立優先權仲裁邏輯，確保當預測與訓練同時發生時，優先處理訓練指令並執行 GHR 的修正與 PHT 更新。
+5. 整合所有模組，並在 Clock Edge 下配置預測與訓練的資料流，確保狀態更新符合時序要求。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input predict_valid,
+    input [6:0] predict_pc,
+    output logic predict_taken,
+[attempt 1] ← compile_and_test: R  mismatches=482
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)
+Hint: Output 'predict_taken' has 137 mismatches. First mismatch occurred at time 130.
+Hint: Output 'predict_history' has 482 mismatches. First mismatch occurred at time 130.
+Hint: Total mismatched samples is 482 out of 1083 samples
+
+Simulation finished at 5416 ps
+Mismatches: 482 in 1083 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input predict_valid,
+    input [6:0] predict_pc,
+    output logic predict_taken,
+[attempt 2] ← compile_and_test: R  mismatches=482
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)
+Hint: Output 'predict_taken' has 137 mismatches. First mismatch occurred at time 130.
+Hint: Output 'predict_history' has 482 mismatches. First mismatch occurred at time 130.
+Hint: Total mismatched samples is 482 out of 1083 samples
+
+Simulation finished at 5416 ps
+Mismatches: 482 in 1083 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input predict_valid,
+    input [6:0] predict_pc,
+    output logic predict_taken,
+[attempt 3] ← compile_and_test: R  mismatches=482
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)
+Hint: Output 'predict_taken' has 137 mismatches. First mismatch occurred at time 130.
+Hint: Output 'predict_history' has 482 mismatches. First mismatch occurred at time 130.
+Hint: Total mismatched samples is 482 out of 1083 samples
+
+Simulation finished at 5416 ps
+Mismatches: 482 in 1083 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input predict_valid,
+    input [6:0] predict_pc,
+    output logic predict_taken,
+[attempt 4] ← compile_and_test: R  mismatches=482
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)
+Hint: Output 'predict_taken' has 137 mismatches. First mismatch occurred at time 130.
+Hint: Output 'predict_history' has 482 mismatches. First mismatch occurred at time 130.
+Hint: Total mismatched samples is 482 out of 1083 samples
+
+Simulation finished at 5416 ps
+Mismatches: 482 in 1083 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input predict_valid,
+    input [6:0] predict_pc,
+    output logic predict_taken,
+[attempt 5] ← compile_and_test: .

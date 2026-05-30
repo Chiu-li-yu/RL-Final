@@ -3,66 +3,51 @@ module TopModule (
     input reset,
     input s,
     input w,
-    output z
+    output logic z
 );
-    localparam A = 2'd0, B = 2'd1, C = 2'd2;
-    logic [1:0] state, next_state;
-    logic [1:0] cycle_cnt, next_cycle_cnt;
-    logic [1:0] w_cnt, next_w_cnt;
 
-    always @(*) begin
-        next_state = state;
-        next_cycle_cnt = cycle_cnt;
-        next_w_cnt = w_cnt;
+    typedef enum logic {
+        STATE_A = 1'b0,
+        STATE_B = 1'b1
+    } state_t;
 
-        case (state)
-            A: begin
-                if (s) begin
-                    next_state = B;
-                    next_cycle_cnt = 2'd0;
-                    next_w_cnt = 2'd0;
-                end else begin
-                    next_state = A;
-                    next_cycle_cnt = 2'd0;
-                    next_w_cnt = 2'd0;
-                end
-            end
-            B: begin
-                if (cycle_cnt == 2'd2) begin
-                    next_state = C;
-                    next_cycle_cnt = 2'd0;
-                    next_w_cnt = w_cnt + (w ? 2'd1 : 2'd0);
-                end else begin
-                    next_state = B;
-                    next_cycle_cnt = cycle_cnt + 2'd1;
-                    next_w_cnt = w_cnt + (w ? 2'd1 : 2'd0);
-                end
-            end
-            C: begin
-                next_state = B;
-                next_cycle_cnt = 2'd0;
-                next_w_cnt = 2'd0;
-            end
-            default: begin
-                next_state = A;
-                next_cycle_cnt = 2'd0;
-                next_w_cnt = 2'd0;
-            end
-        endcase
-    end
+    state_t current_state, next_state;
+    logic [1:0] counter;
+    logic [1:0] w_count;
+    logic z_reg;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
-            state <= A;
-            cycle_cnt <= 2'd0;
-            w_cnt <= 2'd0;
+            current_state <= STATE_A;
+            counter <= 2'b00;
+            w_count <= 2'b00;
+            z <= 1'b0;
         end else begin
-            state <= next_state;
-            cycle_cnt <= next_cycle_cnt;
-            w_cnt <= next_w_cnt;
+            current_state <= next_state;
+            if (current_state == STATE_B) begin
+                if (counter == 2'd2) begin
+                    counter <= 2'd0;
+                    w_count <= 2'b00;
+                    z <= (w_count + w == 2'd2);
+                end else begin
+                    counter <= counter + 1'b1;
+                    w_count <= w_count + w;
+                    z <= 1'b0;
+                end
+            end else begin
+                counter <= 2'd0;
+                w_count <= 2'b00;
+                z <= 1'b0;
+            end
         end
     end
 
-    assign z = (state == C && w_cnt == 2'd2);
+    always @(*) begin
+        case (current_state)
+            STATE_A: next_state = s ? STATE_B : STATE_A;
+            STATE_B: next_state = STATE_B;
+            default: next_state = STATE_A;
+        endcase
+    end
 
 endmodule

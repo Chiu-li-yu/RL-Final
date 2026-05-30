@@ -52,9 +52,12 @@ def list_problems(task: Task) -> list[str]:
         排序後的 problem_id 清單（153 題）
     """
     return sorted(
+        (
         f.stem.removesuffix("_prompt")
         for f in task.prompt_dir.glob("*_prompt.txt")
         if f.stem.removesuffix("_prompt") not in _SYNTH_EXCLUDED
+        ),
+        reverse=True
     )
 
 
@@ -64,6 +67,22 @@ def result_exists(problem_id: str, task: Task, experiment: str) -> bool:
     """檢查該題目在指定實驗中是否已有 result.json。"""
     path = _OUTPUT_DIR / experiment / task.name / problem_id / "result.json"
     return path.exists()
+
+
+def load_result(problem_id: str, task: Task, experiment: str) -> dict | None:
+    """
+    讀取已儲存的 result.json，回傳 dict；不存在或解析失敗則回傳 None。
+
+    用途：--resume 跳過時，讓 _Progress 能取得歷史嘗試次數與通過狀態，
+    而不需要在呼叫方自己建構路徑。
+    """
+    path = _OUTPUT_DIR / experiment / task.name / problem_id / "result.json"
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
 
 
 # ── 公開：題目讀取 ─────────────────────────────────────────────────────────────
@@ -106,10 +125,11 @@ def save_result(problem_id: str, result: dict,
     compact["task"]       = task.name
     compact["experiment"] = experiment
     out_file = out_dir / "result.json"
-    out_file.write_text(json.dumps(compact, ensure_ascii=False, indent=2), encoding="utf-8")
+    out_file.write_text(json.dumps(compact, ensure_ascii=False, indent=2), encoding="utf-8", errors="replace")
 
     if "run_log" in result:
         log_file = out_dir / "run.log"
-        log_file.write_text("\n".join(result["run_log"]), encoding="utf-8")
+        lines = [str(e) for e in result["run_log"] if e is not None]
+        log_file.write_text("\n".join(lines), encoding="utf-8", errors="replace")
 
     return out_file

@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob136_m2014_q6",
-  "passed": false,
-  "attempts": 1,
-  "error_type": "e",
-  "error_log": "/tmp/tmpdxe68lai.sv:29: error: This assignment requires an explicit cast.\n/tmp/tmpdxe68lai.sv:30: error: This assignment requires an explicit cast.\n/tmp/tmpdxe68lai.sv:31: error: This assignment requires an explicit cast.\n/tmp/tmpdxe68lai.sv:32: error: This assignment requires an explicit cast.\n/tmp/tmpdxe68lai.sv:33: error: This assignment requires an explicit cast.\n/tmp/tmpdxe68lai.sv:34: error: This assignment requires an explicit cast.\n6 error(s) during elaboration.",
-  "task": "spec-to-rtl",
-  "experiment": "baseline_a"
-}

@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob057_kmap2",
-  "passed": false,
-  "attempts": 3,
-  "error_type": "R",
-  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob057_kmap2_test.sv:38: $finish called at 1161 (1ps)\nHint: Output 'out' has 95 mismatches. First mismatch occurred at time 20.\nHint: Total mismatched samples is 95 out of 232 samples\n\nSimulation finished at 1161 ps\nMismatches: 95 in 232 samples",
-  "task": "spec-to-rtl",
-  "experiment": "baseline_b"
-}

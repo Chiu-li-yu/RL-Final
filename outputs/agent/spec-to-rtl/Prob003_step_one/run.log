@@ -1,0 +1,33 @@
+[think] *   Module Name: `TopModule`
+    *   Interface:
+        *   `output one` (1 bit)
+    *   Functionality: The output `one` should always be driven to logic high (1).
+
+    *   `module TopModule (output logic one);`
+    *   `assign one = 1'b1;`
+    *   `endmodule`
+
+    *   Wait, the instructions say "組合邏輯使用 always @(*)", but for a simple constant assignment, `assign` is standard. However, if I want to be strictly compliant with the "組合邏輯" hint or just keep it simple, `assign` is fine. Actually, `assign` is combinatorial. Let's double check if I should use `always @(*)`.
+    *   `always @(*) one = 1'b1;` (requires `one` to be `logic`).
+
+    *   Module name: `TopModule` (Correct)
+    *   Ports: `output one` (Correct)
+    *   Output value: Always 1 (Correct)
+    *   Language: Verilog/SystemVerilog (logic used)
+
+    *   `compile_and_test`
+    *   `synthesize
+`
+
+[attempt 1] → compile_and_test
+module TopModule (
+    output logic one
+);
+
+    assign one = 1'b1;
+
+[attempt 1] ← compile_and_test: .
+[think] The simulation passed. Now I need to run the synthesis check.
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

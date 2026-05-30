@@ -1,4 +1,3 @@
-
 module TopModule (
     input clk,
     input a,
@@ -6,24 +5,22 @@ module TopModule (
     output q,
     output state
 );
+    logic state_reg;
+    logic next_state;
+    logic q_comb;
 
-    logic s;
-    
-    // q = a ^ b ^ s
-    assign q = a ^ b ^ s;
-    assign state = s;
+    assign state = state_reg;
+    assign q = q_comb;
+
+    // Based on the waveform analysis:
+    // next_state = a ^ b ^ state
+    // q = a ^ b
+    always @(*) begin
+        next_state = a ^ b ^ state_reg;
+        q_comb = a ^ b;
+    end
 
     always @(posedge clk) begin
-        if ((a == b) && (s == 0) && (a == 1)) begin
-            s <= 1;
-        end else if ((a == b) && (s == 1) && (a == 0)) begin
-            s <= 0;
-        end else if ((a == b) && (s == 0) && (a == 0) && (q == 1)) begin
-            // This is tricky. Let's try s_next = a ^ b ^ s?
-            // No, let's try a simple s_next = (a && b) || (!a && !b && s)
-            s <= s; 
-        end else begin
-            s <= s;
-        end
+        state_reg <= next_state;
     end
 endmodule

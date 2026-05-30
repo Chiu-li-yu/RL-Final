@@ -1,88 +1,67 @@
-
-module TopModule (
-    input  clk,
-    input  areset,
-    input  bump_left,
-    input  bump_right,
-    input  ground,
-    input  dig,
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+    input dig,
     output walk_left,
     output walk_right,
     output aaah,
     output digging
 );
 
-    localparam S_WL = 3'd0,
-               S_WR = 3'd1,
-               S_F_L = 3'd2,
-               S_F_R = 3'd3,
-               S_DL = 3'd4,
-               S_DR = 3'd5;
+    typedef enum logic [2:0] {
+        WALK_LEFT  = 3'd0,
+        WALK_RIGHT = 3'd1,
+        FALL_LEFT  = 3'd2,
+        FALL_RIGHT = 3'd3,
+        DIG_LEFT   = 3'd4,
+        DIG_RIGHT  = 3'd5
+    } state_t;
 
     logic [2:0] state, next_state;
 
-    always @(posedge clk or posedge areset) begin
-        if (areset) begin
-            state <= S_WL;
-        end else begin
+    always_ff @(posedge clk or posedge areset) begin
+        if (areset)
+            state <= WALK_LEFT;
+        else
             state <= next_state;
-        end
     end
 
     always @(*) begin
         next_state = state;
         case (state)
-            S_WL: begin
-                if (!ground)
-                    next_state = S_F_L;
-                else if (dig)
-                    next_state = S_DL;
-                else if (bump_left)
-                    next_state = S_WR;
-                else
-                    next_state = S_WL;
+            WALK_LEFT: begin
+                if (!ground) next_state = FALL_LEFT;
+                else if (dig) next_state = DIG_LEFT;
+                else if (bump_left) next_state = WALK_RIGHT;
+                else if (bump_right) next_state = WALK_LEFT;
             end
-            S_WR: begin
-                if (!ground)
-                    next_state = S_F_R;
-                else if (dig)
-                    next_state = S_DR;
-                else if (bump_right)
-                    next_state = S_WL;
-                else
-                    next_state = S_WR;
+            WALK_RIGHT: begin
+                if (!ground) next_state = FALL_RIGHT;
+                else if (dig) next_state = DIG_RIGHT;
+                else if (bump_right) next_state = WALK_LEFT;
+                else if (bump_left) next_state = WALK_RIGHT;
             end
-            S_F_L: begin
-                if (ground)
-                    next_state = S_WL;
-                else
-                    next_state = S_F_L;
+            FALL_LEFT: begin
+                if (ground) next_state = WALK_LEFT;
             end
-            S_F_R: begin
-                if (ground)
-                    next_state = S_WR;
-                else
-                    next_state = S_F_R;
+            FALL_RIGHT: begin
+                if (ground) next_state = WALK_RIGHT;
             end
-            S_DL: begin
-                if (!ground)
-                    next_state = S_F_L;
-                else
-                    next_state = S_DL;
+            DIG_LEFT: begin
+                if (!ground) next_state = FALL_LEFT;
             end
-            S_DR: begin
-                if (!ground)
-                    next_state = S_F_R;
-                else
-                    next_state = S_DR;
+            DIG_RIGHT: begin
+                if (!ground) next_state = FALL_RIGHT;
             end
-            default: next_state = S_WL;
         endcase
     end
 
-    assign walk_left  = (state == S_WL);
-    assign walk_right = (state == S_WR);
-    assign aaah       = (state == S_F_L || state == S_F_R);
-    assign digging    = (state == S_DL || state == S_DR);
+    assign walk_left  = (state == WALK_LEFT || state == DIG_LEFT);
+    assign walk_right = (state == WALK_RIGHT || state == DIG_RIGHT);
+    assign aaah       = (state == FALL_LEFT || state == FALL_RIGHT);
+    assign digging    = (state == DIG_LEFT || state == DIG_RIGHT);
 
 endmodule

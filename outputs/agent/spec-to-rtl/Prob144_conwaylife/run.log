@@ -1,0 +1,56 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是實作 16x16 Game of Life (Torus) 的 5 個具體子目標：
+
+1. 定義 16x16 的暫存器陣列或 256 位元向量作為狀態儲存器 `q`，並實作 `load` 功能以同步載入初始資料。
+2. 編寫組合邏輯函式，根據索引值 `(x, y)` 利用模數運算 (modulo arithmetic) 計算 torus 邊界下的 8 個鄰居座標。
+3. 為每個細胞實作鄰居計算邏輯，統計 8 個鄰居中為 1 的數量（可利用加法樹實現）。
+4. 根據題目規則 (0-1死、2保持、3生、4+死) 編寫狀態更新的組合邏輯，並對應至 256 個細胞。
+5. 實作以 `clk` 為基準的 `always @(posedge clk)` 區塊，將計算出的下一代狀態更新至 `q` 中。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Ys
+/tmp/tmpsraxvlpg.sv:14: ERROR: Invalid nesting of always blocks and/or initializations.
+
+[attempt 1] → get_debug_hints(error_type='Ys')
+[attempt 1] ← get_debug_hints: yosys 合成錯誤常見原因：
+1. 不可合成語法：#delay、task/function 含不支援的語法
+2. 未定義的 module：引用了不存在的 submodule
+3. 多重驅動：同一訊號被兩個 always block 驅動
+4. 合成器無法識別的語法：部分 SystemVerilog 語法 yosys 不支援
+修正方式：查看 error_log 中的行號，移除或替換不可合成的語法。
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Ys
+/tmp/tmp6h2y0whj.sv:19: ERROR: Invalid nesting of always blocks and/or initializations.
+
+[attempt 3] → compile_and_test
+module TopModule(
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

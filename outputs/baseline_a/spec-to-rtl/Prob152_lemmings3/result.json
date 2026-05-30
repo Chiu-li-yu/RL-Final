@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob152_lemmings3",
-  "passed": false,
-  "attempts": 1,
-  "error_type": "R",
-  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob152_lemmings3_test.sv:94: $finish called at 2216 (1ps)\nHint: Output 'walk_left' has 171 mismatches. First mismatch occurred at time 120.\nHint: Output 'walk_right' has 56 mismatches. First mismatch occurred at time 500.\nHint: Output 'aaah' has no mismatches.\nHint: Output 'digging' has no mismatches.\nHint: Total mismatched samples is 227 out of 443 samples\n\nSimulation finished at 2216 ps\nMismatches: 227 in 443 samples",
-  "task": "spec-to-rtl",
-  "experiment": "baseline_a"
-}

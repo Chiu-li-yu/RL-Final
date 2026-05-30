@@ -1,0 +1,69 @@
+[think] *   Input: `in` (32 bits)
+    *   Output: `out` (32 bits)
+    *   Function: Reverse the byte order of a 32-bit vector.
+
+    *   A 32-bit vector consists of 4 bytes.
+    *   Byte 0: bits [7:0]
+    *   Byte 1: bits [15:8]
+    *   Byte 2: bits [23:16]
+    *   Byte 3: bits [31:24]
+    *   Reversing the byte order means:
+        *   `out[7:0]`   = `in[31:24]`
+        *   `out[15:8]`  = `in[23:16]`
+        *   `out[23:16]` = `in[15:8]`
+        *   `out[31:24]` = `in[7:0]`
+
+    *   The logic is purely combinatorial.
+    *   Concatenation operator `{}` in Verilog can be used for this purpose.
+
+    *   `out = {in[7:0], in[15:8], in[23:16], in[31:24]};`
+
+    *   Module name: `TopModule`
+    *   Inputs: `logic [31:0] in`
+    *   Outputs: `logic [31:0] out`
+    *   Combination logic using `always @(*)` or a simple `assign` (but rules say組合邏輯使用 `always @(*)`).
+
+    Wait, the prompt says: "組合邏輯使用 always @(*)，不寫 sensitivity list". Let's use `always @(*)` with a logic declaration for `out`.
+
+    *   `TopModule` name? Yes.
+    *   Port names `in` and `out`? Yes.
+    *   `logic` declarations? Yes.
+    *   `always @(*)`? Yes.
+    *   Synchronous reset not in sensitivity list? (No reset requested).
+
+    ```verilog
+    module TopModule (
+        input  logic [31:0] in,
+        output logic [31:0] out
+    );
+
+        always @(*) begin
+            out = {in[7:0], in[15:8], in[23:16], in[31:24]};
+        end
+
+    endmodule
+    ```
+
+    Wait, let's double-check the byte order logic.
+    Original: [Byte 3][Byte 2][Byte 1][Byte 0] (where Byte 0 is LSB)
+    Reverse: [Byte 0][Byte 1][Byte 2][Byte 3]
+    So:
+    out[31:24] = in[7:0]
+    out[23:16] = in[15:8]
+    out[15:8] = in[23:16]
+    out[7:0] = in[31:24]
+    Result: `out = {in[7:0], in[15:8], in[23:16], in[31:24]}`.
+    This matches.
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input  logic [31:0] in,
+    output logic [31:0] out
+);
+
+    always @(*) begin
+[attempt 1] ← compile_and_test: .
+[think] The simulation passed. Now I need to call `synthesize` to verify synthesizability.
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob121_2014_q3bfsm",
-  "passed": false,
-  "attempts": 1,
-  "error_type": "e",
-  "error_log": "/tmp/tmpmopfbx_k.sv:28: error: This assignment requires an explicit cast.\n/tmp/tmpmopfbx_k.sv:29: error: This assignment requires an explicit cast.\n/tmp/tmpmopfbx_k.sv:30: error: This assignment requires an explicit cast.\n/tmp/tmpmopfbx_k.sv:31: error: This assignment requires an explicit cast.\n/tmp/tmpmopfbx_k.sv:32: error: This assignment requires an explicit cast.\n5 error(s) during elaboration.",
-  "task": "spec-to-rtl",
-  "experiment": "baseline_a"
-}

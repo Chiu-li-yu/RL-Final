@@ -1,18 +1,26 @@
-module TopModule (
+module TopModule(
     input clock,
     input a,
-    output logic p,
-    output logic q
+    output p,
+    output q
 );
 
-    always @(*) begin
+    logic q_reg;
+    
+    // Based on observation:
+    // p = a & clock
+    // q = (a & clock) | (q_reg & ~clock) 
+    
+    assign p = a & clock;
+    
+    always_ff @(posedge clock or negedge clock) begin
         if (clock) begin
-            p = a;
+            q_reg <= p;
+        end else begin
+            q_reg <= q_reg & a; // This is a hypothesis
         end
     end
-
-    always @(negedge clock) begin
-        q <= p;
-    end
+    
+    assign q = q_reg;
 
 endmodule

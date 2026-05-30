@@ -2,55 +2,33 @@ module TopModule (
     input clk,
     input x,
     input [2:0] y,
-    output logic Y0,
-    output logic z
+    output Y0,
+    output z
 );
 
+    logic [2:0] next_state;
+
     always @(*) begin
-        // Default values to avoid latches
-        Y0 = 1'b0;
-        z = 1'b0;
-        
         case (y)
-            3'b000: begin
-                z = 1'b0;
-                if (x == 1'b0) 
-                    Y0 = 1'b0; // Next Y = 000
-                else 
-                    Y0 = 1'b1; // Next Y = 001
-            end
-            3'b001: begin
-                z = 1'b0;
-                if (x == 1'b0) 
-                    Y0 = 1'b1; // Next Y = 001
-                else 
-                    Y0 = 1'b0; // Next Y = 100
-            end
-            3'b010: begin
-                z = 1'b0;
-                if (x == 1'b0) 
-                    Y0 = 1'b0; // Next Y = 010
-                else 
-                    Y0 = 1'b1; // Next Y = 001
-            end
-            3'b011: begin
-                z = 1'b1;
-                if (x == 1'b0) 
-                    Y0 = 1'b1; // Next Y = 001
-                else 
-                    Y0 = 1'b0; // Next Y = 010
-            end
-            3'b100: begin
-                z = 1'b1;
-                if (x == 1'b0) 
-                    Y0 = 1'b1; // Next Y = 011
-                else 
-                    Y0 = 1'b0; // Next Y = 100
-            end
-            default: begin
-                z = 1'b0;
-                Y0 = 1'b0;
-            end
+            3'b000: next_state = (x) ? 3'b001 : 3'b000;
+            3'b001: next_state = (x) ? 3'b100 : 3'b001;
+            3'b010: next_state = (x) ? 3'b001 : 3'b010;
+            3'b011: next_state = (x) ? 3'b010 : 3'b001;
+            3'b100: next_state = (x) ? 3'b100 : 3'b011;
+            default: next_state = 3'b000;
+        endcase
+    end
+
+    assign Y0 = next_state[0];
+
+    always @(*) begin
+        case (y)
+            3'b000: z = 0;
+            3'b001: z = 0;
+            3'b010: z = 0;
+            3'b011: z = 1;
+            3'b100: z = 1;
+            default: z = 0;
         endcase
     end
 

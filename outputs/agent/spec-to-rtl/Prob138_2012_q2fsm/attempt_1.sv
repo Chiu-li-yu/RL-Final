@@ -4,27 +4,22 @@ module TopModule (
     input w,
     output z
 );
+    logic [2:0] state, next_state;
+    
+    localparam A = 3'd0,
+               B = 3'd1,
+               C = 3'd2,
+               D = 3'd3,
+               E = 3'd4,
+               F = 3'd5;
 
-    localparam A = 3'd0;
-    localparam B = 3'd1;
-    localparam C = 3'd2;
-    localparam D = 3'd3;
-    localparam E = 3'd4;
-    localparam F = 3'd5;
-
-    logic [2:0] state;
-    logic [2:0] next_state;
-
-    // State flip-flops
-    always @(posedge clk) begin
-        if (reset) begin
+    always_ff @(posedge clk) begin
+        if (reset)
             state <= A;
-        end else begin
+        else
             state <= next_state;
-        end
     end
 
-    // State table
     always @(*) begin
         case (state)
             A: next_state = w ? B : A;
@@ -37,7 +32,5 @@ module TopModule (
         endcase
     end
 
-    // Output logic
-    assign z = (state == E) || (state == F);
-
+    assign z = (state == E || state == F);
 endmodule

@@ -1,4 +1,3 @@
-
 module TopModule (
     input clk,
     input in,
@@ -7,68 +6,50 @@ module TopModule (
     output logic done
 );
 
-    localparam IDLE      = 2'd0;
-    localparam DATA      = 2'd1;
-    localparam STOP      = 2'd2;
-    localparam WAIT_STOP = 2'd3;
+    typedef enum logic [2:0] {
+        IDLE  = 3'd0,
+        START = 3'd1,
+        DATA  = 3'd2,
+        STOP  = 3'd3
+    } state_t;
 
-    logic [1:0] state;
-    logic [2:0] bit_cnt;
+    state_t state, next_state;
     logic [7:0] shift_reg;
+    logic [2:0] bit_cnt;
 
     always @(posedge clk) begin
         if (reset) begin
             state <= IDLE;
-            bit_cnt <= 3'd0;
             shift_reg <= 8'd0;
+            bit_cnt <= 3'd0;
+            out_byte <= 8'd0;
+            done <= 1'b0;
         end else begin
-            case (state)
-                IDLE: begin
-                    if (in == 1'b0) begin
-                        state <= DATA;
-                        bit_cnt <= 3'd0;
-                    end
+            state <= next_state;
+            if (state == DATA) begin
+                shift_reg <= {in, shift_reg[7:1]};
+                bit_cnt <= bit_cnt + 1'b1;
+            end else if (state == STOP) begin
+                if (in) begin
+                    out_byte <= shift_reg;
+                    done <= 1'b1;
+                end else begin
+                    done <= 1'b0;
                 end
-
-                DATA: begin
-                    shift_reg[bit_cnt] <= in;
-                    if (bit_cnt == 3'd7) begin
-                        state <= STOP;
-                        bit_cnt <= 3'd0;
-                    end else begin
-                        bit_cnt <= bit_cnt + 3'd1;
-                    end
-                end
-
-                STOP: begin
-                    if (in == 1'b1) begin
-                        state <= IDLE;
-                    end else begin
-                        state <= WAIT_STOP;
-                    end
-                end
-
-                WAIT_STOP: begin
-                    if (in == 1'b1) begin
-                        state <= IDLE;
-                    end
-                end
-
-                default: state <= IDLE;
-            endcase
+            end else begin
+                done <= 1'b0;
+            end
         end
     end
 
     always @(*) begin
-        done = 1'b0;
-        out_byte = 8'd0;
-        if (state == STOP && in == 1'b1) begin
-            done = 1'b1;
-            out_byte = shift_reg;
-        end else if (state == WAIT_STOP && in == 1'b1) begin
-            done = 1'b1;
-            out_byte = shift_reg; // Don't care, but providing the reg
-        end
+        next_state = state;
+        case (state)
+            IDLE:  if (!in) next_state = DATA;
+            DATA:  if (bit_cnt == 3'd7) next_state = STOP;
+            STOP:  if (in) next_state = IDLE; else next_state = STOP;
+            default: next_state = IDLE;
+        endcase
     end
 
 endmodule

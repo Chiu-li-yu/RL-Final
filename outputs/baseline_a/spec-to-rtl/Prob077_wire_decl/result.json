@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob077_wire_decl",
-  "passed": false,
-  "attempts": 1,
-  "error_type": "w",
-  "error_log": "/tmp/tmpnsl35l6m.sv:19: error: out is not a valid l-value in tb.top_module1.\n/tmp/tmpnsl35l6m.sv:6:      : out is declared here as wire.\n/tmp/tmpnsl35l6m.sv:20: error: out_n is not a valid l-value in tb.top_module1.\n/tmp/tmpnsl35l6m.sv:7:      : out_n is declared here as wire.\n/tmp/tmpnsl35l6m.sv:18: warning: @* found no sensitivities so it will never trigger.\n2 error(s) during elaboration.",
-  "task": "spec-to-rtl",
-  "experiment": "baseline_a"
-}

@@ -1,59 +1,49 @@
-
-module TopModule (
-    input  clk,
-    input  load,
-    input  [255:0] data,
-    output [255:0] q
+module TopModule(
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
 );
 
-    logic [255:0] current_q;
     logic [255:0] next_q;
 
-    // Use integer for loop counters
-    integer r, c;
-    
-    always @(*) begin
-        next_q = 256'b0;
-        for (r = 0; r < 16; r = r + 1) begin
-            for (c = 0; c < 16; c = c + 1) begin
-                // Wrap-around coordinates
-                integer r_up = (r == 0) ? 15 : r - 1;
-                integer r_down = (r == 15) ? 0 : r + 1;
-                integer c_left = (c == 0) ? 15 : c - 1;
-                integer c_right = (c == 15) ? 0 : c + 1;
-
-                // Count neighbors
-                logic [3:0] neighbors;
-                neighbors = 4'd0;
-                neighbors = neighbors + current_q[r_up * 16 + c_left];
-                neighbors = neighbors + current_q[r_up * 16 + c];
-                neighbors = neighbors + current_q[r_up * 16 + c_right];
-                neighbors = neighbors + current_q[r * 16 + c_left];
-                neighbors = neighbors + current_q[r * 16 + c_right];
-                neighbors = neighbors + current_q[r_down * 16 + c_left];
-                neighbors = neighbors + current_q[r_down * 16 + c];
-                neighbors = neighbors + current_q[r_down * 16 + c_right];
-
-                // Game of Life rules
-                if (neighbors == 3) begin
-                    next_q[r * 16 + c] = 1'b1;
-                end else if (neighbors == 2) begin
-                    next_q[r * 16 + c] = current_q[r * 16 + c];
-                end else begin
-                    next_q[r * 16 + c] = 1'b0;
+    // Use a function for neighbor calculation to keep always block clean and synthesizable
+    function automatic [3:0] count_neighbors(input logic [255:0] grid, input integer x, input integer y);
+        logic [3:0] count;
+        integer dx, dy, nx, ny;
+        count = 0;
+        for (dy = -1; dy <= 1; dy = dy + 1) begin
+            for (dx = -1; dx <= 1; dx = dx + 1) begin
+                if (!(dx == 0 && dy == 0)) begin
+                    nx = (x + dx + 16) % 16;
+                    ny = (y + dy + 16) % 16;
+                    count = count + grid[ny * 16 + nx];
                 end
+            end
+        end
+        return count;
+    endfunction
+
+    always @(*) begin
+        for (integer y = 0; y < 16; y = y + 1) begin
+            for (integer x = 0; x < 16; x = x + 1) begin
+                logic [3:0] neighbors;
+                neighbors = count_neighbors(q, x, y);
+                if (neighbors < 2 || neighbors > 3)
+                    next_q[y * 16 + x] = 1'b0;
+                else if (neighbors == 3)
+                    next_q[y * 16 + x] = 1'b1;
+                else
+                    next_q[y * 16 + x] = q[y * 16 + x];
             end
         end
     end
 
     always @(posedge clk) begin
-        if (load) begin
-            current_q <= data;
-        end else begin
-            current_q <= next_q;
-        end
+        if (load)
+            q <= data;
+        else
+            q <= next_q;
     end
-
-    assign q = current_q;
 
 endmodule

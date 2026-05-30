@@ -301,6 +301,84 @@ content = ref_sv.read_text(encoding="utf-8")
 
 ---
 
+## #6 — `TypeError: Part.from_text() takes 1 positional argument but 2 were given`
+
+**時間**：2026-05-30，嘗試將 user_hint 以 text Part 附加到 tool_results 時  
+**發生位置**：`agent/agent.py` → `types.Part.from_text(text_str)`
+
+### 錯誤訊息
+
+```
+TypeError: Part.from_text() takes 1 positional argument but 2 were given
+```
+
+### 原因
+
+在此版本的 `google-genai` SDK 中，`types.Part.from_text()` **不是 classmethod**，而是 instance method——`self` 被當作第一個參數，字串內容被當作第二個，因此報 "2 were given"。
+
+### 修復
+
+```python
+# ❌ 錯誤：from_text() 在此 SDK 版本不是 classmethod
+types.Part.from_text(f"[使用者補充修改方向] {hint}")
+
+# ✅ 正確：用 keyword argument 建構
+types.Part(text=f"[使用者補充修改方向] {hint}")
+```
+
+### 後續設計調整
+
+發現即使使用 `types.Part(text=...)` 與 function_response Parts 混合在同一個 `send_message()`，Gemini API 不保證會讀取 text Part（可能只處理 function_response）。
+
+最終改為**將 user_hint 嵌入 function response dict 的 `user_direction` 欄位**：
+
+```python
+result = dict(result)
+result["user_direction"] = user_hint
+# 然後 Part.from_function_response("compile_and_test", response=result)
+```
+
+這樣 agent 在讀取工具回傳值時一定會看到 hint，且只需一次 API call，不會在 chat history 留下懸空的 R1 response。
+
+---
+
+## #7 — user_hint 注入造成 chat history 不一致
+
+**時間**：2026-05-30，分析 `on_checkpoint` 的 hint 注入邏輯時發現  
+**發生位置**：`agent/agent.py` → `run_agent()` 末尾的 hint 注入段
+
+### 問題描述
+
+原本的 hint 注入流程：
+
+```python
+response = chat.send_message(tool_results)  # → Gemini 生成 R1（已包含新的 compile 呼叫）
+if _user_hint:
+    response = chat.send_message(_user_hint)  # → Gemini 生成 R2
+```
+
+這造成 chat history 中 R1 懸在沒有對應 compile 結果的狀態：
+
+```
+3. user:  [tool result: 編譯失敗]
+4. model: [R1: 新程式碼 + compile_and_test 呼叫]  ← 永遠不被執行
+5. user:  [user hint]
+6. model: [R2: 根據 R1 + hint 再次決策]
+```
+
+R1 多消耗一次 API call，且 R2 看到自己在 R1 中已呼叫 compile 但拿不到結果，行為不確定。
+
+### 修復
+
+將 hint 嵌入 `compile_and_test` 的 function response `user_direction` 欄位（見 #6），tool_results 和 hint 在同一個 `send_message()` call 中一起送出，只生成一個 response：
+
+```
+3. user:  [tool result: 編譯失敗, user_direction: "請確認 reset 初始值"]
+4. model: [R1: 根據 compile 結果 + hint 決策]  ← 唯一的 response
+```
+
+---
+
 ## 快速參考：google.genai tools 正確寫法
 
 ```python

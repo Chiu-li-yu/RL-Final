@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob070_ece241_2013_q2",
-  "passed": false,
-  "attempts": 3,
-  "error_type": "R",
-  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob070_ece241_2013_q2_test.sv:63: $finish called at 535 (1ps)\nHint: Output 'out_sop' has 9 mismatches. First mismatch occurred at time 90.\nHint: Output 'out_pos' has 9 mismatches. First mismatch occurred at time 90.\nHint: Total mismatched samples is 9 out of 107 samples\n\nSimulation finished at 535 ps\nMismatches: 9 in 107 samples",
-  "task": "spec-to-rtl",
-  "experiment": "baseline_b"
-}

@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 12 小時制數位時鐘的設計，建議將其分解為以下五個子目標：
+
+1. 實作秒與分計數器：設計兩個 00-59 的 BCD 模組，並在 `ena` 訊號有效且低位計數溢位時進行進位。
+2. 實作小時計數器：設計一個邏輯，使其在 01-12 之間循環，並在小時達到 12 且由分進位時觸發 AM/PM 狀態切換。
+3. 實作 AM/PM 狀態機：設計一個由 `pm` 輸出的暫存器，在 11:59:59 PM 切換至 12:00:00 AM 時（或反之）更新其狀態。
+4. 處理同步重置邏輯：確保所有計數器與 `pm` 暫存器在 `reset` 為高電位時，能同步歸零至 12:00 AM (BCD: 12, 00, 00)。
+5. 整合模組介面：將上述邏輯串接，確保計數邏輯僅在 `ena` 有效時運作，並正確輸出 `hh`、`mm`、`ss` 的 BCD 格式。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input ena,
+    output logic pm,
+    output logic [7:0] hh,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

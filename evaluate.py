@@ -34,10 +34,12 @@ from agent.task import get_task, Task
 from agent.dataset import (
     list_problems,
     load_problem,
+    load_result,
     result_exists,
     save_code,
     save_result,
 )
+from agent.experiments import ALL_EXPERIMENTS, Experiment, get_experiment
 
 # ── ANSI colors ───────────────────────────────────────────────────────────────
 R      = "\033[0m"
@@ -48,127 +50,45 @@ YELLOW = "\033[33m"
 CYAN   = "\033[36m"
 GRAY   = "\033[90m"
 
-VALID_EXPS    = ("agent", "no_debug_hints", "no_decompose", "no_helper_tools", "no_memory")
-DEFAULT_MODEL = "gemma-4-31b-it" # "gemini-3.1-flash-lite"
-# DEFAULT_MODEL = "gemini-3.1-flash-lite"
+VALID_EXPS    = tuple(ALL_EXPERIMENTS.keys())
+DEFAULT_MODEL = "gemini-3.1-flash-lite" # "gemma-4-31b-it"
 
-# ── on_save callback（batch 模式：儲存程式碼，無互動）────────────────────────
+# ── BatchObserver（batch 模式：儲存程式碼，無互動）──────────────────────────
 
-def _make_save_cb(
-    problem_id: str,
-    task: Task,
-    experiment: str,
-    attempt_offset: int = 0,
-):
+class BatchObserver:
     """
-    回傳一個 on_save closure，在每次 compile_and_test 後儲存程式碼。
+    Batch-mode adapter for run_agent() callbacks.
+    Holds per-problem context so closures are not needed.
 
-    attempt_offset：
-      no_memory 的五次獨立執行各自帶入 0~4，
-      讓程式碼依序存成 attempt_1.sv … attempt_5.sv。
+    attempt_offset: used by no_memory runs to store
+    attempt_1.sv … attempt_5.sv across independent sessions.
     """
-    def on_save(attempt: int, code: str) -> None:
+    def __init__(
+        self,
+        problem_id: str,
+        task: Task,
+        experiment: str,
+        attempt_offset: int = 0,
+    ):
+        self._problem_id     = problem_id
+        self._task           = task
+        self._experiment     = experiment
+        self._attempt_offset = attempt_offset
+
+    def on_save(self, attempt: int, code: str) -> None:
         save_code(
-            problem_id,
-            attempt + attempt_offset,
+            self._problem_id,
+            attempt + self._attempt_offset,
             code,
-            task=task,
-            experiment=experiment,
+            task=self._task,
+            experiment=self._experiment,
         )
 
-    return on_save
 
+# ── 通用實驗執行器 ────────────────────────────────────────────────────────────
 
-# ── 五組實驗執行函式 ──────────────────────────────────────────────────────────
-#
-#  實驗設計（Ablation Study）：
-#    agent           — 完整 Agent（所有工具 + 記憶 + feedback）
-#    no_debug_hints  — 移除 get_debug_hints
-#    no_decompose    — 移除 decompose_spec
-#    no_helper_tools — 移除 get_debug_hints 與 decompose_spec
-#    no_memory       — 無記憶（5 次獨立 session，每次僅輸入題目描述）
-
-def _run_agent(
-    problem_id: str,
-    desc: str,
-    task: Task,
-    model: str,
-    rate_limiter: RateLimiter | None,
-) -> dict:
-    return run_agent(
-        problem_id=problem_id,
-        problem_description=desc,
-        task=task,
-        max_attempts=5,
-        model=model,
-        verbose=False,
-        rate_limiter=rate_limiter,
-        enabled_tools=None,
-        on_save=_make_save_cb(problem_id, task, "agent"),
-    )
-
-
-def _run_no_debug_hints(
-    problem_id: str,
-    desc: str,
-    task: Task,
-    model: str,
-    rate_limiter: RateLimiter | None,
-) -> dict:
-    return run_agent(
-        problem_id=problem_id,
-        problem_description=desc,
-        task=task,
-        max_attempts=5,
-        model=model,
-        verbose=False,
-        rate_limiter=rate_limiter,
-        enabled_tools=frozenset({"compile_and_test", "synthesize", "decompose_spec"}),
-        on_save=_make_save_cb(problem_id, task, "no_debug_hints"),
-    )
-
-
-def _run_no_decompose(
-    problem_id: str,
-    desc: str,
-    task: Task,
-    model: str,
-    rate_limiter: RateLimiter | None,
-) -> dict:
-    return run_agent(
-        problem_id=problem_id,
-        problem_description=desc,
-        task=task,
-        max_attempts=5,
-        model=model,
-        verbose=False,
-        rate_limiter=rate_limiter,
-        enabled_tools=frozenset({"compile_and_test", "synthesize", "get_debug_hints"}),
-        on_save=_make_save_cb(problem_id, task, "no_decompose"),
-    )
-
-
-def _run_no_helper_tools(
-    problem_id: str,
-    desc: str,
-    task: Task,
-    model: str,
-    rate_limiter: RateLimiter | None,
-) -> dict:
-    return run_agent(
-        problem_id=problem_id,
-        problem_description=desc,
-        task=task,
-        max_attempts=5,
-        model=model,
-        verbose=False,
-        rate_limiter=rate_limiter,
-        enabled_tools=frozenset({"compile_and_test", "synthesize"}),
-        on_save=_make_save_cb(problem_id, task, "no_helper_tools"),
-    )
-
-
-def _run_no_memory(
+def _run_experiment(
+    exp: Experiment,
     problem_id: str,
     desc: str,
     task: Task,
@@ -176,44 +96,46 @@ def _run_no_memory(
     rate_limiter: RateLimiter | None,
 ) -> dict:
     """
-    無記憶：5 次完全獨立生成，各自建立新的 chat session，輸入僅包含題目描述。
+    Execute one problem under the given Experiment config.
+
+    independent_runs == 1: single session with memory (all experiments except no_memory).
+    independent_runs  > 1: multiple independent sessions without memory (no_memory).
     """
+    if exp.independent_runs == 1:
+        obs = BatchObserver(problem_id, task, exp.id)
+        return run_agent(
+            problem_id=problem_id,
+            problem_description=desc,
+            task=task,
+            max_attempts=exp.max_attempts,
+            model=model,
+            verbose=False,
+            rate_limiter=rate_limiter,
+            enabled_tools=exp.enabled_tools,
+            on_save=obs.on_save,
+        )
+
+    # no_memory: independent_runs independent single-attempt sessions
     last_result: dict = {}
-
-    for run_idx in range(5):
+    for run_idx in range(exp.independent_runs):
+        obs = BatchObserver(problem_id, task, exp.id, attempt_offset=run_idx)
         result = run_agent(
             problem_id=problem_id,
             problem_description=desc,
             task=task,
-            max_attempts=1,
+            max_attempts=exp.max_attempts,
             model=model,
             verbose=False,
             rate_limiter=rate_limiter,
-            enabled_tools=None,
-            on_save=_make_save_cb(
-                problem_id, task, "no_memory",
-                attempt_offset=run_idx,
-            ),
+            enabled_tools=exp.enabled_tools,
+            on_save=obs.on_save,
         )
         result = dict(result)
         result["attempts"] = run_idx + 1
         last_result = result
-
         if result["passed"]:
             return result
-
     return last_result
-
-
-# ── 實驗分派 ──────────────────────────────────────────────────────────────────
-
-_EXP_RUNNERS = {
-    "agent":           _run_agent,
-    "no_debug_hints":  _run_no_debug_hints,
-    "no_decompose":    _run_no_decompose,
-    "no_helper_tools": _run_no_helper_tools,
-    "no_memory":       _run_no_memory,
-}
 
 
 def _run_one(
@@ -229,9 +151,9 @@ def _run_one(
     if resume and result_exists(problem_id, task, experiment):
         return None, True
 
-    runner = _EXP_RUNNERS[experiment]
+    exp = get_experiment(experiment)
     try:
-        result = runner(problem_id, desc, task, model, rate_limiter)
+        result = _run_experiment(exp, problem_id, desc, task, model, rate_limiter)
     except Exception as e:
         raise RuntimeError(f"{problem_id}: {e}") from e
 

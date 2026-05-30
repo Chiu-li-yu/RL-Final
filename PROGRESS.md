@@ -761,6 +761,31 @@ decompose_spec = {
   - `C`（Generic Compiler Error）與 `T`（Timeout）無固定診斷模式，明確告知 agent 直接參考 error_log
   - 設計原則調整：所有合法 error code 均有回應，LLM 填入不存在的 code 時仍回傳空字串
 
+- [x] **架構深化（5 個候選，`/improve-codebase-architecture`）**：
+  - **候選 1：新建 `agent/experiments.py`（Experiment 登錄表）**
+    - `Experiment` dataclass（`id`、`enabled_tools`、`max_attempts`、`independent_runs`、`description`）
+    - `ALL_EXPERIMENTS` dict + `get_experiment()` 為實驗配置的唯一來源
+    - `evaluate.py` 與 `run.py` 移除各自的 tool-set 定義，改從此模組 import
+    - `_CORE_TOOLS` 常數確保 `compile_and_test` / `synthesize` 永遠在 enabled set 內
+  - **候選 2：`Episode.record_synth()` 加防衛斷言**
+    - 呼叫順序 `record_sim()` → `record_synth()` 現在由 Episode 自身強制
+    - 違序呼叫立即 `AssertionError`，不再靜默地寫到錯誤 index
+  - **候選 3：tool dispatch 重構（agent/agent.py）**
+    - 新增 `_DispatchCtx`（共享上下文）、`_DispatchOut`（handler 回傳值）兩個 dataclass
+    - 四個工具各提取為獨立 handler 函式（`_handle_compile_and_test` 等）
+    - `_DISPATCH_TABLE` dict 路由；`run_agent()` 的 for 迴圈從 140 行縮減至 20 行
+    - 新增工具只需加一個 handler 函式 + 一個 dict entry
+  - **候選 4（evaluate.py）：`BatchObserver` + 單一 `_run_experiment()`**
+    - 五個 runner 函式 + `_EXP_RUNNERS` dict → 單一 `_run_experiment(exp, ...)` generic runner
+    - `_make_save_cb` closure → `BatchObserver` class（持有 problem_id / task / experiment / offset）
+    - skip 路徑從重新建構路徑改為呼叫 `load_result(pid, task, experiment)`
+  - **候選 5（dataset.py）：新增 `load_result()`**
+    - `load_result(problem_id, task, experiment) -> dict | None`：讀取歷史 result.json 的單一入口
+    - `evaluate.py` skip 路徑的路徑建構邏輯（重複）消失，只有 `dataset.py` 知道目錄結構
+  - **候選 4（run.py）：`RunObserver` class 取代 5 個分散 callback**
+    - `_on_thinking`、`_on_tool_call`、`_on_tool_result`、`_make_on_save`、`_make_checkpoint` → `RunObserver` class
+    - `run_problem()` 使用 `obs = RunObserver(...)` 後一次性傳入所有 callbacks
+
 ### 5/29–5/30
 
 - [ ] 跑完整實驗（5 組 × 兩種 task × 156 題）

@@ -1,72 +1,53 @@
-module TopModule (
-    input  clk,
-    input  resetn,
-    input  [2:0] r,
+module TopModule(
+    input clk,
+    input resetn,
+    input [2:0] r,
     output [2:0] g
 );
 
-    localparam A = 2'd0;
-    localparam B = 2'd1;
-    localparam C = 2'd2;
-    localparam D = 2'd3;
+    localparam A = 2'b00;
+    localparam B = 2'b01;
+    localparam C = 2'b10;
+    localparam D = 2'b11;
 
     logic [1:0] state, next_state;
 
-    // State transition logic (Combination)
+    // State flip-flops
+    always @(posedge clk) begin
+        if (!resetn)
+            state <= A;
+        else
+            state <= next_state;
+    end
+
+    // Next state logic
     always @(*) begin
-        next_state = state;
         case (state)
             A: begin
-                if (r[0]) 
-                    next_state = B;
-                else if (r[1]) 
-                    next_state = C;
-                else if (r[2]) 
-                    next_state = D;
-                else 
-                    next_state = A;
+                if (r[0]) next_state = B;
+                else if (r[1]) next_state = C;
+                else if (r[2]) next_state = D;
+                else next_state = A;
             end
             B: begin
-                if (r[0]) 
-                    next_state = B;
-                else 
-                    next_state = A;
+                if (r[0]) next_state = B;
+                else next_state = A;
             end
             C: begin
-                if (r[1]) 
-                    next_state = C;
-                else 
-                    next_state = A;
+                if (r[1]) next_state = C;
+                else next_state = A;
             end
             D: begin
-                if (r[2]) 
-                    next_state = D;
-                else 
-                    next_state = A;
+                if (r[2]) next_state = D;
+                else next_state = A;
             end
             default: next_state = A;
         endcase
     end
 
-    // State register (Sequential)
-    always @(posedge clk) begin
-        if (!resetn) begin
-            state <= A;
-        end else begin
-            state <= next_state;
-        end
-    end
-
     // Output logic
-    always @(*) begin
-        g = 3'b000;
-        case (state)
-            A: g = 3'b000;
-            B: g = 3'b001;
-            C: g = 3'b010;
-            D: g = 3'b100;
-            default: g = 3'b000;
-        endcase
-    end
+    assign g[0] = (state == B);
+    assign g[1] = (state == C);
+    assign g[2] = (state == D);
 
 endmodule

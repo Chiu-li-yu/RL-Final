@@ -1,9 +1,0 @@
-{
-  "problem_id": "Prob045_edgedetect2",
-  "passed": false,
-  "attempts": 3,
-  "error_type": "R",
-  "error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob045_edgedetect2_test.sv:45: $finish called at 1140 (1ps)\nHint: Output 'anyedge' has 212 mismatches. First mismatch occurred at time 30.\nHint: Total mismatched samples is 212 out of 228 samples\n\nSimulation finished at 1140 ps\nMismatches: 212 in 228 samples",
-  "task": "spec-to-rtl",
-  "experiment": "baseline_b"
-}
