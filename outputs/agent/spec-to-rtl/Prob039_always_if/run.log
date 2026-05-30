@@ -1,0 +1,26 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    input sel_b1,
+    input sel_b2,
+    output out_assign,
+[attempt 1] ← compile_and_test: w
+/tmp/tmpl9te9nog.sv:14: error: out_always is not a valid l-value in tb.top_module1.
+/tmp/tmpl9te9nog.sv:7:      : out_always is declared here as wire.
+/tmp/tmpl9te9nog.sv:16: error: out_always is not a valid l-value in tb.top_module1.
+/tmp/tmpl9te9nog.sv:7:      : out_always is declared here as wire.
+2 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    input sel_b1,
+    input sel_b2,
+    output out_assign,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

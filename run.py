@@ -33,7 +33,7 @@ from agent.task import get_task, Task
 from agent.dataset import load_problem, save_code, save_result, list_problems
 from agent.experiments import ALL_EXPERIMENTS, get_experiment
 
-_DEFAULT_MODEL = "gemini-3.1-flash-lite" # gemma-4-31b-it
+_DEFAULT_MODEL = "gemma-4-31b-it" # "gemini-3.1-flash-lite" # gemma-4-31b-it
 
 
 def _resolve_problem_id(token: str, task: Task) -> str | None:

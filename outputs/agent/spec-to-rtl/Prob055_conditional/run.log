@@ -1,0 +1,26 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input  [7:0] a,
+    input  [7:0] b,
+    input  [7:0] c,
+    input  [7:0] d,
+    output [7:0] min
+[attempt 1] ← compile_and_test: w
+/tmp/tmphyd092mx.sv:19: error: min is not a valid l-value in tb.top_module1.
+/tmp/tmphyd092mx.sv:6:      : min is declared here as wire.
+/tmp/tmphyd092mx.sv:20: error: min is not a valid l-value in tb.top_module1.
+/tmp/tmphyd092mx.sv:6:      : min is declared here as wire.
+2 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input  [7:0] a,
+    input  [7:0] b,
+    input  [7:0] c,
+    input  [7:0] d,
+    output logic [7:0] min
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y
