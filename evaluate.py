@@ -293,7 +293,7 @@ class _Progress:
                 for err_type, cnt in sorted_errors:
                     print(f"    {err_type}: {cnt:>3} times")
 
-            done_nonzero = self.done - self.skipped - self.errors
+            done_nonzero = self.done - self.errors
             if done_nonzero > 0:
                 print(f"\n  Tool Calls (total / avg per problem):")
                 print(f"    decompose_spec  : {self.total_decompose:>4}  "

@@ -6,8 +6,18 @@ DEBUG_HINTS: 每種 error code 對應的除錯提示清單，由 agent.py 的 co
              mismatch count 的情況下能系統性診斷錯誤原因。新增 hint 只改這個檔案。
 
 CODE_COMPLETE_PROMPT / SPEC_TO_RTL_PROMPT: 由 agent/task.py 的 Task 實例直接引用，
-             不再需要 get_system_prompt()。
+             不含可選工具段落（由 build_system_prompt 動態附加）。
+
+build_system_prompt: 根據 enabled_tools 動態拼接完整 system prompt，
+             確保 prompt 只提到模型實際可呼叫的工具。
 """
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from agent.task import Task
 
 
 # ── 共用規則（兩個 prompt 均適用）────────────────────────────────────────────
@@ -15,7 +25,6 @@ _RULES_COMMON = """\
 - 只使用 logic 宣告，不使用 wire 或 reg, 讓程式能被合成電路
 - 組合邏輯使用 always @(*)，不寫 sensitivity list
 - 同步 reset 不要在 sensitivity list 裡放 posedge reset"""
-
 
 # ── 除錯提示清單（按 error code 索引）────────────────────────────────────────
 # 涵蓋所有 VerilogEval error code。無特定建議的 code 仍回傳說明，
@@ -122,7 +131,22 @@ DEBUG_HINTS: dict[str, str] = {
 }
 
 
-# ── System prompts ────────────────────────────────────────────────────────────
+# ── 可選工具說明（按工具名稱索引）────────────────────────────────────────────
+# 只列可選工具；compile_and_test 與 synthesize 的說明在 base prompt 的驗證流程段落裡。
+_OPTIONAL_TOOL_DESCRIPTIONS: dict[str, str] = {
+    "decompose_spec": (
+        "若題目複雜度高且多次修改仍無效時，可呼叫並用於分析。"
+    ),
+    "get_debug_hints": (
+        "遇到出現一次以上的錯誤類型，或不確定修正方向時呼叫。"
+        "傳入 error_type 取得除錯提示。"
+        "必須在 compile_and_test 回傳 passed=false 後才能呼叫，"
+        "error_type 使用該次回傳的 error_type 值。"
+    ),
+}
+
+
+# ── System prompts（base，不含可選工具段落）──────────────────────────────────
 
 CODE_COMPLETE_PROMPT = f"""你是一個 Verilog RTL 設計師。
 你的任務是根據題目描述，補全給定的 Verilog module 內部邏輯。
@@ -135,12 +159,7 @@ CODE_COMPLETE_PROMPT = f"""你是一個 Verilog RTL 設計師。
 驗證流程（必須依序完成）：
 1. 呼叫 compile_and_test 驗證模擬正確性
 2. 模擬通過後，呼叫 synthesize 驗證可合成性
-3. 兩者皆通過才算完成
-
-其他可用工具：
-- decompose_spec：若題目複雜度高且多次修改仍無效時，可呼叫並用於分析。
-- get_debug_hints：遇到出現一次以上的錯誤類型，或不確定修正方向時呼叫。傳入 error_type 取得除錯提示。
-"""
+3. 兩者皆通過才算完成"""
 
 SPEC_TO_RTL_PROMPT = f"""你是一個 Verilog RTL 設計師。
 你的任務是根據自然語言規格，從零設計並實作完整的 Verilog module。
@@ -153,9 +172,46 @@ SPEC_TO_RTL_PROMPT = f"""你是一個 Verilog RTL 設計師。
 驗證流程（必須依序完成）：
 1. 呼叫 compile_and_test 驗證模擬正確性
 2. 模擬通過後，呼叫 synthesize 驗證可合成性
-3. 兩者皆通過才算完成
+3. 兩者皆通過才算完成"""
 
-其他可用工具：
-- decompose_spec：若題目複雜度高且多次修改仍無效時，可呼叫並用於分析。
-- get_debug_hints：遇到出現一次以上的錯誤類型，或不確定修正方向時呼叫。傳入 error_type 取得除錯提示。
-"""
+
+# ── 動態 system prompt 建構 ───────────────────────────────────────────────────
+
+def build_system_prompt(
+    task: Task,
+    enabled_tools: frozenset[str] | None,
+    max_attempts: int,
+) -> str:
+    """
+    根據啟用工具清單動態建構完整 system prompt。
+
+    Args:
+        task:          Task 物件，提供 base system prompt
+        enabled_tools: None 表示啟用全部工具；否則只包含集合中的工具名稱
+        max_attempts:  最大嘗試次數，注入至指示句
+
+    Returns:
+        完整 system prompt 字串，只提及模型實際可呼叫的工具。
+    """
+    active_optional = [
+        name for name in _OPTIONAL_TOOL_DESCRIPTIONS
+        if enabled_tools is None or name in enabled_tools
+    ]
+
+    parts = [task.system_prompt]
+
+    if active_optional:
+        tool_lines = "\n".join(
+            f"- {name}：{_OPTIONAL_TOOL_DESCRIPTIONS[name]}"
+            for name in active_optional
+        )
+        parts.append(f"\n其他可用工具：\n{tool_lines}")
+        names = "、".join(active_optional)
+        parts.append(
+            f"\n每題僅有 {max_attempts} 次作答(compile_and_test)機會，"
+            f"請善用工具({names})來輔助修正錯誤程式碼。"
+        )
+    else:
+        parts.append(f"\n每題僅有 {max_attempts} 次作答(compile_and_test)機會。")
+
+    return "\n".join(parts)

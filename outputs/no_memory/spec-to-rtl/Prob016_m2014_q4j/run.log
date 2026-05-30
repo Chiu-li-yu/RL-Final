@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 4-bit 加法器，建議將設計分解為以下 5 個具體子目標：
+
+1. 定義一個基礎的 Full Adder 模組，實現 `sum = a ^ b ^ cin` 與 `cout = (a & b) | (cin & (a ^ b))` 的邏輯。
+2. 建立頂層模組 `four_bit_adder`，定義輸入埠 `x[3:0]`、`y[3:0]` 以及輸出埠 `sum[4:0]`。
+3. 在頂層模組中宣告內部連線訊號 `c[3:1]`，用於連接各個 Full Adder 的進位輸出 (Carry) 與輸入。
+4. 使用例項化 (Instantiation) 的方式，依序串聯 4 個 Full Adder 模組，將進位訊號正確傳遞。
+5. 將最後一個 Full Adder 的進位輸出 `cout` 賦值給 `sum[4]`，完成 5-bit 的輸出結果。
+
+[attempt 1] → compile_and_test
+module FullAdder(
+    input a,
+    input b,
+    input cin,
+    output s,
+    output cout
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

@@ -29,7 +29,7 @@ from google import genai
 from google.genai import types, errors as genai_errors
 
 from agent.tools import compile_and_test, synthesize
-from agent.prompts import DEBUG_HINTS
+from agent.prompts import DEBUG_HINTS, build_system_prompt
 from agent.task import Task
 
 load_dotenv()
@@ -619,10 +619,7 @@ def run_agent(
 
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-    system_prompt = (
-        task.system_prompt
-        + f"\n每題僅有 {max_attempts} 次作答(compile_and_test)機會，請善用工具(decompose_spec、get_debug_hints)來輔助修正錯誤程式碼。"
-    )
+    system_prompt = build_system_prompt(task, enabled_tools, max_attempts)
     config = types.GenerateContentConfig(
         system_instruction=system_prompt,
         tools=[_build_tools(enabled_tools)],
