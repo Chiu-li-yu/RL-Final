@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+針對此 Lemmings 狀態機的實作，建議將任務分解為以下 5 個子目標：
+
+1. 定義狀態編碼（One-hot 或 Binary）並宣告狀態暫存器與邏輯訊號（包含狀態機所需的計數器 `fall_cnt` 與噴濺旗標 `splat_flag`）。
+2. 實作組合邏輯區塊（Next State Logic），依據規則定義狀態轉換邏輯，並處理碰撞（bump）、挖掘（dig）與掉落（ground）的優先級判斷。
+3. 實作掉落時間追蹤器與噴濺旗標邏輯，確保在 `aaah` 狀態下計數，並在超過 20 個週期後設定 `splat_flag`。
+4. 實作同步重置（areset）與狀態更新邏輯（Sequential State Assignment），將目前的狀態更新為下一狀態。
+5. 實作輸出解碼邏輯（Output Logic），根據當前狀態與旗標狀態，將 `walk_left`, `walk_right`, `aaah`, `digging` 訊號映射至對應的值。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: e
+/tmp/tmp41r2cllc.sv:52: error: This assignment requires an explicit cast.
+/tmp/tmp41r2cllc.sv:55: error: This assignment requires an explicit cast.
+2 error(s) during elaboration.

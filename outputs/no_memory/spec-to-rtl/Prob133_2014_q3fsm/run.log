@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該 Verilog 題目分解的 5 個具體子目標：
+
+1. 定義 `TopModule` 的介面（ports），並使用 `typedef enum` 定義 FSM 狀態（A, B）及相關的內部信號宣告。
+2. 實作 FSM 的狀態轉換邏輯（State Transition），確保在狀態 A 時根據 `s` 進行跳轉，並處理同步 Reset。
+3. 在狀態 B 實作一個 2 位元的計數器（Counter）來追蹤 3 個 clock cycles 的週期，以及一個 2 位元的變數來累加 `w=1` 的次數。
+4. 實作輸出邏輯，當計數器週期滿 3 個 cycles 時，根據累加結果設定 `z=1`（若 count == 2）或 `z=0`，其餘時間 `z=0`。
+5. 使用 `always_ff @(posedge clk)` 處理所有時序邏輯，並確保所有信號定義皆使用 `logic` 型別以符合規範。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic s,
+    input logic w,
+    output logic z
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

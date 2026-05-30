@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+根據您提供的題目與分析，以下是將此 Verilog 實作分解成的 4 個具體子目標：
+
+1. 定義 `TopModule` 模組介面，包含 `clk` (input)、`a` (input) 與 `q` (3-bit output)。
+2. 使用 `always @(posedge clk)` 區塊建立時序邏輯，並宣告 `q` 為 `reg` 型態以儲存狀態。
+3. 實作控制邏輯：當輸入 `a` 為 1 時，將 `q` 強制賦值為 3 (二進位 100，即題目所述之 4)。
+4. 實作計數邏輯：當輸入 `a` 為 0 時，令 `q` 進行 `(q + 1) % 7` 的遞增計數（注意需處理從 6 回歸到 0 的邏輯）。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input a,
+    output logic [2:0] q
+);
+
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是針對該 Verilog 題目的 3-5 個具體執行子目標：
+
+1. 定義 `TopModule` 的端口並宣告 100-bit 的暫存器 `q` 作為內部狀態存儲。
+2. 實作同步 `load` 機制，確保在 `clk` 上升緣且 `load` 為高位準時，將 `data` 載入 `q`。
+3. 在 `load` 為低位準時，根據 `ena` 的值撰寫條件判斷邏輯（if/case）。
+4. 實作右旋轉邏輯：將 `q` 的最低位移動到最高位，其餘位元右移（`q <= {q[0], q[99:1]}`）。
+5. 實作左旋轉邏輯：將 `q` 的最高位移動到最低位，其餘位元左移（`q <= {q[98:0], q[99]}`）。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [1:0] ena,
+    input [99:0] data,
+    output logic [99:0] q
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

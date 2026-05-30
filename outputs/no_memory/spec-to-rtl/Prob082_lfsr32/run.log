@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了順利完成此 32-bit Galois LFSR 的 Verilog 實作，建議將任務分解為以下五個子目標：
+
+1. 定義模組介面，包含時鐘 `clk`、同步重置 `reset` 及 32-bit 輸出 `q`，並宣告 32-bit 的暫存器來儲存目前狀態。
+2. 在 `always @(posedge clk)` 區塊內實作同步重置邏輯，當 `reset` 為高電位時，將暫存器強制賦值為 `32'h1`。
+3. 計算非變動位元的移位邏輯，即定義 `next_q[i]` 預設為 `q[i+1]`（將暫存器內容向右移動）。
+4. 根據題目指定的タップ（taps）位置（bit 31, 21, 1, 0 對應到題目 32, 22, 2, 1），加入 XOR `q[0]` 的條件式運算。
+5. 將計算完成的 `next_q` 更新至暫存器 `q`，並確保輸出正確連結至該暫存器。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    output logic [31:0] q
+);
+
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

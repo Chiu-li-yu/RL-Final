@@ -1,0 +1,33 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是針對該 Moore 狀態機設計的 5 個具體執行步驟：
+
+1. 定義狀態編碼參數 (Parameter) 並宣告狀態暫存器 (state) 與次態變數 (next_state)。
+2. 編寫組合邏輯電路，根據輸入 (d, done_counting, ack) 與當前狀態計算 next_state。
+3. 實作序列邏輯電路，在每個時脈邊緣更新狀態暫存器 (state <= next_state)。
+4. 編寫輸出邏輯，根據當前狀態的值將各輸出 (done, counting, shift_ena) 賦值。
+5. 整合各模組並撰寫測試平台 (Testbench) 以驗證所有狀態轉換路徑及輸出邏輯是否正確。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input d,
+    input done_counting,
+    input ack,
+    input [9:0] state,
+    output B3_next,
+[attempt 1] ← compile_and_test: R  mismatches=1
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob150_review2015_fsmonehot_test.sv:22: $finish called at 1501 (1ps)
+Hint: Output 'B3_next' has no mismatches.
+Hint: Output 'S_next' has 1 mismatches. First mismatch occurred at time 5.
+Hint: Output 'S1_next' has no mismatches.
+Hint: Output 'Count_next' has no mismatches.
+Hint: Output 'Wait_next' has no mismatches.
+Hint: Output 'done' has no mismatches.
+Hint: Output 'counting' has no mismatches.
+Hint: Output 'shift_ena' has no mismatches.
+Hint: Total mismatched samples is 1 out of 300 samples
+
+Simulation finished at 1501 ps
+Mismatches: 1 in 300 samples

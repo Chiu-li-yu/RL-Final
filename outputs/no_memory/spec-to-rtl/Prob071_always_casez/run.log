@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+根據您的需求，將 8-bit 優先編碼器 (Priority Encoder) 的實作分解為以下 5 個步驟：
+
+1. 定義模組介面，包含 8-bit 輸入訊號 `in` 與 3-bit 輸出訊號 `pos`。
+2. 使用 `if-else` 或 `case` 優先權邏輯，從最低有效位元 (bit 0) 開始檢查直到最高位元 (bit 7)。
+3. 當偵測到第一個為 1 的位元時，將該位元的索引值賦值給 `pos` 並結束判斷。
+4. 設定預設條件，確保當輸入為 0 時，輸出 `pos` 明確為 3'd0。
+5. 編寫 Testbench 對多種情況（包含 0、單一 bit 為 1、多個 bit 為 1）進行仿真驗證。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic [7:0] in,
+    output logic [2:0] pos
+);
+
+    always @(*) begin
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

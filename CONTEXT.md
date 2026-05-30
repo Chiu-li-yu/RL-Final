@@ -197,6 +197,32 @@ SYNTH_PASS_CODE     = "Y"
 
 設計原則：所有合法 error code 均有回應。LLM 填入不存在的 code 時回傳空字串（「無對應提示」），行為安全不報錯。新增 hint 只改 `prompts.py` 的 `DEBUG_HINTS`，其他模組不需動。
 
+#### 動態 System Prompt（build_system_prompt）
+
+`agent/prompts.py::build_system_prompt(task, enabled_tools, max_attempts) -> str`
+
+**問題背景**：ablation study 中，`no_debug_hints` / `no_decompose` / `no_helper_tools` 等實驗停用部分工具，但原本的 base prompt 硬寫了所有可選工具的說明。模型被告知「可使用 get_debug_hints」，卻因工具未在 function declarations 中而無法呼叫，造成 prompt 與實際工具集不一致，影響實驗有效性。
+
+**設計**：
+
+```python
+# agent/prompts.py
+_OPTIONAL_TOOL_DESCRIPTIONS: dict[str, str] = {
+    "decompose_spec": "若題目複雜度高且多次修改仍無效時，可呼叫並用於分析。",
+    "get_debug_hints": "遇到出現一次以上的錯誤類型，或不確定修正方向時呼叫。...",
+}
+
+def build_system_prompt(task, enabled_tools, max_attempts) -> str:
+    # 1. 取 base prompt（不含可選工具段落）
+    # 2. 根據 enabled_tools 篩選 _OPTIONAL_TOOL_DESCRIPTIONS
+    # 3. 有可選工具 → 附加「其他可用工具」段落 + 「善用工具(...)」指示句
+    #    無可選工具 → 只附加「每題僅有 N 次作答機會」
+```
+
+`agent/agent.py::run_agent()` 改呼叫 `build_system_prompt(task, enabled_tools, max_attempts)`，不再手動拼字串。
+
+**效果**：各實驗組的 prompt 只提及模型實際可呼叫的工具，ablation study 結果不受「prompt 提示但工具不存在」干擾。
+
 #### System Prompt FSM 規範
 
 兩個 prompt 的 enum 規則改為正向模板，直接給出推薦寫法：
@@ -471,6 +497,8 @@ def _save_cb(problem_id, task, experiment, attempt_offset=0):
 #### 進度追蹤（\_Progress）
 
 執行緒安全的計數器，由 `threading.Lock` 保護。每次 `update()` 在鎖內列印一行，因此多個 worker 的輸出行不會交錯。最終 `finish()` 列印 pass rate 與 pass-by-attempt 長條圖。
+
+`update()` 對所有有效 result（含 `was_skipped=True` 的題目）均累計 `total_decompose` / `total_debug_hints`。`finish()` 的平均分母為 `done - errors`（包含 skipped），使 total 與 avg 基準一致，resume 執行時不會因題目被跳過而低估工具使用頻率。
 
 #### CLI 用法
 

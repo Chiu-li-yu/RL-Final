@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該 Verilog 題目分解為 4 個具體、可執行子目標的建議：
+
+1. 定義 100-bit 輸入 `in` 以及三個 100-bit 輸出 `out_both`、`out_any` 與 `out_different`。
+2. 使用迴圈或並行賦值語句處理 `out_both`：將 `in[i] && in[i+1]` 賦值給前 99 位元，並強制將 `out_both[99]` 設為 0。
+3. 使用迴圈或並行賦值語句處理 `out_any`：將 `in[i] || in[i-1]` 賦值給後 99 位元，並強制將 `out_any[0]` 設為 0。
+4. 使用迴圈或並行賦值語句處理 `out_different`：將 `in[i] ^ in[i+1]` 賦值給前 99 位元，並設定最後一位為 `in[99] ^ in[0]` 以實現環繞（wrap-around）邏輯。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic [99:0] in,
+    output logic [99:0] out_both,
+    output logic [99:0] out_any,
+    output logic [99:0] out_different
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

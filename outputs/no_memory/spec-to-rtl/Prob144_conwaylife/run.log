@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成 16x16 的生命遊戲 (Game of Life) 模擬器，建議將任務分解為以下五個子目標：
+
+1. 建立一個 16x16 的 2D 暫存器陣列 (或將 256 位元對應為矩陣)，並實作同步載入邏輯以處理 `load` 訊號。
+2. 實作鄰居計算模組，利用模運算 (modulo arithmetic) 或位址偏移來處理 Toroid (環狀) 邊界條件的座標映射。
+3. 根據題目規則 (0-1:死, 2:維持, 3:活, 4+:死) 撰寫組合邏輯，針對每個格子計算下一時刻的狀態。
+4. 建立狀態更新電路，確保 `q` 在每個 `clk` 上升緣時同步更新為計算出的下一狀態。
+5. 編寫 Testbench 進行驗證，測試包括靜態圖案、振盪器 (Oscillator) 及邊界穿梭 (Wraparound) 等情境。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input load,
+    input [255:0] data,
+    output reg [255:0] q
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

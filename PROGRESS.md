@@ -753,6 +753,16 @@ decompose_spec = {
 
 ### 5/30
 
+- [x] **`build_system_prompt()` 動態 system prompt**（`agent/prompts.py`）：
+  - 問題：base prompt 硬寫兩個可選工具說明，ablation 實驗停用工具後 prompt 仍提及不可呼叫的工具，影響實驗有效性
+  - 新增 `_OPTIONAL_TOOL_DESCRIPTIONS` dict（key=工具名稱，value=說明文字）
+  - 新增 `build_system_prompt(task, enabled_tools, max_attempts) -> str`：依 `enabled_tools` 動態附加工具說明段落；無可選工具時完全省略工具段落
+  - `agent.py::run_agent()` 改呼叫此函式，不再手動拼字串
+  - 效果：各實驗組 prompt 只提及實際可呼叫的工具，ablation 結果更可信
+- [x] **`evaluate.py` 工具呼叫統計修正**：
+  - 問題：`finish()` 的 avg 分母用 `done - skipped - errors`，而 `total_decompose` / `total_debug_hints` 已包含 skipped 題目的呼叫次數，造成 total/avg 基準不一致
+  - 修正：分母改為 `done - errors`，skipped 題目計入 avg 基準，統計數字正確反映全部已執行題目
+
 - [x] **`agent.py` 重試訊息強化**：`_with_retry()` 新增 `_error_summary()` helper，從例外提取 HTTP 狀態碼並附上說明文字（429 Rate limit / 500 Internal / 503 Unavailable / 504 Timeout），重試時顯示 `[retry] HTTP 503 — Service Unavailable（服務暫時不可用）— 4.3s 後重試…`
 - [x] **`run.py` 題目編號快速輸入**：REPL 及 CLI 支援輸入純數字（如 `1`、`001`、`156`），自動解析為對應的完整 problem_id（`Prob001_zero`）；輸入不存在的編號時顯示錯誤
 - [x] **`run.py` 支援 experiment 參數**：`run_problem()` 新增 `experiment` 參數；REPL 輸入格式改為 `<problem_id> [task] [experiment]`；CLI 支援第三個引數；`_EXP_TOOLS` dict 集中管理各實驗組的 `enabled_tools`

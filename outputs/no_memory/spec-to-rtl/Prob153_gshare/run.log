@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了實現 gshare 分支預測器，建議將任務分解為以下 5 個具體且可執行的子目標：
+
+1. 定義 128 個條目的 2-bit 飽和計數器陣列 (PHT) 並實現其讀寫邏輯，確保寫入時支援飽和運算（00 不減、11 不加）。
+2. 實作 GHR (Global History Register) 暫存器，並編寫邏輯以支援週期性的移位更新以及訓練階段的狀態恢復機制。
+3. 建立位址雜湊 (Hash) 模組，使用 PC 與 GHR 的 XOR 運算來計算出 7-bit 的 PHT 索引值。
+4. 撰寫預測邏輯 (Prediction Logic)，在 `predict_valid` 有效時輸出預測結果，並確保能在單一週期內完成讀取與判斷。
+5. 整合訓練邏輯 (Training Logic) 與衝突解決機制，確保訓練優先於預測更新 GHR，並依據是否預測失誤來正確修正 PHT 計數器狀態。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input predict_valid,
+    input [6:0] predict_pc,
+    output predict_taken,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

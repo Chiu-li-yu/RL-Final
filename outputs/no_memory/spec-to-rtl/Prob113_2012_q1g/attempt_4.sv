@@ -1,0 +1,64 @@
+module TopModule(
+    input [3:0] x,
+    output f
+);
+    // K-map table (x[2]x[3] rows, x[0]x[1] cols):
+    // 0000: 1
+    // 0001: 0
+    // 0010: 1
+    // 0011: 0
+    // 0100: 0
+    // 0101: 0
+    // 0110: 0
+    // 0111: 0
+    // 1000: 1
+    // 1001: 1
+    // 1010: 1
+    // 1011: 0
+    // 1100: 1
+    // 1101: 1
+    // 1110: 0
+    // 1111: 1
+
+    // SOP (Sum of Products):
+    // Minimized via K-map:
+    // f = (~x[2] & ~x[3] & ~x[1]) | (x[2] & ~x[3] & ~x[1]) | (x[2] & x[3] & ~x[0]) | (x[2] & ~x[3] & ~x[0]) | (x[2] & x[3] & x[1])
+    // Wait, let's simplify carefully:
+    // Groups:
+    // 1. (0000, 0010, 1000, 1010) => ~x[3] & ~x[1]
+    // 2. (1100, 1101, 1111) => x[2] & x[3] & (~x[1] | x[0])  <- Wait, 1100, 1101, 1111
+    // Let's re-verify:
+    // Mapping:
+    // row 00: 1 0 0 1 => index 0000, 0010
+    // row 01: 0 0 0 0
+    // row 11: 1 1 1 0 => index 1100, 1101, 1111
+    // row 10: 1 1 0 1 => index 1000, 1001, 1010
+
+    // Simplified logic:
+    // f = (~x[3] & ~x[1]) | (x[2] & x[3] & ~x[1]) | (x[2] & x[3] & x[0]) | (x[2] & ~x[3] & ~x[0])
+    
+    // Let's use a case statement or a simple combinational block for clarity.
+    logic f_val;
+    always @(*) begin
+        case(x)
+            4'b0000: f_val = 1;
+            4'b0001: f_val = 0;
+            4'b0010: f_val = 1;
+            4'b0011: f_val = 0;
+            4'b0100: f_val = 0;
+            4'b0101: f_val = 0;
+            4'b0110: f_val = 0;
+            4'b0111: f_val = 0;
+            4'b1000: f_val = 1;
+            4'b1001: f_val = 1;
+            4'b1010: f_val = 1;
+            4'b1011: f_val = 0;
+            4'b1100: f_val = 1;
+            4'b1101: f_val = 1;
+            4'b1110: f_val = 0;
+            4'b1111: f_val = 1;
+            default: f_val = 0;
+        endcase
+    end
+    assign f = f_val;
+endmodule

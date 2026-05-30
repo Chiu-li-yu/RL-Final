@@ -1,0 +1,21 @@
+{
+  "problem_id": "Prob149_ece241_2013_q4",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\nHint: Your reset should be synchronous, but doesn't appear to be.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob149_ece241_2013_q4_test.sv:84: $finish called at 10200 (1ps)\nHint: Output 'fr2' has no mismatches.\nHint: Output 'fr1' has no mismatches.\nHint: Output 'fr0' has no mismatches.\nHint: Output 'dfr' has 5 mismatches. First mismatch occurred at time 20.\nHint: Total mismatched samples is 5 out of 2040 samples\n\nSimulation finished at 10200 ps\nMismatches: 5 in 2040 samples",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R"
+  ],
+  "synth_error_sequence": [
+    null
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_memory"
+}

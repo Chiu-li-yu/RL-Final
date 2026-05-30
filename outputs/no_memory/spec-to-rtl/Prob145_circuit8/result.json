@@ -1,0 +1,21 @@
+{
+  "problem_id": "Prob145_circuit8",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob145_circuit8_test.sv:45: $finish called at 1200 (1ps)\nHint: Output 'p' has 55 mismatches. First mismatch occurred at time 240.\nHint: Output 'q' has 109 mismatches. First mismatch occurred at time 90.\nHint: Total mismatched samples is 109 out of 240 samples\n\nSimulation finished at 1200 ps\nMismatches: 109 in 240 samples",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R"
+  ],
+  "synth_error_sequence": [
+    null
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_memory"
+}

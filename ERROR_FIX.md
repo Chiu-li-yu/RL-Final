@@ -379,6 +379,85 @@ R1 多消耗一次 API call，且 R2 看到自己在 R1 中已呼叫 compile 但
 
 ---
 
+## #8 — Ablation study prompt 提及不可呼叫的工具（設計缺陷）
+
+**時間**：2026-05-30，程式碼審查時發現  
+**發生位置**：`agent/prompts.py` 的 base prompt + `agent/agent.py::run_agent()` 的字串拼接
+
+### 問題描述
+
+`SPEC_TO_RTL_PROMPT` / `CODE_COMPLETE_PROMPT` 硬寫了所有可選工具的說明：
+
+```
+其他可用工具：
+- decompose_spec：若題目複雜度高且多次修改仍無效時，可呼叫並用於分析。
+- get_debug_hints：遇到出現一次以上的錯誤類型...
+```
+
+`run_agent()` 也硬寫：
+
+```python
+system_prompt = (
+    task.system_prompt
+    + f"\n每題僅有 {max_attempts} 次作答機會，請善用工具(decompose_spec、get_debug_hints)..."
+)
+```
+
+在 `no_debug_hints` / `no_decompose` / `no_helper_tools` 等實驗中，被停用的工具不在 `function_declarations` 內，模型無法呼叫，但 prompt 仍叫它去用。模型在 context 中「想要」使用不存在的工具，影響生成行為，使各 ablation 組的比較基準不乾淨。
+
+### 修復
+
+新增 `build_system_prompt(task, enabled_tools, max_attempts) -> str`（`agent/prompts.py`）：
+
+```python
+_OPTIONAL_TOOL_DESCRIPTIONS: dict[str, str] = {
+    "decompose_spec": "...",
+    "get_debug_hints": "...",
+}
+
+def build_system_prompt(task, enabled_tools, max_attempts) -> str:
+    active = [t for t in _OPTIONAL_TOOL_DESCRIPTIONS
+              if enabled_tools is None or t in enabled_tools]
+    parts = [task.system_prompt]
+    if active:
+        # 附加工具說明段落 + 善用工具指示句（只列 active 工具）
+    else:
+        # 只附加次數限制，不提任何可選工具
+    return "\n".join(parts)
+```
+
+`agent/agent.py` 改為一行呼叫：`system_prompt = build_system_prompt(task, enabled_tools, max_attempts)`
+
+---
+
+## #9 — `evaluate.py` 工具呼叫 avg 分母排除 skipped 題目
+
+**時間**：2026-05-30，程式碼審查時發現  
+**發生位置**：`evaluate.py::_Progress.finish()`
+
+### 問題描述
+
+`update()` 對所有有效 result（含 `was_skipped=True`）均累計 `total_decompose` / `total_debug_hints`，因此 total 包含所有題目。但 `finish()` 的平均分母：
+
+```python
+done_nonzero = self.done - self.skipped - self.errors  # ← skipped 被排除
+avg = self.total_decompose / done_nonzero
+```
+
+total 含 skipped，avg 分母不含 skipped，造成 avg 數字偏高（尤其 resume 執行大量題目已跳過時）。
+
+### 修復
+
+```python
+# ❌ 錯誤：分母排除 skipped
+done_nonzero = self.done - self.skipped - self.errors
+
+# ✅ 正確：分母包含 skipped（與 total 基準一致）
+done_nonzero = self.done - self.errors
+```
+
+---
+
 ## 快速參考：google.genai tools 正確寫法
 
 ```python

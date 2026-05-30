@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+這裡將該題目分解為 5 個具體的子目標：
+
+1. 定義一個 24-bit 的移位暫存器（Shift Register）並實作串列輸入邏輯，在每個時鐘週期移入新位元組。
+2. 設計一個狀態機（FSM），定義三個狀態：等待起始位元組（Wait）、接收剩餘位元組（Capture）、以及完成訊號輸出（Done）。
+3. 實作「等待」邏輯：檢查當前接收到的位元組是否滿足 `in[3] == 1` 的條件，若符合則轉換狀態並鎖定第一個位元組。
+4. 實作「捕獲」邏輯：依序讀取隨後的兩個位元組，並將 3 個位元組完整填入 24-bit 的輸出暫存器中。
+5. 實作輸出邏輯與同步重置：在達到 3 個位元組條件時拉高 `done` 訊號維持一個週期，並確保所有邏輯受同步重置訊號控制。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 1] ← compile_and_test: e
+/tmp/tmp6gmv5lcv.sv:46: error: This assignment requires an explicit cast.
+/tmp/tmp6gmv5lcv.sv:49: error: This assignment requires an explicit cast.
+2 error(s) during elaboration.

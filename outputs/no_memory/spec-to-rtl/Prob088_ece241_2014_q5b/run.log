@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是完成該 Mealy FSM 設計的 3-5 個具體子目標：
+
+1. 定義模組介面並宣告狀態變數（使用 `logic [1:0]`），將 A 設為 `2'b01`，B 設為 `2'b10`。
+2. 使用 `always_ff @(posedge clk or posedge areset)` 實作非同步重置邏輯，處理狀態暫存器的更新。
+3. 使用 `always_comb` 區塊編寫組合邏輯，根據當前狀態與輸入 `x` 計算下一個狀態（next_state）。
+4. 在 `always_comb` 區塊中，根據當前狀態與輸入 `x` 定義輸出 `z` 的邏輯值（Mealy 型架構）。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic areset,
+    input logic x,
+    output logic z
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y
