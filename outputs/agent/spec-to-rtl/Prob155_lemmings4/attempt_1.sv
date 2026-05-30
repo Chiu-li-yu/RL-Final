@@ -1,5 +1,4 @@
-
-module TopModule (
+module TopModule(
     input clk,
     input areset,
     input bump_left,
@@ -12,96 +11,64 @@ module TopModule (
     output digging
 );
 
-    localparam WALK_L = 3'd0,
-               WALK_R = 3'd1,
-               FALL_L = 3'd2,
-               FALL_R = 3'd3,
-               DIG_L  = 3'd4,
-               DIG_R  = 3'd5,
-               SPLAT  = 3'd6;
-
+    parameter LEFT = 0, RIGHT = 1, FALL_L = 2, FALL_R = 3, DIG_L = 4, DIG_R = 5, SPLAT = 6;
+    
     logic [2:0] state, next_state;
-    logic [7:0] fall_cnt;
+    logic [6:0] fall_count;
 
     always @(posedge clk or posedge areset) begin
         if (areset) begin
-            state <= WALK_L;
-            fall_cnt <= 8'd0;
+            state <= LEFT;
+            fall_count <= 0;
         end else begin
             state <= next_state;
-            if (next_state == FALL_L || next_state == FALL_R) begin
-                if (state == FALL_L || state == FALL_R) begin
-                    fall_cnt <= fall_cnt + 1'b1;
-                end else begin
-                    fall_cnt <= 8'd0;
-                end
-            end else begin
-                fall_cnt <= 8'd0;
-            end
+            if (state == FALL_L || state == FALL_R)
+                fall_count <= fall_count + 1;
+            else
+                fall_count <= 0;
         end
     end
 
     always @(*) begin
         next_state = state;
         case (state)
-            WALK_L: begin
-                if (ground == 1'b0)
-                    next_state = FALL_L;
-                else if (dig == 1'b1)
-                    next_state = DIG_L;
-                else if (bump_left == 1'b1)
-                    next_state = WALK_R;
-                else
-                    next_state = WALK_L;
+            LEFT: begin
+                if (!ground) next_state = FALL_L;
+                else if (dig) next_state = DIG_L;
+                else if (bump_left) next_state = RIGHT;
+                else if (bump_right) next_state = LEFT;
             end
-            WALK_R: begin
-                if (ground == 1'b0)
-                    next_state = FALL_R;
-                else if (dig == 1'b1)
-                    next_state = DIG_R;
-                else if (bump_right == 1'b1)
-                    next_state = WALK_L;
-                else
-                    next_state = WALK_R;
+            RIGHT: begin
+                if (!ground) next_state = FALL_R;
+                else if (dig) next_state = DIG_R;
+                else if (bump_right) next_state = LEFT;
+                else if (bump_left) next_state = RIGHT;
             end
             FALL_L: begin
-                if (ground == 1'b0)
-                    next_state = FALL_L;
-                else if (fall_cnt > 8'd20)
-                    next_state = SPLAT;
-                else
-                    next_state = WALK_L;
+                if (ground) begin
+                    if (fall_count > 20) next_state = SPLAT;
+                    else next_state = LEFT;
+                end
             end
             FALL_R: begin
-                if (ground == 1'b0)
-                    next_state = FALL_R;
-                else if (fall_cnt > 8'd20)
-                    next_state = SPLAT;
-                else
-                    next_state = WALK_R;
+                if (ground) begin
+                    if (fall_count > 20) next_state = SPLAT;
+                    else next_state = RIGHT;
+                end
             end
             DIG_L: begin
-                if (ground == 1'b0)
-                    next_state = FALL_L;
-                else
-                    next_state = DIG_L;
+                if (!ground) next_state = FALL_L;
             end
             DIG_R: begin
-                if (ground == 1'b0)
-                    next_state = FALL_R;
-                else
-                    next_state = DIG_R;
+                if (!ground) next_state = FALL_R;
             end
-            SPLAT: begin
-                next_state = SPLAT;
-            end
-            default: next_state = WALK_L;
+            SPLAT: next_state = SPLAT;
         endcase
     end
 
-    assign walk_left  = (state == WALK_L);
-    assign walk_right = (state == WALK_R);
-    assign aaah       = (state == FALL_L || state == FALL_R);
-    assign digging    = (state == DIG_L || state == DIG_R);
+    assign walk_left = (state == LEFT);
+    assign walk_right = (state == RIGHT);
+    assign aaah = (state == FALL_L || state == FALL_R);
+    assign digging = (state == DIG_L || state == DIG_R);
 
 endmodule

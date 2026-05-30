@@ -1,92 +1,53 @@
-
 module TopModule (
-    input  clk,
-    input  resetn,
-    input  x,
-    input  y,
-    output f,
-    output g
+    input clk,
+    input resetn,
+    input x,
+    input y,
+    output logic f,
+    output logic g
 );
+    typedef enum logic [3:0] {
+        S_RESET, S_F, S_WAIT1, S_WAIT0, S_WAIT1_FINAL, S_G_SET, S_MONITOR_Y1, S_MONITOR_Y2, S_GO, S_STOP
+    } state_t;
 
-    localparam S_A      = 4'd0,
-               S_A_WAIT = 4'd1,
-               S_F      = 4'd2,
-               S_X0     = 4'd3,
-               S_X1     = 4'd4,
-               S_X2     = 4'd5,
-               S_G1     = 4'd6,
-               S_G2     = 4'd7,
-               S_G_PERM = 4'd8,
-               S_G_OFF  = 4'd9;
-
-    logic [3:0] state, next_state;
+    state_t state, next_state;
 
     always @(posedge clk) begin
-        if (!resetn) begin
-            state <= S_A;
-        end else begin
-            state <= next_state;
-        end
+        if (!resetn) state <= S_RESET;
+        else state <= next_state;
     end
 
     always @(*) begin
         next_state = state;
+        f = 0;
+        g = 0;
+
         case (state)
-            S_A: begin
-                if (resetn) 
-                    next_state = S_A_WAIT;
-                else 
-                    next_state = S_A;
-            end
-            S_A_WAIT: begin
-                next_state = S_F;
-            end
+            S_RESET: next_state = S_F;
             S_F: begin
-                next_state = S_X0;
+                f = 1;
+                next_state = S_WAIT1;
             end
-            S_X0: begin
-                if (x) 
-                    next_state = S_X1;
-                else 
-                    next_state = S_X0;
+            S_WAIT1: if (x) next_state = S_WAIT0;
+            S_WAIT0: if (!x) next_state = S_WAIT1_FINAL; else next_state = S_WAIT1;
+            S_WAIT1_FINAL: if (x) next_state = S_G_SET; else next_state = S_WAIT1;
+            S_G_SET: begin
+                g = 1;
+                next_state = S_MONITOR_Y1;
             end
-            S_X1: begin
-                if (!x) 
-                    next_state = S_X2;
-                else 
-                    next_state = S_X1;
+            S_MONITOR_Y1: begin
+                g = 1;
+                if (y) next_state = S_GO;
+                else next_state = S_MONITOR_Y2;
             end
-            S_X2: begin
-                if (x) 
-                    next_state = S_G1;
-                else 
-                    next_state = S_X0;
+            S_MONITOR_Y2: begin
+                g = 1;
+                if (y) next_state = S_GO;
+                else next_state = S_STOP;
             end
-            S_G1: begin
-                if (y) 
-                    next_state = S_G_PERM;
-                else 
-                    next_state = S_G2;
-            end
-            S_G2: begin
-                if (y) 
-                    next_state = S_G_PERM;
-                else 
-                    next_state = S_G_OFF;
-            end
-            S_G_PERM: begin
-                next_state = S_G_PERM;
-            end
-            S_G_OFF: begin
-                next_state = S_G_OFF;
-            end
-            default: begin
-                next_state = S_A;
-            end
+            S_GO: g = 1;
+            S_STOP: g = 0;
+            default: next_state = S_RESET;
         endcase
     end
-
-    assign f = (state == S_F);
-    assign g = (state == S_G1 || state == S_G2 || state == S_G_PERM);
-
 endmodule

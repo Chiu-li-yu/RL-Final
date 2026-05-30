@@ -94,15 +94,22 @@ def save_code(problem_id: str, attempt: int, code: str,
 def save_result(problem_id: str, result: dict,
                 task: Task, experiment: str) -> Path:
     """
-    儲存結果 JSON 到 outputs/{experiment}/{task.name}/{problem_id}/result.json。
-
-    final_code 欄位不寫入 JSON；task.name 與 experiment 自動注入。
+    儲存結果到 outputs/{experiment}/{task.name}/{problem_id}/：
+      result.json — 統計數據（排除 final_code、run_log）
+      run.log     — 完整執行紀錄（若 result 含 run_log 則寫入）
     """
     out_dir = _OUTPUT_DIR / experiment / task.name / problem_id
     out_dir.mkdir(parents=True, exist_ok=True)
-    compact = {k: v for k, v in result.items() if k != "final_code"}
+
+    _EXCLUDE = {"final_code", "run_log"}
+    compact = {k: v for k, v in result.items() if k not in _EXCLUDE}
     compact["task"]       = task.name
     compact["experiment"] = experiment
     out_file = out_dir / "result.json"
     out_file.write_text(json.dumps(compact, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    if "run_log" in result:
+        log_file = out_dir / "run.log"
+        log_file.write_text("\n".join(result["run_log"]), encoding="utf-8")
+
     return out_file

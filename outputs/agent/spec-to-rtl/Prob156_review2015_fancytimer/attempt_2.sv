@@ -1,87 +1,70 @@
-
 module TopModule (
-    input  clk,
-    input  reset,
-    input  data,
+    input clk,
+    input reset,
+    input data,
     output logic [3:0] count,
     output logic counting,
     output logic done,
-    input  ack
+    input ack
 );
-
-    localparam SEARCH    = 2'd0;
-    localparam GET_DELAY = 2'd1;
-    localparam COUNTING  = 2'd2;
-    localparam DONE      = 2'd3;
-
-    logic [1:0] state;
+    localparam S_IDLE = 0, S_S1 = 1, S_S2 = 2, S_S3 = 3, S_S4 = 4, S_LOAD = 5, S_COUNT = 6, S_DONE = 7;
+    logic [2:0] state, next_state;
     logic [3:0] shift_reg;
     logic [3:0] delay_val;
-    logic [2:0] bit_count;
-    logic [9:0] cycle_count;
-    logic [3:0] current_delay;
+    logic [9:0] cycle_cnt;
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (reset) begin
-            state <= SEARCH;
+            state <= S_IDLE;
             shift_reg <= 4'b0;
             delay_val <= 4'b0;
-            bit_count <= 3'b0;
-            cycle_count <= 10'b0;
-            current_delay <= 4'b0;
+            count <= 4'b0;
+            counting <= 1'b0;
+            done <= 1'b0;
+            cycle_cnt <= 10'd999;
         end else begin
+            state <= next_state;
             case (state)
-                SEARCH: begin
+                S_IDLE: begin
                     shift_reg <= {shift_reg[2:0], data};
-                    if ({shift_reg[2:0], data} == 4'b1101) begin
-                        state <= GET_DELAY;
-                        bit_count <= 3'b0;
-                        delay_val <= 4'b0;
-                    end
+                    done <= 1'b0;
+                    counting <= 1'b0;
                 end
-
-                GET_DELAY: begin
+                S_S1, S_S2, S_S3, S_S4: begin
                     delay_val <= {delay_val[2:0], data};
-                    if (bit_count == 3'd3) begin
-                        state <= COUNTING;
-                        current_delay <= {delay_val[2:0], data};
-                        cycle_count <= 10'b0;
+                end
+                S_LOAD: begin
+                    count <= delay_val;
+                    cycle_cnt <= 10'd999;
+                    counting <= 1'b1;
+                end
+                S_COUNT: begin
+                    if (cycle_cnt == 0) begin
+                        cycle_cnt <= 10'd999;
+                        count <= count - 1'b1;
                     end else begin
-                        bit_count <= bit_count + 1'b1;
+                        cycle_cnt <= cycle_cnt - 1'b1;
                     end
                 end
-
-                COUNTING: begin
-                    cycle_count <= cycle_count + 1'b1;
-                    if (cycle_count == 10'd999) begin
-                        cycle_count <= 10'b0;
-                        if (current_delay == 4'b0) begin
-                            state <= DONE;
-                        end else begin
-                            current_delay <= current_delay - 1'b1;
-                        end
-                    end
+                S_DONE: begin
+                    counting <= 1'b0;
+                    done <= 1'b1;
                 end
-
-                DONE: begin
-                    if (ack) begin
-                        state <= SEARCH;
-                        shift_reg <= 4'b0;
-                    end
-                end
-                default: state <= SEARCH;
             endcase
         end
     end
 
-    always_comb begin
-        counting = (state == COUNTING);
-        done = (state == DONE);
-        if (state == COUNTING) begin
-            count = current_delay;
-        end else begin
-            count = 4'b0;
-        end
+    always @(*) begin
+        next_state = state;
+        case (state)
+            S_IDLE: if (shift_reg == 4'b1101) next_state = S_S1;
+            S_S1: next_state = S_S2;
+            S_S2: next_state = S_S3;
+            S_S3: next_state = S_S4;
+            S_S4: next_state = S_LOAD;
+            S_LOAD: next_state = S_COUNT;
+            S_COUNT: if (count == 0 && cycle_cnt == 0) next_state = S_DONE;
+            S_DONE: if (ack) next_state = S_IDLE;
+        endcase
     end
-
 endmodule

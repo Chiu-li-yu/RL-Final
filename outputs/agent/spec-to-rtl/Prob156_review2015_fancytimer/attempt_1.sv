@@ -1,87 +1,81 @@
-
 module TopModule (
-    input  clk,
-    input  reset,
-    input  data,
+    input clk,
+    input reset,
+    input data,
     output logic [3:0] count,
     output logic counting,
     output logic done,
-    input  ack
+    input ack
 );
 
-    localparam SEARCH    = 2'd0;
-    localparam GET_DELAY = 2'd1;
-    localparam COUNTING  = 2'd2;
-    localparam DONE      = 2'd3;
-
-    logic [1:0] state;
+    localparam IDLE = 3'd0, DETECT = 3'd1, SHIFT = 3'd2, COUNT = 3'd3, DONE_STATE = 3'd4;
+    logic [2:0] state, next_state;
     logic [3:0] shift_reg;
+    logic [2:0] bit_cnt;
     logic [3:0] delay_val;
-    logic [2:0] bit_count;
-    logic [9:0] cycle_count;
-    logic [3:0] current_delay;
+    logic [9:0] cycle_cnt;
+    logic [3:0] remaining_delay;
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
+        if (reset) state <= IDLE;
+        else state <= next_state;
+    end
+
+    always @(*) begin
+        next_state = state;
+        case (state)
+            IDLE: next_state = (shift_reg == 4'b1101) ? SHIFT : IDLE;
+            DETECT: next_state = (shift_reg == 4'b1101) ? SHIFT : DETECT;
+            SHIFT: next_state = (bit_cnt == 3'd3) ? COUNT : SHIFT;
+            COUNT: next_state = (remaining_delay == 4'd0 && cycle_cnt == 10'd999) ? DONE_STATE : COUNT;
+            DONE_STATE: next_state = ack ? IDLE : DONE_STATE;
+            default: next_state = IDLE;
+        endcase
+    end
+
+    always @(posedge clk) begin
         if (reset) begin
-            state <= SEARCH;
-            shift_reg <= 4'b0;
-            delay_val <= 4'b0;
-            bit_count <= 3'b0;
-            cycle_count <= 10'b0;
-            current_delay <= 4'b0;
+            shift_reg <= 4'b0000;
+            bit_cnt <= 3'd0;
+            delay_val <= 4'd0;
+            cycle_cnt <= 10'd0;
+            remaining_delay <= 4'd0;
+            counting <= 1'b0;
+            done <= 1'b0;
+            count <= 4'd0;
         end else begin
             case (state)
-                SEARCH: begin
+                IDLE, DETECT: begin
                     shift_reg <= {shift_reg[2:0], data};
-                    if ({shift_reg[2:0], data} == 4'b1101) begin
-                        state <= GET_DELAY;
-                        bit_count <= 3'b0;
-                        delay_val <= 4'b0;
+                    counting <= 1'b0;
+                    done <= 1'b0;
+                end
+                SHIFT: begin
+                    if (bit_cnt < 3'd4) begin
+                        delay_val <= {delay_val[2:0], data};
+                        bit_cnt <= bit_cnt + 1'b1;
+                    end
+                    if (bit_cnt == 3'd3) begin
+                        remaining_delay <= {delay_val[2:0], data};
+                        counting <= 1'b1;
+                        cycle_cnt <= 10'd0;
                     end
                 end
-
-                GET_DELAY: begin
-                    delay_val <= {delay_val[2:0], data};
-                    bit_count <= bit_count + 1'b1;
-                    if (bit_count == 3'd3) begin
-                        state <= COUNTING;
-                        cycle_count <= 10'b0;
-                        // The current data bit is the 4th bit, so we need to capture it
-                        // and initialize current_delay.
-                        // We'll handle the initial current_delay value in the next state 
-                        // transition or just set it here using the projected delay_val.
+                COUNT: begin
+                    counting <= 1'b1;
+                    count <= remaining_delay;
+                    if (cycle_cnt == 10'd999) begin
+                        cycle_cnt <= 10'd0;
+                        remaining_delay <= remaining_delay - 1'b1;
+                    end else begin
+                        cycle_cnt <= cycle_cnt + 1'b1;
                     end
                 end
-
-                COUNTING: begin
-                    // Initialization of current_delay on the first cycle of COUNTING
-                    if (cycle_count == 10'b0 && state != COUNTING) begin
-                        // This logic is a bit tricky with always_ff.
-                        // Let's refine the state transition.
-                    end
-                    
-                    cycle_count <= cycle_count + 1'b1;
-                    if (cycle_count == 10'd999) begin
-                        cycle_count <= 10'b0;
-                        if (current_delay == 4'b0) begin
-                            state <= DONE;
-                        end else begin
-                            current_delay <= current_delay - 1'b1;
-                        end
-                    end
-                end
-
-                DONE: begin
-                    if (ack) begin
-                        state <= SEARCH;
-                        shift_reg <= 4'b0;
-                    end
+                DONE_STATE: begin
+                    counting <= 1'b0;
+                    done <= 1'b1;
                 end
             endcase
         end
     end
-
-    // To fix the initialization of current_delay when entering COUNTING state:
-    // We can do it in the GET_DELAY -> COUNTING transition.
-    // Let's rewrite the state machine a bit more cleanly.
 endmodule

@@ -397,11 +397,19 @@ module TopModule (input clk, input d, output logic q);
 endmodule""",
      "Y", True),
 
-    ("Ys — 含 initial block（yosys generic synth 不支援）",
+    ("Y  — 含 initial 的 DFF（yosys 支援 register initial value）",
+     """\
+module TopModule (input clk, input d, output logic q);
+  initial q = 0;
+  always @(posedge clk) q <= d;
+endmodule""",
+     "Y", True),
+
+    ("Ys — 多重驅動（always @(*) 與 assign 同時驅動同一 signal）",
      """\
 module TopModule (output logic zero);
-  initial zero = 0;
-  assign zero = 1'b0;
+  always @(*) zero = 1'b0;
+  assign zero = 1'b1;
 endmodule""",
      "Ys", False),
 ]

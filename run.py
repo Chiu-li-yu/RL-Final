@@ -224,7 +224,7 @@ def run_problem(
     problem_id: str,
     task: Task,
     experiment: str = "agent",
-    max_attempts: int = 999,
+    max_attempts: int = 5,
 ):
     if experiment not in _EXP_TOOLS:
         _print(f"{RED}未知 experiment: {experiment!r}，可用：{', '.join(VALID_EXPS)}{R}")

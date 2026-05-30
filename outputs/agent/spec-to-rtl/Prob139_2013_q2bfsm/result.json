@@ -1,13 +1,21 @@
 {
   "problem_id": "Prob139_2013_q2bfsm",
-  "passed": false,
-  "sim_passed": false,
-  "synth_passed": false,
-  "attempts": 5,
-  "sim_error_type": "R",
-  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob139_2013_q2bfsm_test.sv:24: $finish called at 5011 (1ps)\nHint: Output 'f' has 4 mismatches. First mismatch occurred at time 20.\nHint: Output 'g' has 26 mismatches. First mismatch occurred at time 60.\nHint: Total mismatched samples is 30 out of 1002 samples\n\nSimulation finished at 5011 ps\nMismatches: 30 in 1002 samples",
-  "synth_error_type": "",
+  "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
+  "attempts": 1,
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
   "synth_error_log": "",
+  "sim_error_sequence": [
+    "."
+  ],
+  "synth_error_sequence": [
+    "Y"
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 0,
   "task": "spec-to-rtl",
   "experiment": "agent"
 }

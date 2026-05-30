@@ -48,7 +48,7 @@ Gemini 可選擇的操作。透過 function calling 結構化輸出：
 輸入題目敘述，回傳結構化的子目標清單（list of strings）。由 Gemini 實作（另一個 LLM call）。觸發條件：第二次嘗試仍發生 Simulation Error 時。
 
 **get_debug_hints**
-輸入 error_type 代碼（例如 `R`、`e`、`Ys`），回傳對應的除錯提示文字（來自 `agent/prompts.py` 的 `DEBUG_HINTS`）。LLM 自主決定何時呼叫（不再自動附加），呼叫行為本身即為一種可追蹤的決策動作。無對應提示時回傳空字串。
+輸入 error_type 代碼（例如 `R`、`e`、`Ys`），回傳對應的除錯提示文字（來自 `agent/prompts.py` 的 `DEBUG_HINTS`）。`error_type` 參數**由 LLM 自行填入**（非程式自動偵測），測試 LLM 是否能正確識別錯誤類型並主動尋求幫助。呼叫行為本身即為一種可追蹤的決策動作，記錄於 result.json 的工具序列中。無對應提示時回傳空字串（行為安全）。
 
 ## Error Type
 
@@ -175,22 +175,27 @@ SYNTH_PASS_CODE     = "Y"
 
 #### DEBUG_HINTS — 按 error code 索引的除錯提示清單
 
-集中管理在 `agent/prompts.py` 的 `DEBUG_HINTS` dict，`compile_and_test` 在兩個回傳路徑（compile error / sim error）都統一做：
+集中管理在 `agent/prompts.py` 的 `DEBUG_HINTS` dict。LLM 透過 `get_debug_hints(error_type)` 工具主動查詢，**不再自動附加**。
 
-```python
-if error_code in DEBUG_HINTS:
-    result["debug_hints"] = DEBUG_HINTS[error_code]
-```
+涵蓋所有合法 error code（`.` 和 `Y` 為通過狀態，不需要提示）：
 
-目前涵蓋的 error code：
+| Code | 提示類型 |
+|------|---------|
+| `S` | 語法錯誤常見原因（缺分號、begin/end 未配對等） |
+| `C` | 告知直接參考 error_log 行號（無固定模式） |
+| `e` | 3 項觸發原因 + 根本解法（改用 localparam + logic） |
+| `0` | 0 位元寬常數的修正方式 |
+| `n` | always @(*) 無敏感訊號的原因與修正 |
+| `w` | wire 被程序性賦值，改用 logic |
+| `m` | 未定義 module，移除不必要的實例化 |
+| `p` | port 名稱不符，對照題目規格 |
+| `c` | clk 名稱不符，固定用 `clk` |
+| `R` | 6 項 runtime mismatch 子類型假設清單 |
+| `T` | Timeout 常見原因（告知無固定行號可參考） |
+| `r` | 非同步 reset，改為同步處理 |
+| `Ys` | 4 項 yosys 合成錯誤：initial/delay、未定義 module、多重驅動、不支援語法 |
 
-**`R`（Runtime mismatch）** — 6 項子類型假設清單，讓 LLM 逐項對照程式碼：timing offset、狀態轉移條件、組合邏輯錯誤、reset 初始值、計數器邊界、輸出時序（Mealy/Moore）。
-
-**`e`（Explicit cast required）** — 3 項觸發原因 + 修正方式 + 根本解法（改用 localparam + logic）。
-
-**`Ys`（Synthesis Error）** — 4 項 yosys 常見合成錯誤：不可合成語法（initial/delay）、未定義 module、多重驅動、yosys 不支援的 SV 語法。
-
-設計原則：只對有診斷價值的 error code 附加（T / r / S 等不附加）。新增 hint 只需改 `prompts.py` 的 `DEBUG_HINTS`，`tools.py` 不需動。
+設計原則：所有合法 error code 均有回應。LLM 填入不存在的 code 時回傳空字串（「無對應提示」），行為安全不報錯。新增 hint 只改 `prompts.py` 的 `DEBUG_HINTS`，其他模組不需動。
 
 #### System Prompt FSM 規範
 

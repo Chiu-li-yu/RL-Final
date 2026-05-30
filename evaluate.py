@@ -50,7 +50,7 @@ GRAY   = "\033[90m"
 
 VALID_EXPS    = ("agent", "no_debug_hints", "no_decompose", "no_helper_tools", "no_memory")
 DEFAULT_MODEL = "gemma-4-31b-it" # "gemini-3.1-flash-lite"
-
+# DEFAULT_MODEL = "gemini-3.1-flash-lite"
 
 # ── on_save callback（batch 模式：儲存程式碼，無互動）────────────────────────
 
@@ -256,6 +256,8 @@ class _Progress:
         self.pass_at: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
         self.total_attempts = 0  # 累計所有通過題目的嘗試次數
         self.error_count: dict[str, int] = {}  # 錯誤類型計數
+        self.total_decompose  = 0  # 累計 decompose_spec 呼叫次數
+        self.total_debug_hints = 0  # 累計 get_debug_hints 呼叫次數
 
     def update(
         self,
@@ -300,22 +302,28 @@ class _Progress:
                 etype = result.get("sim_error_type") or result.get("error_type", "?")
                 status = f"{RED}FAIL[{etype}]{R}"
 
-            # 統計錯誤類型（跳過 . 和 Y，只計失敗的錯誤）
+            # 統計錯誤類型與輔助工具呼叫次數
             if result and result is not None:
                 sim_seq = result.get("sim_error_sequence", [])
                 synth_seq = result.get("synth_error_sequence", [])
                 for err in sim_seq:
-                    if err and err != ".":  # 跳過 pass 和 None
+                    if err and err != ".":
                         self.error_count[err] = self.error_count.get(err, 0) + 1
                 for err in synth_seq:
-                    if err and err != "Y":  # 跳過 synth pass 和 None
+                    if err and err != "Y":
                         self.error_count[err] = self.error_count.get(err, 0) + 1
+                self.total_decompose   += result.get("decompose_spec_calls", 0)
+                self.total_debug_hints += result.get("get_debug_hints_calls", 0)
 
             elapsed = time.monotonic() - self._start
             rate    = self.done / elapsed if elapsed > 0 else 0
             eta     = (self.total - self.done) / rate if rate > 0 else 0
             pct     = self.done / self.total * 100
             avg_attempts = self.total_attempts / self.passed if self.passed > 0 else 0
+
+            dc = result.get("decompose_spec_calls", 0) if result else 0
+            gh = result.get("get_debug_hints_calls", 0) if result else 0
+            tools_str = f"d={dc} h={gh}" if (dc or gh) else ""
 
             line = (
                 f"{CYAN}[{self.exp}/{self.task}]{R} "
@@ -324,7 +332,7 @@ class _Progress:
                 f"avg_attempts={avg_attempts:.1f} "
                 f"skip={self.skipped} err={self.errors}  "
                 f"ETA {eta:>5.0f}s  "
-                f"[{status}] {problem_id}"
+                f"[{status}]{f'  {GRAY}{tools_str}{R}' if tools_str else ''}  {problem_id}"
             )
             if error_msg:
                 line += f"  {RED}← {error_msg}{R}"
@@ -359,10 +367,17 @@ class _Progress:
 
             if self.error_count:
                 print(f"\n  Error Distribution:")
-                # 按頻率降序排序
                 sorted_errors = sorted(self.error_count.items(), key=lambda x: x[1], reverse=True)
                 for err_type, cnt in sorted_errors:
                     print(f"    {err_type}: {cnt:>3} times")
+
+            done_nonzero = self.done - self.skipped - self.errors
+            if done_nonzero > 0:
+                print(f"\n  Tool Calls (total / avg per problem):")
+                print(f"    decompose_spec  : {self.total_decompose:>4}  "
+                      f"({self.total_decompose / done_nonzero:.2f} avg)")
+                print(f"    get_debug_hints : {self.total_debug_hints:>4}  "
+                      f"({self.total_debug_hints / done_nonzero:.2f} avg)")
 
             print(sep + "\n")
 

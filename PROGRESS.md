@@ -751,6 +751,16 @@ decompose_spec = {
   | `no_helper_tools` | 僅 compile_and_test + synthesize | ✅ |
   | `no_memory` | 全部（5 次獨立 session） | ❌ |
 
+### 5/30
+
+- [x] **`agent.py` 重試訊息強化**：`_with_retry()` 新增 `_error_summary()` helper，從例外提取 HTTP 狀態碼並附上說明文字（429 Rate limit / 500 Internal / 503 Unavailable / 504 Timeout），重試時顯示 `[retry] HTTP 503 — Service Unavailable（服務暫時不可用）— 4.3s 後重試…`
+- [x] **`run.py` 題目編號快速輸入**：REPL 及 CLI 支援輸入純數字（如 `1`、`001`、`156`），自動解析為對應的完整 problem_id（`Prob001_zero`）；輸入不存在的編號時顯示錯誤
+- [x] **`run.py` 支援 experiment 參數**：`run_problem()` 新增 `experiment` 參數；REPL 輸入格式改為 `<problem_id> [task] [experiment]`；CLI 支援第三個引數；`_EXP_TOOLS` dict 集中管理各實驗組的 `enabled_tools`
+- [x] **`DEBUG_HINTS` 補全所有 error code**：
+  - 新增 `S`、`C`、`0`、`n`、`w`、`m`、`p`、`c`、`T`、`r` 共 10 個 error code 的提示
+  - `C`（Generic Compiler Error）與 `T`（Timeout）無固定診斷模式，明確告知 agent 直接參考 error_log
+  - 設計原則調整：所有合法 error code 均有回應，LLM 填入不存在的 code 時仍回傳空字串
+
 ### 5/29–5/30
 
 - [ ] 跑完整實驗（5 組 × 兩種 task × 156 題）

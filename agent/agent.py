@@ -88,6 +88,10 @@ class Episode:
     _sim_error_sequence:   list[str] = field(default_factory=list)
     _synth_error_sequence: list[str] = field(default_factory=list)
 
+    # 輔助工具呼叫計數
+    decompose_spec_calls: int = 0
+    get_debug_hints_calls: int = 0
+
     # ── 分數計算（用於比較哪個 attempt 結果更好）─────────────────────────────
     @staticmethod
     def _score(d: dict) -> int:
@@ -137,8 +141,10 @@ class Episode:
             "sim_error_log":   self._sim_result.get("error_log", ""),
             "synth_error_type": self._synth_result.get("error_type", ""),
             "synth_error_log": self._synth_result.get("error_log", ""),
-            "sim_error_sequence": self._sim_error_sequence,
-            "synth_error_sequence": self._synth_error_sequence,
+            "sim_error_sequence":    self._sim_error_sequence,
+            "synth_error_sequence":  self._synth_error_sequence,
+            "decompose_spec_calls":  self.decompose_spec_calls,
+            "get_debug_hints_calls": self.get_debug_hints_calls,
         }
 
     # ── 便利查詢 ─────────────────────────────────────────────────────────────
@@ -197,7 +203,7 @@ _TOOL_DECLARATIONS: list[types.FunctionDeclaration] = [
         name="decompose_spec",
         description=(
             "將題目規格分解成 3-5 個具體子目標清單。"
-            "只在邏輯錯誤（simulation_error）多次修改仍無效時才呼叫。"
+            "若題目複雜度高且多次修改仍無效時建議呼叫。"
         ),
         parameters=types.Schema(
             type=types.Type.OBJECT,
@@ -214,8 +220,8 @@ _TOOL_DECLARATIONS: list[types.FunctionDeclaration] = [
         name="get_debug_hints",
         description=(
             "查詢指定錯誤類型的除錯提示清單。"
-            "遇到反覆出現的錯誤或不確定修正方向時呼叫。"
-            "回傳 hints 字串；若無對應提示則回傳空字串。"
+            "遇到出現一次以上的錯誤類型，或不確定修正方向時呼叫。"
+            "回傳 hints 字串。"
         ),
         parameters=types.Schema(
             type=types.Type.OBJECT,
@@ -361,7 +367,7 @@ def run_agent(
     problem_description: str,
     task: Task,
     max_attempts: int = 5,
-    model: str = "gemma-4-31b-it",#"gemini-3.1-flash-lite",
+    model: str = "gemini-3.1-flash-lite", # "gemma-4-31b-it"
     verbose: bool = False,
     rate_limiter: RateLimiter | None = None,
     enabled_tools: frozenset[str] | None = None,
@@ -413,13 +419,19 @@ def run_agent(
 
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
+    system_prompt = (
+        task.system_prompt
+        + f"\n每題僅有 {max_attempts} 次作答(compile_and_test)機會，請善用工具(decompose_spec、get_debug_hints)來輔助修正錯誤程式碼。"
+    )
     config = types.GenerateContentConfig(
-        system_instruction=task.system_prompt,
+        system_instruction=system_prompt,
         tools=[_build_tools(enabled_tools)],
     )
     chat = client.chats.create(model=model, config=config)
 
     ep = Episode(problem_id=problem_id)
+    _log: list[str] = []
+
     user_msg = _build_initial_message(problem_id, problem_description, task)
     response = retry(chat.send_message, user_msg)
 
@@ -427,6 +439,7 @@ def run_agent(
 
         thinking = _safe_text(response)
         if thinking.strip():
+            _log.append(f"[think] {thinking.strip()}")
             if on_thinking:
                 on_thinking(thinking.strip())
             elif verbose:
@@ -452,6 +465,9 @@ def run_agent(
                 ep.final_code = verilog_code
                 ep.attempts  += 1
 
+                code_preview = "\n".join(verilog_code.splitlines()[:6])
+                _log.append(f"\n[attempt {ep.attempts}] → compile_and_test\n{code_preview}")
+
                 if on_tool_call:
                     on_tool_call("compile_and_test", {"verilog_code": verilog_code}, ep.attempts)
                 elif verbose:
@@ -460,6 +476,13 @@ def run_agent(
                 result = compile_and_test(verilog_code, problem_id, task.dataset_dir)
 
                 ep.record_sim(result, verilog_code)
+
+                etype = result["error_type"]
+                mc    = result.get("mismatch_count", 0)
+                _log.append(f"[attempt {ep.attempts}] ← compile_and_test: {etype}"
+                            + (f"  mismatches={mc}" if mc > 0 else ""))
+                if result.get("error_log"):
+                    _log.append(result["error_log"][:1000])
 
                 if on_tool_result:
                     on_tool_result("compile_and_test", result, ep.attempts)
@@ -478,6 +501,10 @@ def run_agent(
                         should_stop = True
                     elif isinstance(_cr, str) and _cr.strip():
                         _user_hint = _cr.strip()
+                        _log.append(f"[attempt {ep.attempts}] [user_direction] {_user_hint}")
+                        # 將 hint 嵌入 function response，確保 agent 一定看到
+                        result = dict(result)
+                        result["user_direction"] = _user_hint
 
                 tool_results.append(types.Part.from_function_response(
                     name="compile_and_test", response=result,
@@ -485,6 +512,8 @@ def run_agent(
 
             elif fc.name == "synthesize":
                 verilog_code = fc.args["verilog_code"]
+
+                _log.append(f"\n[attempt {ep.attempts}] → synthesize")
 
                 if on_tool_call:
                     on_tool_call("synthesize", {"verilog_code": verilog_code}, ep.attempts)
@@ -494,6 +523,10 @@ def run_agent(
                 synth_result = synthesize(verilog_code)
 
                 ep.record_synth(synth_result)
+
+                _log.append(f"[attempt {ep.attempts}] ← synthesize: {synth_result['error_type']}")
+                if synth_result.get("error_log"):
+                    _log.append(synth_result["error_log"][:500])
 
                 if on_tool_result:
                     on_tool_result("synthesize", synth_result, ep.attempts)
@@ -511,6 +544,9 @@ def run_agent(
 
             elif fc.name == "decompose_spec":
                 problem_desc = fc.args["problem_description"]
+                ep.decompose_spec_calls += 1
+
+                _log.append(f"\n[attempt {ep.attempts}] → decompose_spec")
 
                 if on_tool_call:
                     on_tool_call("decompose_spec", {"problem_description": problem_desc}, ep.attempts)
@@ -518,6 +554,8 @@ def run_agent(
                     print("[agent] decompose_spec ...")
 
                 decomposed = _decompose_spec(problem_desc, model, rate_limiter=rate_limiter)
+
+                _log.append(f"[attempt {ep.attempts}] ← decompose_spec:\n{decomposed[:600]}")
 
                 if on_tool_result:
                     on_tool_result("decompose_spec", {"sub_goals": decomposed}, ep.attempts)
@@ -532,6 +570,11 @@ def run_agent(
                 error_type = fc.args["error_type"]
                 hints = DEBUG_HINTS.get(error_type, "")
                 hint_result = {"error_type": error_type, "hints": hints}
+                ep.get_debug_hints_calls += 1
+
+                _log.append(f"\n[attempt {ep.attempts}] → get_debug_hints(error_type={error_type!r})")
+                _log.append(f"[attempt {ep.attempts}] ← get_debug_hints: "
+                            + (hints[:200] if hints else "(no hints)"))
 
                 if on_tool_call:
                     on_tool_call("get_debug_hints", {"error_type": error_type}, ep.attempts)
@@ -559,11 +602,11 @@ def run_agent(
         if ep.attempts >= max_attempts:
             break
 
+        # hint 已在 on_checkpoint 時嵌入 compile result 的 user_direction 欄位，
+        # 此處直接送 tool_results 即可，不需額外的 text Part。
+        _user_hint = None
         response = retry(chat.send_message, tool_results)
 
-        # 使用者補充的修改方向：作為獨立 user turn 注入對話
-        if _user_hint:
-            response = retry(chat.send_message, _user_hint)
-            _user_hint = None
-
-    return ep.to_result()
+    result = ep.to_result()
+    result["run_log"] = _log
+    return result
