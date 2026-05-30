@@ -57,7 +57,7 @@ def list_problems(task: Task) -> list[str]:
         for f in task.prompt_dir.glob("*_prompt.txt")
         if f.stem.removesuffix("_prompt") not in _SYNTH_EXCLUDED
         ),
-        reverse=True
+        reverse=False # 想從難題開始就改為 True
     )
 
 

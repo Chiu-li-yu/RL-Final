@@ -1,0 +1,28 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input x,
+    output z
+);
+[attempt 1] ← compile_and_test: w
+/tmp/tmp2hn_c_3z.sv:27: error: z is not a valid l-value in tb.top_module1.
+/tmp/tmp2hn_c_3z.sv:5:      : z is declared here as wire.
+/tmp/tmp2hn_c_3z.sv:28: error: z is not a valid l-value in tb.top_module1.
+/tmp/tmp2hn_c_3z.sv:5:      : z is declared here as wire.
+/tmp/tmp2hn_c_3z.sv:29: error: z is not a valid l-value in tb.top_module1.
+/tmp/tmp2hn_c_3z.sv:5:      : z is declared here as wire.
+3 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input x,
+    output logic z
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

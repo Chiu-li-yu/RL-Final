@@ -1,0 +1,36 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input enable,
+    input S,
+    input A,
+    input B,
+[attempt 1] ← compile_and_test: w
+/tmp/tmp24pji5te.sv:23: error: Z is not a valid l-value in tb.top_module1.
+/tmp/tmp24pji5te.sv:8:      : Z is declared here as wire.
+/tmp/tmp24pji5te.sv:24: error: Z is not a valid l-value in tb.top_module1.
+/tmp/tmp24pji5te.sv:8:      : Z is declared here as wire.
+/tmp/tmp24pji5te.sv:25: error: Z is not a valid l-value in tb.top_module1.
+/tmp/tmp24pji5te.sv:8:      : Z is declared here as wire.
+/tmp/tmp24pji5te.sv:26: error: Z is not a valid l-value in tb.top_module1.
+/tmp/tmp24pji5te.sv:8:      : Z is declared here as wire.
+/tmp/tmp24pji5te.sv:27: error: Z is not a valid l-value in tb.top_module1.
+/tmp/tmp24pji5te.sv:8:      : Z is declared here as wire.
+/tmp/tmp24pji5te.sv:28: error: Z is not a valid l-value in tb.top_module1.
+/tmp/tmp24pji5te.sv:8:      : Z is declared here as wire.
+/tmp/tmp24pji5te.sv:29: error: Z is not a valid l-value in tb.top_module1.
+/tmp/tmp24pji5te.sv:8:      : Z is declared here as wire.
+/tmp/tmp24pji5te.sv:30: error: Z is not a valid l-value in tb.top_mod
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input enable,
+    input S,
+    input A,
+    input B,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

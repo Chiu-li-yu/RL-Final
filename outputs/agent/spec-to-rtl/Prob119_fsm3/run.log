@@ -1,0 +1,26 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input in,
+    output out
+);
+[attempt 1] ← compile_and_test: e
+/tmp/tmpea62yv9m.sv:25: error: This assignment requires an explicit cast.
+/tmp/tmpea62yv9m.sv:26: error: This assignment requires an explicit cast.
+/tmp/tmpea62yv9m.sv:27: error: This assignment requires an explicit cast.
+/tmp/tmpea62yv9m.sv:28: error: This assignment requires an explicit cast.
+4 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input in,
+    output out
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

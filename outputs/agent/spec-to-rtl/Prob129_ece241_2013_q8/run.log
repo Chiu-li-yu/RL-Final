@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了實現偵測「101」序列的 Mealy 型有限狀態機（FSM），請依循以下步驟執行：
+
+1. 定義三個狀態（S0: 未偵測/初始, S1: 已輸入'1', S2: 已輸入'10'），並使用參數（parameter）宣告。
+2. 撰寫非同步重置的時序邏輯（always block），根據輸入 x 和當前狀態更新下一個狀態（next_state）。
+3. 撰寫組合邏輯（always block），根據當前狀態與輸入 x 決定輸出 z，並確保在 S2 狀態下若輸入 '1' 則 z 輸出為 1。
+4. 完成狀態轉換表（state transition table），確保在 S2 狀態接收到 '1' 後能跳轉回 S1（處理重疊序列）。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input aresetn,
+    input x,
+    output z
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y
