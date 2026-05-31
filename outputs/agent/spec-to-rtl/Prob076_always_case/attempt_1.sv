@@ -8,6 +8,7 @@ module TopModule (
     input [3:0] data5,
     output logic [3:0] out
 );
+
     always @(*) begin
         case (sel)
             3'd0: out = data0;
@@ -19,4 +20,5 @@ module TopModule (
             default: out = 4'd0;
         endcase
     end
+
 endmodule

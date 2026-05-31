@@ -4,7 +4,7 @@ module TopModule (
     input clk,
     input load,
     input [511:0] data,
-    output reg [511:0] q
+    output logic [511:0] q
 );
 [attempt 1] ← compile_and_test: .
 

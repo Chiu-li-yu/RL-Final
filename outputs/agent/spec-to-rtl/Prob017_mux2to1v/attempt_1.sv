@@ -1,16 +1,14 @@
 module TopModule (
-    input [99:0] a,
-    input [99:0] b,
-    input sel,
+    input logic [99:0] a,
+    input logic [99:0] b,
+    input logic sel,
     output logic [99:0] out
 );
-
-always @(*) begin
-    if (sel == 1'b0) begin
-        out = a;
-    end else begin
-        out = b;
+    always @(*) begin
+        if (sel) begin
+            out = b;
+        end else begin
+            out = a;
+        end
     end
-end
-
 endmodule

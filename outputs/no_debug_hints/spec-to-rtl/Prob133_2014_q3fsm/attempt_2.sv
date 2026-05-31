@@ -3,57 +3,66 @@ module TopModule (
     input reset,
     input s,
     input w,
-    output z
+    output logic z
 );
 
     typedef enum logic [1:0] {
-        STATE_A = 2'b00,
-        STATE_B = 2'b01
+        A = 2'b00,
+        B = 2'b01,
+        CHECK = 2'b10
     } state_t;
 
-    logic state, next_state;
-    logic [1:0] count;
-    logic [1:0] ones;
-    logic z_val;
+    state_t state, next_state;
+    logic [1:0] cycle_cnt;
+    logic [1:0] w_count;
+    logic [1:0] next_cycle_cnt;
+    logic [1:0] next_w_count;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
-            state <= STATE_A;
-            count <= 2'b00;
-            ones <= 2'b0;
-            z_val <= 1'b0;
+            state <= A;
+            cycle_cnt <= 2'b0;
+            w_count <= 2'b0;
+            z <= 1'b0;
         end else begin
             state <= next_state;
-            if (next_state == STATE_B) begin
-                if (state == STATE_A) begin
-                    count <= 2'b00;
-                    ones <= 2'b0;
-                    z_val <= 1'b0;
-                end else begin
-                    count <= count + 1'b1;
-                    if (w) ones <= ones + 1'b1;
-                    
-                    if (count == 2'b10) begin
-                        z_val <= ((ones + (w ? 1'b1 : 1'b0)) == 2'd2);
-                        count <= 2'b00;
-                        ones <= 2'b0;
-                    end else begin
-                        z_val <= 1'b0;
-                    end
-                end
-            end else begin
-                z_val <= 1'b0;
+            cycle_cnt <= next_cycle_cnt;
+            w_count <= next_w_count;
+            if (state == CHECK && next_state == B) begin
+                z <= (w_count == 2'd2);
+            end else if (state == A) begin
+                z <= 1'b0;
             end
         end
     end
 
     always @(*) begin
+        next_state = state;
+        next_cycle_cnt = cycle_cnt;
+        next_w_count = w_count;
+
         case (state)
-            STATE_A: next_state = s ? STATE_B : STATE_A;
-            STATE_B: next_state = STATE_B;
-            default: next_state = STATE_A;
+            A: begin
+                if (s) begin
+                    next_state = B;
+                    next_cycle_cnt = 2'b0;
+                    next_w_count = 2'b0;
+                end
+            end
+            B: begin
+                next_w_count = w ? (w_count + 1'b1) : w_count;
+                if (cycle_cnt == 2'd2) begin
+                    next_state = CHECK;
+                    next_cycle_cnt = 2'b0;
+                end else begin
+                    next_cycle_cnt = cycle_cnt + 1'b1;
+                end
+            end
+            CHECK: begin
+                next_state = B;
+                next_w_count = 2'b0;
+                next_cycle_cnt = 2'b0;
+            end
         endcase
     end
-
-    assign z = z_val;
 endmodule

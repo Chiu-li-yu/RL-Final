@@ -1,12 +1,13 @@
 
 [attempt 0] → decompose_spec
 [attempt 0] ← decompose_spec:
-為了實現偵測「101」序列的 Mealy 型有限狀態機（FSM），請依循以下步驟執行：
+根據您的需求，將此 Mealy FSM 設計題目分解為以下 5 個具體可執行的子目標：
 
-1. 定義三個狀態（S0: 未偵測/初始, S1: 已輸入'1', S2: 已輸入'10'），並使用參數（parameter）宣告。
-2. 撰寫非同步重置的時序邏輯（always block），根據輸入 x 和當前狀態更新下一個狀態（next_state）。
-3. 撰寫組合邏輯（always block），根據當前狀態與輸入 x 決定輸出 z，並確保在 S2 狀態下若輸入 '1' 則 z 輸出為 1。
-4. 完成狀態轉換表（state transition table），確保在 S2 狀態接收到 '1' 後能跳轉回 S1（處理重疊序列）。
+1. 定義狀態編碼（S0, S1, S2）並宣告 FSM 所需的 `current_state` 與 `next_state` 暫存器。
+2. 撰寫同步時序邏輯區塊（always @(posedge clk or negedge aresetn)），處理狀態更新與非同步重置。
+3. 撰寫組合邏輯區塊（always @*），定義狀態轉移邏輯，確保在輸入為 1 時跳至 S1，輸入為 0 時跳至 S2，並正確處理序列 "101" 的檢測。
+4. 撰寫組合邏輯區塊，根據當前狀態與輸入 x，實現 Mealy 型輸出邏輯 z（當處於 S2 且輸入為 1 時 z=1）。
+5. 進行邏輯驗證，確保狀態機在接收到 "101" 時 z 為高電位，並驗證重置功能與重疊序列檢測的正確性。
 
 [attempt 1] → compile_and_test
 module TopModule (

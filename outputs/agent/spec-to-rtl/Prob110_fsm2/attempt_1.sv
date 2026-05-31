@@ -5,9 +5,10 @@ module TopModule (
     input k,
     output out
 );
+
     logic state, next_state;
-    localparam OFF = 1'b0;
-    localparam ON  = 1'b1;
+    parameter OFF = 1'b0;
+    parameter ON = 1'b1;
 
     always_ff @(posedge clk or posedge areset) begin
         if (areset)
@@ -18,11 +19,12 @@ module TopModule (
 
     always @(*) begin
         case (state)
-            OFF: next_state = (j) ? ON : OFF;
-            ON:  next_state = (k) ? OFF : ON;
+            OFF: next_state = j ? ON : OFF;
+            ON:  next_state = k ? OFF : ON;
             default: next_state = OFF;
         endcase
     end
 
     assign out = (state == ON);
+
 endmodule

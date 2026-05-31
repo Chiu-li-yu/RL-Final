@@ -7,14 +7,13 @@ module TopModule (
 
     always @(posedge clk) begin
         if (reset) begin
-            counter <= 3'd4;
+            counter <= 3'd0;
             shift_ena <= 1'b1;
         end else begin
-            if (counter > 3'd1) begin
-                counter <= counter - 3'd1;
+            if (counter < 3'd3) begin
+                counter <= counter + 1'b1;
                 shift_ena <= 1'b1;
             end else begin
-                counter <= 3'd0;
                 shift_ena <= 1'b0;
             end
         end

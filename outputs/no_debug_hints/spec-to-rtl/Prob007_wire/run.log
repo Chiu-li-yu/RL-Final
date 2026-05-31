@@ -1,11 +1,11 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input in,
+    input  in,
     output out
 );
+
     assign out = in;
-endmodule
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

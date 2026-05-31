@@ -1,4 +1,13 @@
 
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+這是一個典型的時序邏輯設計問題，您可以將其分解為以下 4 個具體、可執行的子目標：
+
+1. 定義模組介面，包含 `clk`, `w`, `R`, `E`, `L` 等輸入訊號與 `Q` 輸出訊號。
+2. 建立一個由 `clk` 上緣觸發 (positive edge) 的 `always` 區塊，用以處理時序行為。
+3. 在 `always` 區塊內編寫優先級判斷邏輯：優先處理 `L` (Parallel Load)，其次處理 `E` (Shift)，否則維持原值。
+4. 在模組內部宣告暫存器變數 (reg) 來儲存狀態 `Q`，並確保輸出正確連結至該狀態。
+
 [attempt 1] → compile_and_test
 module TopModule (
     input clk,

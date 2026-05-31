@@ -1,10 +1,6 @@
 module TopModule (
     input in,
-    output logic out
+    output out
 );
-
-    always @(*) begin
-        out = in;
-    end
-
+    assign out = in;
 endmodule

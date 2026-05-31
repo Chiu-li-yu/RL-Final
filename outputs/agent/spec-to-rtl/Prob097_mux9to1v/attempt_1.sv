@@ -26,4 +26,5 @@ module TopModule (
             default: out = 16'hFFFF;
         endcase
     end
+
 endmodule

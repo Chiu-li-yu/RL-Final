@@ -5,50 +5,38 @@ module TopModule (
     output logic [23:0] out_bytes,
     output logic done
 );
-    // States:
-    // 0: Search for byte 1 (in[3]==1)
-    // 1: Received byte 1, searching for byte 2
-    // 2: Received byte 2, searching for byte 3
-    // 3: Received byte 3, now signal done and check if current byte is potential byte 1
-    
-    logic [7:0] byte1, byte2, byte3;
-    logic [1:0] state;
+
+    logic [1:0] state, next_state;
+    logic [7:0] b1, b2;
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            state <= 0;
-            byte1 <= 0; byte2 <= 0; byte3 <= 0;
-            out_bytes <= 0;
-            done <= 0;
+            state <= 2'd0;
+            b1 <= 8'b0;
+            b2 <= 8'b0;
+            out_bytes <= 24'b0;
+            done <= 1'b0;
         end else begin
-            case (state)
-                0: begin
-                    done <= 0;
-                    if (in[3]) begin
-                        byte1 <= in;
-                        state <= 1;
-                    end
-                end
-                1: begin
-                    byte2 <= in;
-                    state <= 2;
-                end
-                2: begin
-                    byte3 <= in;
-                    out_bytes <= {byte1, byte2, in};
-                    done <= 1;
-                    state <= 3;
-                end
-                3: begin
-                    done <= 0;
-                    if (in[3]) begin
-                        byte1 <= in;
-                        state <= 1;
-                    end else begin
-                        state <= 0;
-                    end
-                end
-            endcase
+            state <= next_state;
+            if (next_state == 2'd1) begin
+                b1 <= in;
+            end else if (next_state == 2'd2) begin
+                b2 <= in;
+            end else if (next_state == 2'd3) begin
+                out_bytes <= {b1, b2, in};
+            end
+            
+            done <= (next_state == 2'd3);
         end
+    end
+
+    always @(*) begin
+        case (state)
+            2'd0: next_state = (in[3]) ? 2'd1 : 2'd0;
+            2'd1: next_state = 2'd2;
+            2'd2: next_state = 2'd3;
+            2'd3: next_state = (in[3]) ? 2'd1 : 2'd0;
+            default: next_state = 2'd0;
+        endcase
     end
 endmodule

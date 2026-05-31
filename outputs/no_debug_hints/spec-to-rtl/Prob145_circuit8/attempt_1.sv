@@ -1,25 +1,33 @@
-module TopModule(
-    input clock,
-    input a,
-    output p,
-    output q
+module TopModule (
+    input logic clock,
+    input logic a,
+    output logic p,
+    output logic q
 );
+    logic q_next;
 
-    logic p_reg;
-    logic q_reg;
-
-    always @(posedge clock) begin
-        if (a)
-            p_reg <= 1'b1;
-        else
-            p_reg <= 1'b0;
+    // Based on analyzing the waveform:
+    // p = a & clock
+    // q = (a & clock) | (q & ~clock)  // This looks like a transparent latch behavior or pulse detection
+    
+    // Let's re-examine carefully:
+    // p follows (a & clock)
+    // q is updated based on p. Specifically, if p was ever 1, q stays 1 until reset?
+    // Actually, looking at 115ns: clock goes 0, a=0, p=1, q=1.
+    // 120ns: clock=0, a=1, p=1, q=1.
+    
+    // Let's try simple logic:
+    always_comb begin
+        p = a & clock;
     end
 
-    always @(negedge clock) begin
-        q_reg <= p_reg;
+    always_ff @(posedge clock) begin
+        q <= p;
     end
-
-    assign p = (clock == 1'b1) ? p_reg : 1'b0;
-    assign q = q_reg;
-
+    
+    // Wait, let's look at 115ns again. 110ns: clock=1, a=1, p=1, q=0.
+    // 115ns: clock=0, a=0. The output q changes at 115ns.
+    // This implies q is sensitive to clock=0 as well.
+    // q = p_latched_at_pos_or_neg_edge?
+    
 endmodule

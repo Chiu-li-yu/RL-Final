@@ -1,11 +1,11 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input mode,
-    input too_cold,
-    input too_hot,
-    input fan_on,
-    output heater,
+    input logic mode,
+    input logic too_cold,
+    input logic too_hot,
+    input logic fan_on,
+    output logic heater,
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

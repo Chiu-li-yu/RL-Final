@@ -1,26 +1,28 @@
 module TopModule (
-    input clk,
-    input x,
-    output z
+    input logic clk,
+    input logic rst,
+    input logic x,
+    output logic z
 );
-    logic q1, q2, q3;
+    logic ff1, ff2, ff3;
     logic d1, d2, d3;
 
-    // XOR gate: x XOR q1
-    assign d1 = x ^ q1;
-    // AND gate: x AND (~q2)
-    assign d2 = x & (~q2);
-    // OR gate: x OR (~q3)
-    assign d3 = x | (~q3);
-
-    // D flip-flops with reset
-    always_ff @(posedge clk) begin
-        q1 <= d1;
-        q2 <= d2;
-        q3 <= d3;
+    always @(posedge clk) begin
+        if (rst) begin
+            ff1 <= 1'b0;
+            ff2 <= 1'b0;
+            ff3 <= 1'b0;
+        end else begin
+            ff1 <= d1;
+            ff2 <= d2;
+            ff3 <= d3;
+        end
     end
 
-    // NOR gate: !(q1 | q2 | q3)
-    assign z = ~(q1 | q2 | q3);
-
+    always @(*) begin
+        d1 = x ^ ff1;
+        d2 = x & (~ff2);
+        d3 = x | (~ff3);
+        z = ~(ff1 | ff2 | ff3);
+    end
 endmodule

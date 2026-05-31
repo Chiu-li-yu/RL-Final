@@ -6,48 +6,55 @@ module TopModule (
     output logic z
 );
 
-    typedef enum logic {
-        STATE_A = 1'b0,
-        STATE_B = 1'b1
+    typedef enum logic [3:0] {
+        STATE_A = 4'd0,
+        STATE_B_0 = 4'd1,
+        STATE_B_1 = 4'd2,
+        STATE_B_2 = 4'd3,
+        STATE_CHECK = 4'd4
     } state_t;
 
-    state_t current_state, next_state;
-    logic [1:0] counter;
-    logic [1:0] w_count;
-    logic z_reg;
+    logic [3:0] state, next_state;
+    logic [1:0] count_w;
+    logic [1:0] count_clk;
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            current_state <= STATE_A;
-            counter <= 2'b00;
-            w_count <= 2'b00;
-            z <= 1'b0;
+            state <= STATE_A;
+            count_w <= 2'b0;
+            count_clk <= 2'b0;
         end else begin
-            current_state <= next_state;
-            if (current_state == STATE_B) begin
-                if (counter == 2'd2) begin
-                    counter <= 2'd0;
-                    w_count <= 2'b00;
-                    z <= (w_count + w == 2'd2);
-                end else begin
-                    counter <= counter + 1'b1;
-                    w_count <= w_count + w;
-                    z <= 1'b0;
-                end
+            state <= next_state;
+            if (state == STATE_A) begin
+                count_w <= 2'b0;
+                count_clk <= 2'b0;
+            end else if (state == STATE_CHECK) begin
+                count_w <= 2'b0;
+                count_clk <= 2'b0;
             end else begin
-                counter <= 2'd0;
-                w_count <= 2'b00;
-                z <= 1'b0;
+                count_w <= count_w + w;
+                count_clk <= count_clk + 1'b1;
             end
         end
     end
 
     always @(*) begin
-        case (current_state)
-            STATE_A: next_state = s ? STATE_B : STATE_A;
-            STATE_B: next_state = STATE_B;
+        next_state = state;
+        case (state)
+            STATE_A: next_state = s ? STATE_B_0 : STATE_A;
+            STATE_B_0: next_state = STATE_B_1;
+            STATE_B_1: next_state = STATE_B_2;
+            STATE_B_2: next_state = STATE_CHECK;
+            STATE_CHECK: next_state = STATE_B_0;
             default: next_state = STATE_A;
         endcase
+    end
+
+    always @(*) begin
+        if (state == STATE_CHECK && count_w == 2'd2)
+            z = 1'b1;
+        else
+            z = 1'b0;
     end
 
 endmodule

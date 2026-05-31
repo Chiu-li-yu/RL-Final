@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input clk,
     input ar,
     input d,
@@ -6,11 +6,10 @@ module TopModule (
 );
 
     always_ff @(posedge clk or posedge ar) begin
-        if (ar) begin
+        if (ar)
             q <= 1'b0;
-        end else begin
+        else
             q <= d;
-        end
     end
 
 endmodule

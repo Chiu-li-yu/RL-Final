@@ -1,11 +1,11 @@
 
 [attempt 1] → compile_and_test
-module TopModule (
+module TopModule(
     input [2:0] a,
-    output [15:0] q
+    output logic [15:0] q
 );
-    logic [15:0] q_logic;
 
+    always @(*) begin
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

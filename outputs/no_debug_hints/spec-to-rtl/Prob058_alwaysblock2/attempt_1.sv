@@ -9,16 +9,16 @@ module TopModule (
 
     assign out_assign = a ^ b;
 
-    logic out_always_comb_temp;
+    logic out_always_comb_q;
     always @(*) begin
-        out_always_comb_temp = a ^ b;
+        out_always_comb_q = a ^ b;
     end
-    assign out_always_comb = out_always_comb_temp;
+    assign out_always_comb = out_always_comb_q;
 
-    logic out_always_ff_temp;
+    logic out_always_ff_q;
     always @(posedge clk) begin
-        out_always_ff_temp <= a ^ b;
+        out_always_ff_q <= a ^ b;
     end
-    assign out_always_ff = out_always_ff_temp;
+    assign out_always_ff = out_always_ff_q;
 
 endmodule

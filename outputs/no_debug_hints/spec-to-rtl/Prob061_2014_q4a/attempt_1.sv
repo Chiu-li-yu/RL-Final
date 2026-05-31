@@ -1,4 +1,4 @@
-module TopModule(
+module TopModule (
     input clk,
     input w,
     input R,
@@ -6,18 +6,17 @@ module TopModule(
     input L,
     output Q
 );
-
     logic q_reg;
-
-    always_ff @(posedge clk) begin
-        if (L)
-            q_reg <= R;
-        else if (E)
-            q_reg <= w;
-        else
-            q_reg <= q_reg;
-    end
 
     assign Q = q_reg;
 
+    always_ff @(posedge clk) begin
+        if (L) begin
+            q_reg <= R;
+        end else if (E) begin
+            q_reg <= w;
+        end else begin
+            q_reg <= q_reg;
+        end
+    end
 endmodule

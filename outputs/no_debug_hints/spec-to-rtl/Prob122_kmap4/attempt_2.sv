@@ -7,7 +7,7 @@ module TopModule (
 );
 
     always @(*) begin
-        out = a ^ b ^ c ^ d;
+        out = b ^ d;
     end
 
 endmodule

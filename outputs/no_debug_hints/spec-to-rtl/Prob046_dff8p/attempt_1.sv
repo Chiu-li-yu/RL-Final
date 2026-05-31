@@ -5,7 +5,7 @@ module TopModule (
     output logic [7:0] q
 );
 
-    always @(negedge clk) begin
+    always_ff @(negedge clk) begin
         if (reset) begin
             q <= 8'h34;
         end else begin

@@ -1,48 +1,61 @@
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     output logic [2:0] ena,
     output logic [15:0] q
 );
 
-    // BCD digits
     logic [3:0] digit0, digit1, digit2, digit3;
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (reset) begin
             digit0 <= 4'd0;
             digit1 <= 4'd0;
             digit2 <= 4'd0;
             digit3 <= 4'd0;
         end else begin
-            // Increment digit0
-            if (digit0 == 4'd9) digit0 <= 4'd0;
-            else digit0 <= digit0 + 4'd1;
+            // Digit 0 (Ones)
+            if (digit0 == 4'd9)
+                digit0 <= 4'd0;
+            else
+                digit0 <= digit0 + 1'b1;
 
-            // Increment digit1
+            // Digit 1 (Tens)
             if (digit0 == 4'd9) begin
-                if (digit1 == 4'd9) digit1 <= 4'd0;
-                else digit1 <= digit1 + 4'd1;
+                if (digit1 == 4'd9)
+                    digit1 <= 4'd0;
+                else
+                    digit1 <= digit1 + 1'b1;
             end
 
-            // Increment digit2
+            // Digit 2 (Hundreds)
             if (digit0 == 4'd9 && digit1 == 4'd9) begin
-                if (digit2 == 4'd9) digit2 <= 4'd0;
-                else digit2 <= digit2 + 4'd1;
+                if (digit2 == 4'd9)
+                    digit2 <= 4'd0;
+                else
+                    digit2 <= digit2 + 1'b1;
             end
 
-            // Increment digit3
+            // Digit 3 (Thousands)
             if (digit0 == 4'd9 && digit1 == 4'd9 && digit2 == 4'd9) begin
-                if (digit3 == 4'd9) digit3 <= 4'd0;
-                else digit3 <= digit3 + 4'd1;
+                if (digit3 == 4'd9)
+                    digit3 <= 4'd0;
+                else
+                    digit3 <= digit3 + 1'b1;
             end
         end
     end
 
-    // Assign outputs
+    // Enable signals: 
+    // ena[0] is for digit 1
+    // ena[1] is for digit 2
+    // ena[2] is for digit 3
+    always @(*) begin
+        ena[0] = (digit0 == 4'd9);
+        ena[1] = (digit0 == 4'd9 && digit1 == 4'd9);
+        ena[2] = (digit0 == 4'd9 && digit1 == 4'd9 && digit2 == 4'd9);
+    end
+
     assign q = {digit3, digit2, digit1, digit0};
-    assign ena[0] = (digit0 == 4'd9);
-    assign ena[1] = (digit0 == 4'd9 && digit1 == 4'd9);
-    assign ena[2] = (digit0 == 4'd9 && digit1 == 4'd9 && digit2 == 4'd9);
 
 endmodule

@@ -1,43 +1,43 @@
-module TopModule(
+module TopModule (
     input clk,
     input areset,
     input in,
     output out
 );
-    // State definition
-    // B: 0, A: 1
-    // The problem states:
-    // B (1) -> output is 1? No, diagram says B (1) means state B has output 1.
-    // A (0) -> output is 0.
-    
+
+    // States: A = 0, B = 1
     logic state, next_state;
 
-    // Reset logic: asynchronously reset into state B.
-    // State B is associated with output 1. Let's use 1'b1 for B and 1'b0 for A.
-    // Wait, let's re-read: "B (1) --0--> A", "B (1) --1--> B", "A (0) --0--> B", "A (0) --1--> A"
-    // So B is state with output 1, A is state with output 0.
-    
-    always_ff @(posedge clk or posedge areset) begin
-        if (areset)
-            state <= 1'b1; // B
-        else
-            state <= next_state;
-    end
+    // Output logic
+    // A (0) -> out 0
+    // B (1) -> out 1
+    assign out = state;
 
+    // State transition logic (Moore machine)
+    // B (1) --0--> A
+    // B (1) --1--> B
+    // A (0) --0--> B
+    // A (0) --1--> A
     always @(*) begin
         case (state)
-            1'b1: begin // B
-                if (in) next_state = 1'b1; // B
-                else    next_state = 1'b0; // A
+            1'b1: begin // State B
+                if (in) next_state = 1'b1;
+                else    next_state = 1'b0;
             end
-            1'b0: begin // A
-                if (in) next_state = 1'b0; // A
-                else    next_state = 1'b1; // B
+            1'b0: begin // State A
+                if (in) next_state = 1'b0;
+                else    next_state = 1'b1;
             end
             default: next_state = 1'b1;
         endcase
     end
 
-    assign out = state;
+    // Sequential logic
+    always @(posedge clk or posedge areset) begin
+        if (areset)
+            state <= 1'b1; // Reset to B
+        else
+            state <= next_state;
+    end
 
 endmodule

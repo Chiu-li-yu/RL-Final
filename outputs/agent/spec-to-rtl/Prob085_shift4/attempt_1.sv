@@ -16,4 +16,5 @@ module TopModule (
             q <= {1'b0, q[3:1]};
         end
     end
+
 endmodule

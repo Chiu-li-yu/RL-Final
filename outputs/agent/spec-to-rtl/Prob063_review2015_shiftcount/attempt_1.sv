@@ -1,8 +1,8 @@
 module TopModule (
-    input clk,
-    input shift_ena,
-    input count_ena,
-    input data,
+    input logic clk,
+    input logic shift_ena,
+    input logic count_ena,
+    input logic data,
     output logic [3:0] q
 );
 

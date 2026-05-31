@@ -1,26 +1,26 @@
 {
   "problem_id": "Prob140_fsm_hdlc",
-  "passed": false,
-  "sim_passed": false,
-  "synth_passed": false,
+  "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
   "attempts": 5,
-  "sim_error_type": "R",
-  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob140_fsm_hdlc_test.sv:20: $finish called at 4006 (1ps)\nHint: Output 'disc' has no mismatches.\nHint: Output 'flag' has 4 mismatches. First mismatch occurred at time 2100.\nHint: Output 'err' has 34 mismatches. First mismatch occurred at time 80.\nHint: Total mismatched samples is 38 out of 801 samples\n\nSimulation finished at 4006 ps\nMismatches: 38 in 801 samples",
-  "synth_error_type": "",
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
   "synth_error_log": "",
   "sim_error_sequence": [
     "e",
     "e",
     "R",
     "R",
-    "R"
+    "."
   ],
   "synth_error_sequence": [
     null,
     null,
     null,
     null,
-    null
+    "Y"
   ],
   "decompose_spec_calls": 1,
   "get_debug_hints_calls": 0,

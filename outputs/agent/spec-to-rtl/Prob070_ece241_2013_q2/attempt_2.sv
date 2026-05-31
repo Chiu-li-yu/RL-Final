@@ -1,4 +1,4 @@
-module TopModule(
+module TopModule (
     input a,
     input b,
     input c,
@@ -7,67 +7,70 @@ module TopModule(
     output out_pos
 );
     // Truth Table:
-    // a b c d | Y
-    // 0 0 0 0 | 0
-    // 0 0 0 1 | 0
-    // 0 0 1 0 | 1 (2)
-    // 0 0 1 1 | X
-    // 0 1 0 0 | 0
-    // 0 1 0 1 | 0
-    // 0 1 1 0 | 0
-    // 0 1 1 1 | 1 (7)
-    // 1 0 0 0 | X
-    // 1 0 0 1 | 0
-    // 1 0 1 0 | 0
-    // 1 0 1 1 | X
-    // 1 1 0 0 | X
-    // 1 1 0 1 | 0
-    // 1 1 1 0 | 0
-    // 1 1 1 1 | 1 (15)
+    // 0:0000 -> 0
+    // 1:0001 -> 0
+    // 2:0010 -> 1
+    // 3:0011 -> X
+    // 4:0100 -> 0
+    // 5:0101 -> 0
+    // 6:0110 -> 0
+    // 7:0111 -> 1
+    // 8:1000 -> X
+    // 9:1001 -> 0
+    // 10:1010 -> 0
+    // 11:1011 -> X
+    // 12:1100 -> X
+    // 13:1101 -> 0
+    // 14:1110 -> 0
+    // 15:1111 -> 1
 
-    // K-Map for SOP (sum of minterms):
-    // Variables: a,b,c,d
-    // 1s: 2, 7, 15
-    // Xs: 3, 8, 11, 12
-    // K-Map:
-    //      cd 00 01 11 10
-    // ab
-    // 00       0  0  X  1
-    // 01       0  0  1  0
-    // 11       X  0  1  0
-    // 10       X  0  X  0
-    
-    // Groupings:
-    // 1. (m2, d3): a'b'c
-    // 2. (m7, m15): bc d
-    // 3. (m15, d11): a c d
-    // Result SOP: a'b'c + bcd + acd? No.
-    // Wait, let's re-group:
-    // 1 at: 0010, 0111, 1111
-    // X at: 0011, 1000, 1011, 1100
-    // Group 1: 0010, 0011 (a'b'c)
-    // Group 2: 0111, 1111 (bcd)
-    // Group 3: 1111, 1011 (acd) -- Wait 1011 is X (m11). Correct.
-    // So: out_sop = a'b'c | bcd | acd
+    // SOP (1s at 2, 7, 15):
+    // 2 (0010): ~a~bc~d
+    // 7 (0111): ~abc d
+    // 15(1111):  abcd
+    // K-map:
+    //    cd\ab 00 01 11 10
+    //    00     0  0  X  X
+    //    01     0  0  0  0
+    //    11     X  1  0  X
+    //    10     1  0  0  0
+    // SOP Simplification:
+    // 2+3: ~a~bc
+    // 7+15: bcd
+    // So: out_sop = (~a & ~b & c) | (b & c & d)
 
-    // K-Map for POS (product of maxterms):
-    // 0s: 0, 1, 4, 5, 6, 9, 10, 13, 14
-    // 1s: 2, 7, 15
-    // Xs: 3, 8, 11, 12
-    // POS is product of sums where output is 0.
-    // (a+b+c+d), (a+b+c+d'), etc.
-    
-    // Let's use simple logic:
-    // SOP: (!a & !b & c) | (b & c & d) | (a & c & d)
-    // POS: (a | c) & (b | c | d) ... check
-    
-    // Let's rely on truth table directly for the SOP/POS logic synthesis,
-    // since I have to implement the *minimum* form, I will use logic minimization.
-    
-    assign out_sop = (~a & ~b & c) | (b & c & d) | (a & c & d);
-    assign out_pos = (c | d) & (a | ~b | c) & (~a | b | d); // This is just an example
-    
-    // Actually, I should just implement the truth table.
-    // Let's test the simple SOP logic.
-    
+    // POS (0s at 0, 1, 4, 5, 6, 9, 10, 13, 14):
+    // Use K-map for 0s:
+    // (a | ~c) covers 8,9,10,12 (Wait, check: 8:1000(1|~0=1), 9:1001(1|~0=1), 10:1010(1|~1=0), 12:1100(1|~0=1)... no)
+    // POS from K-map:
+    // 0,1,4,5 are 0 -> (~b | ~c) covers these
+    // 0,1,8,9 (if 8=0) -> (~a | ~c)
+    // Actually:
+    // out_pos = (b | ~c) & (a | ~b | ~d) ... let's derive properly.
+    // F = 1 for {2, 7, 15}, 0 for {0, 1, 4, 5, 6, 9, 10, 13, 14}
+    // Min POS: F = (b | c) & (~a | c) & (~b | ~c | d) ... wait.
+    // Try: out_pos = (c) & (a | ~b | d) & (~a | b | ~d) ... let's stick to SOP/POS logic.
+    // SOP: (~a & ~b & c) | (b & c & d)
+    // POS: (c) & (~a | b) & (~b | d)
+    // Let's verify POS (c) & (~a | b) & (~b | d)
+    // 2 (0010): 1 & (1|1) & (1|0) = 1*1*1 = 1 (OK)
+    // 7 (0111): 1 & (1|1) & (0|1) = 1*1*1 = 1 (OK)
+    // 15(1111): 1 & (0|1) & (0|1) = 1*1*1 = 1 (OK)
+    // 0 (0000): 0 & ... = 0 (OK)
+    // 1 (0001): 1 & 1 & (1|1) = 1 (Wait, 1 is supposed to be 0)
+    // The POS expression (c) & (~a | b) & (~b | d) gives 1 for 1 (0001). Correcting...
+    // Try POS: (c) & (~a | b | d) & (~b | ~c | d) -- No.
+
+    // Let's use the standard Boolean Algebra minimization:
+    // F = ~a~bc~d + ~a~bcd + ~abc d + abcd
+    // F = ~a~bc(~d + d) + bc d (~a + a) = ~a~bc + bcd
+    // Correct SOP: (~a & ~b & c) | (b & c & d)
+    // POS (Dual of F_bar):
+    // F_bar = 0s at {0, 1, 4, 5, 6, 9, 10, 13, 14}
+    // F_bar = a~c + ~bc~d + ~b~cd... (Simplified)
+    // POS = (a | b | ~c) & (~a | ~c | d) & (~b | c | ~d) -- check this
+    assign out_sop = (~a & ~b & c) | (b & c & d);
+    assign out_pos = (b | c) & (~a | c) & (~b | c) ... wait.
+    // Let's use simpler:
+    assign out_pos = (c) & (~a | b | d) & (~b | ~d);
 endmodule

@@ -1,50 +1,50 @@
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     input [2:0] s,
-    output fr2,
-    output fr1,
-    output fr0,
-    output dfr
+    output logic fr2,
+    output logic fr1,
+    output logic fr0,
+    output logic dfr
 );
+    // Level encoding
+    // Level 3: Above s[2] (s == 3'b111)
+    // Level 2: s[2] and s[1] (s == 3'b011)
+    // Level 1: s[0] only (s == 3'b001)
+    // Level 0: None (s == 3'b000)
+    
+    logic [1:0] current_level, prev_level;
 
-    logic [2:0] current_s;
-    logic [2:0] prev_s;
-    logic reg_fr2, reg_fr1, reg_fr0, reg_dfr;
-
-    assign fr2 = reg_fr2;
-    assign fr1 = reg_fr1;
-    assign fr0 = reg_fr0;
-    assign dfr = reg_dfr;
+    always @(*) begin
+        case (s)
+            3'b111: current_level = 2'd3;
+            3'b011: current_level = 2'd2;
+            3'b001: current_level = 2'd1;
+            default: current_level = 2'd0;
+        endcase
+    end
 
     always_ff @(posedge clk) begin
-        if (reset) begin
-            current_s <= 3'b000;
-            prev_s <= 3'b000;
-        end else if (s != current_s) begin
-            prev_s <= current_s;
-            current_s <= s;
-        end
+        if (reset)
+            prev_level <= 2'd0;
+        else
+            prev_level <= current_level;
     end
 
     always @(*) begin
-        // Nominal Flow Rates based on current_s
-        case (current_s)
-            3'b111: {reg_fr2, reg_fr1, reg_fr0} = 3'b000;
-            3'b011: {reg_fr2, reg_fr1, reg_fr0} = 3'b001;
-            3'b001: {reg_fr2, reg_fr1, reg_fr0} = 3'b011;
-            3'b000: {reg_fr2, reg_fr1, reg_fr0} = 3'b111;
-            default: {reg_fr2, reg_fr1, reg_fr0} = 3'b111;
+        // Nominal Flow Rates
+        case (current_level)
+            2'd3: {fr2, fr1, fr0} = 3'b000;
+            2'd2: {fr2, fr1, fr0} = 3'b001;
+            2'd1: {fr2, fr1, fr0} = 3'b011;
+            2'd0: {fr2, fr1, fr0} = 3'b111;
+            default: {fr2, fr1, fr0} = 3'b000;
         endcase
-
-        // Supplemental flow dfr
-        if (reset) begin
-            reg_dfr = 1'b1;
-        end else if (prev_s > current_s) begin
-            reg_dfr = 1'b1;
-        end else begin
-            reg_dfr = 1'b0;
-        end
+        
+        // dfr logic: if previous level > current level, dfr = 1
+        if (prev_level > current_level)
+            dfr = 1'b1;
+        else
+            dfr = (current_level == 2'd0) ? 1'b1 : 1'b0;
     end
-
 endmodule

@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     input data,
@@ -7,74 +7,61 @@ module TopModule (
     output logic done,
     input ack
 );
-    localparam S_IDLE = 0, S_S1 = 1, S_S11 = 2, S_S110 = 3, S_SHIFT = 4, S_COUNT = 5, S_DONE = 6;
+    localparam S_IDLE = 3'd0, S_SHIFT = 3'd1, S_COUNTING = 3'd2, S_DONE = 3'd3;
     logic [2:0] state, next_state;
-    logic [3:0] shift_reg;
+    logic [3:0] delay_reg;
     logic [2:0] shift_cnt;
-    logic [3:0] delay_val;
-    logic [3:0] cur_count;
-    logic [9:0] cycle_cnt;
-
-    always_ff @(posedge clk) begin
-        if (reset) state <= S_IDLE;
-        else state <= next_state;
-    end
+    logic [3:0] pattern_reg;
+    logic [10:0] clk_cnt;
+    logic [3:0] current_val;
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            shift_reg <= 0;
-            shift_cnt <= 0;
-            delay_val <= 0;
-            cur_count <= 0;
-            cycle_cnt <= 0;
+            state <= S_IDLE;
+            pattern_reg <= 4'b0;
+            shift_cnt <= 3'd0;
+            delay_reg <= 4'b0;
+            clk_cnt <= 11'd0;
+            current_val <= 4'b0;
         end else begin
+            state <= next_state;
             case (state)
-                S_SHIFT: begin
-                    shift_reg <= {shift_reg[2:0], data};
-                    if (shift_cnt == 3) begin
-                        delay_val <= {shift_reg[2:0], data};
-                        cur_count <= {shift_reg[2:0], data};
-                        cycle_cnt <= 999;
-                    end
-                    shift_cnt <= shift_cnt + 1;
-                end
-                S_COUNT: begin
-                    if (cycle_cnt == 0) begin
-                        if (cur_count == 0) begin
-                        end else begin
-                            cur_count <= cur_count - 1;
-                            cycle_cnt <= 999;
-                        end
-                    end else begin
-                        cycle_cnt <= cycle_cnt - 1;
-                    end
-                end
                 S_IDLE: begin
-                    shift_cnt <= 0;
+                    pattern_reg <= {pattern_reg[2:0], data};
+                end
+                S_SHIFT: begin
+                    if (shift_cnt < 3'd4) begin
+                        delay_reg <= {delay_reg[2:0], data};
+                        shift_cnt <= shift_cnt + 3'd1;
+                    end
+                end
+                S_COUNTING: begin
+                    if (clk_cnt == 11'd999) begin
+                        clk_cnt <= 11'd0;
+                        current_val <= current_val - 1'd1;
+                    end else begin
+                        clk_cnt <= clk_cnt + 11'd1;
+                    end
                 end
             endcase
+            
+            if (state == S_SHIFT && shift_cnt == 3'd4) begin
+                current_val <= delay_reg;
+            end
         end
     end
 
-    always_comb begin
+    always @(*) begin
         next_state = state;
-        counting = 0;
-        done = 0;
-        count = cur_count;
         case (state)
-            S_IDLE: if (data) next_state = S_S1;
-            S_S1: if (data) next_state = S_S11; else next_state = S_IDLE;
-            S_S11: if (~data) next_state = S_S110; else next_state = S_S11;
-            S_S110: if (data) next_state = S_SHIFT; else next_state = S_IDLE;
-            S_SHIFT: if (shift_cnt == 3) next_state = S_COUNT;
-            S_COUNT: begin
-                counting = 1;
-                if (cur_count == 0 && cycle_cnt == 0) next_state = S_DONE;
-            end
-            S_DONE: begin
-                done = 1;
-                if (ack) next_state = S_IDLE;
-            end
+            S_IDLE: if (pattern_reg == 4'b1101) next_state = S_SHIFT;
+            S_SHIFT: if (shift_cnt == 3'd4) next_state = S_COUNTING;
+            S_COUNTING: if (current_val == 4'b0 && clk_cnt == 11'd999) next_state = S_DONE;
+            S_DONE: if (ack) next_state = S_IDLE;
         endcase
     end
+
+    assign counting = (state == S_COUNTING);
+    assign done = (state == S_DONE);
+    assign count = current_val;
 endmodule

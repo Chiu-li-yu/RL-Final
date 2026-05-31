@@ -1,11 +1,11 @@
 
 [attempt 1] → compile_and_test
-module TopModule(
-    input [7:0] in,
-    output [2:0] pos
+module TopModule (
+    input logic [7:0] in,
+    output logic [2:0] pos
 );
-
-    logic [2:0] pos_val;
+    always @(*) begin
+        if (in[0])      pos = 3'd0;
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

@@ -1,8 +1,8 @@
-module TopModule(
-    input clk,
-    input areset,
-    input in,
-    output logic out
+module TopModule (
+    input  clk,
+    input  areset,
+    input  in,
+    output out
 );
 
     typedef enum logic [1:0] {
@@ -12,16 +12,16 @@ module TopModule(
         D = 2'b11
     } state_t;
 
-    state_t state, next_state;
+    logic [1:0] state, next_state;
 
-    always @(posedge clk or posedge areset) begin
+    always_ff @(posedge clk or posedge areset) begin
         if (areset)
             state <= A;
         else
             state <= next_state;
     end
 
-    always @(*) begin
+    always_comb begin
         case (state)
             A: next_state = (in) ? B : A;
             B: next_state = (in) ? B : C;
@@ -31,8 +31,6 @@ module TopModule(
         endcase
     end
 
-    always @(*) begin
-        out = (state == D);
-    end
+    assign out = (state == D) ? 1'b1 : 1'b0;
 
 endmodule

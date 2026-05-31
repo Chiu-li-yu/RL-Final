@@ -4,6 +4,7 @@ module TopModule (
     input in,
     output out
 );
+
     logic [3:0] shift_reg;
 
     always_ff @(posedge clk) begin
@@ -15,4 +16,5 @@ module TopModule (
     end
 
     assign out = shift_reg[3];
+
 endmodule

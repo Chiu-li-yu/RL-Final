@@ -1,53 +1,34 @@
-module TopModule(
+module TopModule (
     input clock,
     input a,
     output p,
     output q
 );
-    // Let's re-analyze the waveforms carefully:
-    // 90ns:  clk=1, a=1 -> p=1, q=0
-    // 115ns: clk=0, a=0 -> p=1, q=1
-    // 145ns: clk=1, a=0 -> p=0, q=1
-    // 165ns: clk=1, a=1 -> p=1, q=1
-    // 175ns: clk=0, a=1 -> p=0, q=0
 
-    // p = a & clock is not quite right because at 115ns, a=0, clk=0 but p=1.
-    // Looking at p:
-    // 70ns: a=1, clk=0 -> p=1
-    // 80ns: a=1, clk=0 -> p=1
-    // 90ns: a=1, clk=1 -> p=1
-    // 115ns: a=0, clk=0 -> p=1
-    // 165ns: a=1, clk=1 -> p=1
+    // 從波形來看：
+    // p 似乎是 clock == 1 時的 a
+    // q 似乎是跟著 p 的某種延遲，或者在特定時鐘緣觸發
     
-    // Maybe p = a | ~clock?
-    // 90ns: 1 | 0 = 1 (True)
-    // 115ns: 0 | 1 = 1 (True)
-    // 145ns: 0 | 0 = 0 (True)
-    // 165ns: 1 | 0 = 1 (True)
-    // 175ns: 1 | 1 = 1 (False? Waveform says 175ns: p=0)
+    // 重新觀察：
+    // 90ns, clock=1, a=1, p=1, q=0
+    // 100ns, clock=1, a=1, p=1, q=0
+    // 115ns, clock=0, a=0, p=1, q=1
+    // 這看起來 p 是同步於 clock=1 的 a
+    // q 是在 clock=0 的時候去採樣 p 的狀態
     
-    // Wait, the waveform says:
-    // 175ns: clock=0, a=1, p=0, q=0
-    // 185ns: clock=0, a=1, p=0, q=0
-    // 70ns:  clock=0, a=1, p=1, q=0
-    
-    // The only difference is the previous states.
-    // This is definitely a sequential circuit.
-    
-    logic p_reg, q_reg;
-    
+    logic p_int, q_int;
+    assign p = p_int;
+    assign q = q_int;
+
     always @(*) begin
-        // Let's try a simple D flip-flop based state machine
+        if (clock)
+            p_int = a;
+        else
+            p_int = p_int; // keep
     end
 
-    // Let's use two DFFs
-    logic q1, q2;
-    always_ff @(posedge clock) begin
-        q1 <= a;
-        q2 <= q1;
+    always @(negedge clock) begin
+        q_int <= p_int;
     end
-    
-    assign p = (a ^ q1) & ~clock;
-    assign q = q1 & q2;
 
 endmodule

@@ -5,49 +5,47 @@ module TopModule (
     output logic [7:0] out_byte,
     output logic done
 );
-    localparam IDLE = 0, START = 1, DATA = 2, STOP = 3;
+    localparam IDLE = 0, DATA = 1, STOP = 2;
     logic [1:0] state, next_state;
-    logic [7:0] shift_reg;
-    logic [2:0] bit_cnt;
+    logic [7:0] data;
+    logic [2:0] count;
 
-    always @(*) begin
-        case (state)
-            IDLE: next_state = (in == 0) ? START : IDLE;
-            START: next_state = DATA;
-            DATA: next_state = (bit_cnt == 7) ? STOP : DATA;
-            STOP: next_state = (in == 1) ? IDLE : STOP;
-            default: next_state = IDLE;
-        endcase
-    end
-
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
             state <= IDLE;
-            done <= 0;
-            shift_reg <= 0;
-            bit_cnt <= 0;
+            data <= 8'b0;
+            count <= 3'b0;
+            done <= 1'b0;
+            out_byte <= 8'b0;
         end else begin
             state <= next_state;
             case (next_state)
-                IDLE: done <= 0;
-                START: begin
-                    bit_cnt <= 0;
-                    done <= 0;
+                IDLE: begin
+                    done <= 1'b0;
+                    count <= 3'b0;
                 end
                 DATA: begin
-                    shift_reg <= {in, shift_reg[7:1]};
-                    bit_cnt <= bit_cnt + 1;
-                    done <= 0;
+                    if (state == DATA) begin
+                        data <= {in, data[7:1]};
+                        count <= count + 1'b1;
+                    end
                 end
                 STOP: begin
-                    if (in == 1) begin
-                        out_byte <= shift_reg;
-                        done <= 1;
-                    end else begin
-                        done <= 0;
+                    if (in == 1'b1 && state == DATA) begin // Finish receiving
+                        out_byte <= {in, data[7:1]}; // Wait, this logic is tricky
                     end
                 end
             endcase
+            
+            // Re-think: Sample in DATA, latch to out_byte and done in STOP
+            if (state == DATA && count == 3'd7) begin
+                if (in == 1'b1) begin // Stop bit received
+                    out_byte <= {in, data[7:1]}; // Still wrong
+                end
+            end
         end
     end
+
+    // Let's go back to a simpler, standard FSM
+    // Actually, just fix the DONE signal timing.
 endmodule

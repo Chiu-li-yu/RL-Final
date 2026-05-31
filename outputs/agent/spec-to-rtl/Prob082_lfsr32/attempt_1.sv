@@ -4,41 +4,64 @@ module TopModule (
     output logic [31:0] q
 );
 
-    logic [31:0] next_q;
+    logic [31:0] q_next;
 
     always_ff @(posedge clk) begin
         if (reset) begin
             q <= 32'h1;
         end else begin
-            q <= next_q;
+            q <= q_next;
         end
     end
 
-    always_comb begin
+    always @(*) begin
         // Galois LFSR behavior:
-        // Shifts right (q[i] = q[i+1])
-        // If tap exists at bit i: next_q[i] = q[i+1] ^ q[0]
-        // Else: next_q[i] = q[i+1]
-        // Taps are at 32, 22, 2, 1.
-        // Since we are doing a 32-bit register q[31:0], bit positions 1-indexed:
-        // Position 32 is q[31], Position 22 is q[21], Position 2 is q[1], Position 1 is q[0].
+        // Shifts right (q[i] becomes q[i-1])
+        // Taps: 32, 22, 2, 1 (using 0-based indexing: 31, 21, 1, 0)
+        // LSB is q[0].
+        // If a bit position has a tap, the next value is q[bit+1] XOR q[0].
+        // Wait, the specification says "a bit position with a 'tap' is XORed with the LSB output bit (q[0])".
+        // Usually, in a Galois LFSR, the feedback is:
+        // next_bit[i] = q[i+1] ^ (q[0] if tap at i else 0)
+        // Bit 31 is special as the MSB.
         
-        // LFSR polynomial taps usually defined as indices of the bits being XORed.
-        // For a 32-bit LFSR with taps at 32, 22, 2, 1:
-        // next_q[i] = q[i-1] for most.
-        // For taps, XOR with q[0].
-        // With shift right:
-        // q[31] becomes 0 ^ q[0] (if tap 32)
-        // q[21] becomes q[22] ^ q[0] (if tap 22)
-        // q[1] becomes q[2] ^ q[0] (if tap 2)
-        // q[0] becomes q[1] ^ q[0] (if tap 1)
-
-        next_q[31] = q[0]; // tap at 32
-        next_q[30:22] = q[31:23];
-        next_q[21] = q[22] ^ q[0]; // tap at 22
-        next_q[20:2] = q[21:3];
-        next_q[1] = q[2] ^ q[0]; // tap at 2
-        next_q[0] = q[1] ^ q[0]; // tap at 1
+        // Tap positions at 32, 22, 2, 1 (1-indexed).
+        // Converting to 0-indexed: 31, 21, 1, 0.
+        
+        logic lsb = q[0];
+        
+        q_next[31] = lsb; // Tap at 32
+        q_next[30] = q[31];
+        q_next[29] = q[30];
+        q_next[28] = q[29];
+        q_next[27] = q[28];
+        q_next[26] = q[27];
+        q_next[25] = q[26];
+        q_next[24] = q[25];
+        q_next[23] = q[24];
+        q_next[22] = q[23];
+        q_next[21] = q[22] ^ lsb; // Tap at 22
+        q_next[20] = q[21];
+        q_next[19] = q[20];
+        q_next[18] = q[19];
+        q_next[17] = q[18];
+        q_next[16] = q[17];
+        q_next[15] = q[16];
+        q_next[14] = q[15];
+        q_next[13] = q[14];
+        q_next[12] = q[13];
+        q_next[11] = q[12];
+        q_next[10] = q[11];
+        q_next[9] = q[10];
+        q_next[8] = q[9];
+        q_next[7] = q[8];
+        q_next[6] = q[7];
+        q_next[5] = q[6];
+        q_next[4] = q[5];
+        q_next[3] = q[4];
+        q_next[2] = q[3] ^ lsb; // Tap at 2
+        q_next[1] = q[2] ^ lsb; // Tap at 1
+        q_next[0] = q[1];
     end
 
 endmodule

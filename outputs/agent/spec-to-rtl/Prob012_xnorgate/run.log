@@ -1,11 +1,11 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input logic a,
-    input logic b,
-    output logic out
+    input a,
+    input b,
+    output out
 );
-
+    assign out = ~(a ^ b);
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

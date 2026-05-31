@@ -5,32 +5,27 @@ module TopModule (
     output logic out
 );
 
-    parameter A = 2'b00;
-    parameter B = 2'b01;
-    parameter C = 2'b10;
-    parameter D = 2'b11;
-
     always @(*) begin
         case (state)
-            A: begin
-                next_state = (in) ? B : A;
-                out = 1'b0;
+            2'b00: begin // State A
+                next_state = (in) ? 2'b01 : 2'b00;
+                out = 0;
             end
-            B: begin
-                next_state = (in) ? B : C;
-                out = 1'b0;
+            2'b01: begin // State B
+                next_state = (in) ? 2'b01 : 2'b10;
+                out = 0;
             end
-            C: begin
-                next_state = (in) ? D : A;
-                out = 1'b0;
+            2'b10: begin // State C
+                next_state = (in) ? 2'b11 : 2'b00;
+                out = 0;
             end
-            D: begin
-                next_state = (in) ? B : C;
-                out = 1'b1;
+            2'b11: begin // State D
+                next_state = (in) ? 2'b01 : 2'b10;
+                out = 1;
             end
             default: begin
-                next_state = A;
-                out = 1'b0;
+                next_state = 2'b00;
+                out = 0;
             end
         endcase
     end

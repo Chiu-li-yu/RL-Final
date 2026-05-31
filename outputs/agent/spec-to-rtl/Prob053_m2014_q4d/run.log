@@ -1,14 +1,14 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input clk,
-    input in,
-    output out
+    input logic clk,
+    input logic in,
+    output logic out
 );
 
 [attempt 1] ← compile_and_test: R  mismatches=1
 VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob053_m2014_q4d_test.sv:16: $finish called at 501 (1ps)
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob053_m2014_q4d_test.sv:16: $finish called at 501 (1ps)
 Hint: Output 'out' has 1 mismatches. First mismatch occurred at time 5.
 Hint: Total mismatched samples is 1 out of 100 samples
 
@@ -25,14 +25,14 @@ Mismatches: 1 in 100 samples
 
 [attempt 2] → compile_and_test
 module TopModule (
-    input clk,
-    input in,
-    output out
+    input logic clk,
+    input logic in,
+    output logic out
 );
 
 [attempt 2] ← compile_and_test: R  mismatches=1
 VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob053_m2014_q4d_test.sv:16: $finish called at 501 (1ps)
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob053_m2014_q4d_test.sv:16: $finish called at 501 (1ps)
 Hint: Output 'out' has 1 mismatches. First mismatch occurred at time 5.
 Hint: Total mismatched samples is 1 out of 100 samples
 
@@ -41,9 +41,9 @@ Mismatches: 1 in 100 samples
 
 [attempt 3] → compile_and_test
 module TopModule (
-    input clk,
-    input in,
-    output out
+    input logic clk,
+    input logic in,
+    output logic out
 );
 
 [attempt 3] ← compile_and_test: .

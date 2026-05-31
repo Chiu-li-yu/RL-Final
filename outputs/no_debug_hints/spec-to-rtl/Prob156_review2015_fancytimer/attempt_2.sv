@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     input data,
@@ -8,69 +8,65 @@ module TopModule (
     input ack
 );
     typedef enum logic [2:0] {
-        SEARCH, GET_DELAY, COUNTING, WAIT_ACK
+        S_SEARCH, S_SHIFT, S_COUNT, S_DONE
     } state_t;
 
     state_t state;
+    logic [3:0] delay_reg;
     logic [3:0] shift_reg;
-    logic [2:0] bit_cnt;
-    logic [3:0] delay_val;
-    logic [9:0] cycle_cnt;
-    logic [3:0] remaining;
+    logic [2:0] shift_ptr;
+    logic [15:0] timer;
+    logic [3:0] pattern;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
-            state <= SEARCH;
-            shift_reg <= 0;
-            bit_cnt <= 0;
-            delay_val <= 0;
-            cycle_cnt <= 0;
-            remaining <= 0;
-            counting <= 0;
-            done <= 0;
-            count <= 0;
+            state <= S_SEARCH;
+            pattern <= 4'b0;
+            delay_reg <= 4'b0;
+            shift_ptr <= 4'd3;
+            timer <= 16'd0;
+            counting <= 1'b0;
+            done <= 1'b0;
+            count <= 4'b0;
         end else begin
             case (state)
-                SEARCH: begin
-                    done <= 0;
-                    counting <= 0;
-                    shift_reg <= {shift_reg[2:0], data};
-                    if ({shift_reg[2:0], data} == 4'b1101) begin
-                        state <= GET_DELAY;
-                        bit_cnt <= 0;
-                        delay_val <= 0;
+                S_SEARCH: begin
+                    pattern <= {pattern[2:0], data};
+                    if (pattern[2:0] == 3'b110 && data == 1'b1) begin
+                        state <= S_SHIFT;
+                        shift_ptr <= 3;
                     end
                 end
-                GET_DELAY: begin
-                    delay_val <= {delay_val[2:0], data};
-                    bit_cnt <= bit_cnt + 1;
-                    if (bit_cnt == 3) begin
-                        state <= COUNTING;
-                        remaining <= {delay_val[2:0], data};
-                        cycle_cnt <= 0;
-                        counting <= 1;
+                S_SHIFT: begin
+                    delay_reg[shift_ptr] <= data;
+                    if (shift_ptr == 0) begin
+                        state <= S_COUNT;
+                        timer <= 16'd1000;
+                        count <= {delay_reg[3:1], data};
+                        counting <= 1'b1;
+                    end else begin
+                        shift_ptr <= shift_ptr - 1;
                     end
                 end
-                COUNTING: begin
-                    count <= remaining;
-                    if (cycle_cnt == 999) begin
-                        cycle_cnt <= 0;
-                        if (remaining == 0) begin
-                            state <= WAIT_ACK;
-                            counting <= 0;
-                            done <= 1;
+                S_COUNT: begin
+                    if (timer == 1) begin
+                        if (count == 0) begin
+                            state <= S_DONE;
+                            counting <= 1'b0;
+                            done <= 1'b1;
                         end else begin
-                            remaining <= remaining - 1;
+                            timer <= 16'd1000;
+                            count <= count - 1;
                         end
                     end else begin
-                        cycle_cnt <= cycle_cnt + 1;
+                        timer <= timer - 1;
                     end
                 end
-                WAIT_ACK: begin
+                S_DONE: begin
                     if (ack) begin
-                        state <= SEARCH;
-                        done <= 0;
-                        shift_reg <= 0;
+                        state <= S_SEARCH;
+                        done <= 1'b0;
+                        pattern <= 4'b0;
                     end
                 end
             endcase

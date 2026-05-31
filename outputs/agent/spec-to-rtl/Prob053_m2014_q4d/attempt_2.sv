@@ -1,15 +1,17 @@
 module TopModule (
-    input clk,
-    input in,
-    output out
+    input logic clk,
+    input logic in,
+    output logic out
 );
 
     logic q;
 
-    assign out = q;
-
-    always @(posedge clk) begin
+    // D Flip-Flop
+    // D = in ^ q
+    always_ff @(posedge clk) begin
         q <= in ^ q;
     end
+
+    assign out = q;
 
 endmodule

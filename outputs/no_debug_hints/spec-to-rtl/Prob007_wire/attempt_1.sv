@@ -1,6 +1,8 @@
 module TopModule (
-    input in,
+    input  in,
     output out
 );
+
     assign out = in;
+
 endmodule

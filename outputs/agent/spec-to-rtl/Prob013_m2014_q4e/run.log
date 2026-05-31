@@ -7,8 +7,8 @@ module TopModule (
 );
 
 [attempt 1] ← compile_and_test: w
-/tmp/tmp8u05o3_2.sv:8: error: out is not a valid l-value in tb.top_module1.
-/tmp/tmp8u05o3_2.sv:4:      : out is declared here as wire.
+/tmp/tmphxx5t1_q.sv:8: error: out is not a valid l-value in tb.top_module1.
+/tmp/tmphxx5t1_q.sv:4:      : out is declared here as wire.
 1 error(s) during elaboration.
 
 [attempt 2] → compile_and_test

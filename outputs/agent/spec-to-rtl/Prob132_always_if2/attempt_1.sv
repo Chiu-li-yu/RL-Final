@@ -14,10 +14,10 @@ module TopModule (
     end
 
     always @(*) begin
-        if (arrived)
-            keep_driving = 1'b0;
+        if (~arrived && !gas_tank_empty)
+            keep_driving = 1'b1;
         else
-            keep_driving = ~gas_tank_empty;
+            keep_driving = 1'b0;
     end
 
 endmodule

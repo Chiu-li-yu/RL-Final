@@ -1,26 +1,26 @@
 {
   "problem_id": "Prob146_fsm_serialdata",
-  "passed": true,
-  "sim_passed": true,
-  "synth_passed": true,
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
   "attempts": 5,
-  "sim_error_type": ".",
-  "sim_error_log": "",
-  "synth_error_type": "Y",
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob146_fsm_serialdata_test.sv:45: $finish called at 4526 (1ps)\nHint: Output 'out_byte' has 32 mismatches. First mismatch occurred at time 850.\nHint: Output 'done' has 68 mismatches. First mismatch occurred at time 110.\nHint: Total mismatched samples is 68 out of 905 samples\n\nSimulation finished at 4526 ps\nMismatches: 68 in 905 samples",
+  "synth_error_type": "",
   "synth_error_log": "",
   "sim_error_sequence": [
+    "e",
+    "e",
     "R",
     "R",
-    "R",
-    "R",
-    "."
+    "R"
   ],
   "synth_error_sequence": [
     null,
     null,
     null,
     null,
-    "Y"
+    null
   ],
   "decompose_spec_calls": 1,
   "get_debug_hints_calls": 0,

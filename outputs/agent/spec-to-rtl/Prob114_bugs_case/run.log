@@ -1,11 +1,11 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input [7:0] code,
+    input logic [7:0] code,
     output logic [3:0] out,
     output logic valid
 );
-
+    always @(*) begin
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

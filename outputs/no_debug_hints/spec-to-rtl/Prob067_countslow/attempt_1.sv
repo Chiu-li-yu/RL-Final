@@ -1,9 +1,10 @@
 module TopModule (
-    input logic clk,
-    input logic reset,
-    input logic slowena,
+    input clk,
+    input reset,
+    input slowena,
     output logic [3:0] q
 );
+
     always_ff @(posedge clk) begin
         if (reset) begin
             q <= 4'd0;
@@ -15,4 +16,5 @@ module TopModule (
             end
         end
     end
+
 endmodule

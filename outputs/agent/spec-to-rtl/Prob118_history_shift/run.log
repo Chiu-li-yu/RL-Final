@@ -1,4 +1,14 @@
 
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 32-bit 全域歷史暫存器（Global History Register）的設計，建議將任務分解為以下 5 個子目標：
+
+1. 定義包含 `clk`、`areset` 及所有輸入輸出訊號的模組介面與 32-bit 暫存器實體。
+2. 實作非同步重置（areset）邏輯，確保在重置訊號為高電位時，暫存器被清除為 0。
+3. 根據題目優先級，在 `posedge clk` 區塊中加入 `train_mispredicted` 的判斷，實現載入外部歷史值（`train_history`）並附加預測結果的功能。
+4. 當 `train_mispredicted` 為無效時，加入 `predict_valid` 的判斷，實現將預測結果移入暫存器（Shift-in）的邏輯。
+5. 確保在 `train_mispredicted` 與 `predict_valid` 皆無效時保持暫存器原值，並將暫存器輸出連接至 `predict_history`。
+
 [attempt 1] → compile_and_test
 module TopModule (
     input clk,

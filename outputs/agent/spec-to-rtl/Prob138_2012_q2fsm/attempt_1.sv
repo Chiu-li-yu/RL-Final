@@ -4,14 +4,17 @@ module TopModule (
     input w,
     output z
 );
-    logic [2:0] state, next_state;
-    
-    localparam A = 3'd0,
-               B = 3'd1,
-               C = 3'd2,
-               D = 3'd3,
-               E = 3'd4,
-               F = 3'd5;
+
+    typedef enum logic [2:0] {
+        A = 3'd0,
+        B = 3'd1,
+        C = 3'd2,
+        D = 3'd3,
+        E = 3'd4,
+        F = 3'd5
+    } state_t;
+
+    state_t state, next_state;
 
     always_ff @(posedge clk) begin
         if (reset)
@@ -33,4 +36,5 @@ module TopModule (
     end
 
     assign z = (state == E || state == F);
+
 endmodule

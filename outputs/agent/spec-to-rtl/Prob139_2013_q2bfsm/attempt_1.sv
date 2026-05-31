@@ -3,66 +3,56 @@ module TopModule (
     input resetn,
     input x,
     input y,
-    output logic f,
-    output logic g
+    output f,
+    output g
 );
-
     typedef enum logic [3:0] {
-        A, F_ON, MONITOR_X, X1, X10, G_ON, G_PERM, G_OFF_PERM
+        STATE_A,
+        STATE_F,
+        WAIT_X1,
+        WAIT_X0,
+        WAIT_X1_FINAL,
+        CHECK_Y,
+        CHECK_Y_1,
+        G_PERM_1,
+        G_PERM_0
     } state_t;
 
-    state_t state, next_state;
-    logic [1:0] y_count;
+    logic [3:0] state, next_state;
+    logic f_reg, g_reg;
 
     always_ff @(posedge clk) begin
         if (!resetn) begin
-            state <= A;
+            state <= STATE_A;
+            f_reg <= 0;
+            g_reg <= 0;
         end else begin
             state <= next_state;
+            if (state == STATE_F) f_reg <= 1;
+            else f_reg <= 0;
+
+            if (state == CHECK_Y || state == CHECK_Y_1 || state == G_PERM_1) g_reg <= 1;
+            else g_reg <= 0;
         end
     end
 
-    always_ff @(posedge clk) begin
-        if (!resetn || state != G_ON) begin
-            y_count <= 2'b0;
-        end else begin
-            y_count <= y_count + 1'b1;
-        end
-    end
-
-    always_comb begin
+    always @(*) begin
         next_state = state;
-        f = 0;
-        g = 0;
-
         case (state)
-            A: next_state = F_ON;
-            F_ON: begin
-                f = 1;
-                next_state = MONITOR_X;
-            end
-            MONITOR_X: begin
-                if (x) next_state = X1;
-            end
-            X1: begin
-                if (!x) next_state = X10;
-                else if (x) next_state = X1;
-            end
-            X10: begin
-                if (x) next_state = G_ON;
-                else next_state = MONITOR_X;
-            end
-            G_ON: begin
-                g = 1;
-                if (y) next_state = G_PERM;
-                else if (y_count == 2'b10) next_state = G_OFF_PERM;
-            end
-            G_PERM: begin
-                g = 1;
-            end
-            G_OFF_PERM: begin
-                g = 0;
-            end
+            STATE_A: next_state = STATE_F;
+            STATE_F: next_state = WAIT_X1;
+            WAIT_X1: next_state = x ? WAIT_X0 : WAIT_X1;
+            WAIT_X0: next_state = x ? WAIT_X1 : WAIT_X1_FINAL;
+            WAIT_X1_FINAL: next_state = x ? CHECK_Y : WAIT_X1;
+            CHECK_Y: next_state = y ? G_PERM_1 : CHECK_Y_1;
+            CHECK_Y_1: next_state = y ? G_PERM_1 : G_PERM_0;
+            G_PERM_1: next_state = G_PERM_1;
+            G_PERM_0: next_state = G_PERM_0;
+            default: next_state = STATE_A;
         endcase
     end
+
+    assign f = f_reg;
+    assign g = g_reg;
+
 endmodule

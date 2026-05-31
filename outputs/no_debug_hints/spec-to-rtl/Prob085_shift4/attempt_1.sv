@@ -9,7 +9,7 @@ module TopModule (
 
     always_ff @(posedge clk or posedge areset) begin
         if (areset) begin
-            q <= 4'b0000;
+            q <= 4'b0;
         end else begin
             if (load) begin
                 q <= data;

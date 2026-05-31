@@ -1,11 +1,11 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input clk,
-    input a,
-    input b,
-    output out_assign,
-    output out_always_comb,
+    input logic clk,
+    input logic a,
+    input logic b,
+    output logic out_assign,
+    output logic out_always_comb,
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

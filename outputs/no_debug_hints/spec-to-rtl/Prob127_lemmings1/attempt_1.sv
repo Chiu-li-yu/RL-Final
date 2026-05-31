@@ -6,22 +6,18 @@ module TopModule (
     output walk_left,
     output walk_right
 );
-    // State definition
-    localparam LEFT = 1'b0;
-    localparam RIGHT = 1'b1;
+
+    parameter LEFT = 1'b0;
+    parameter RIGHT = 1'b1;
 
     logic state, next_state;
 
-    // State transition
-    always_ff @(posedge clk or posedge areset) begin
-        if (areset)
-            state <= LEFT;
-        else
-            state <= next_state;
-    end
+    // Output logic
+    assign walk_left = (state == LEFT);
+    assign walk_right = (state == RIGHT);
 
     // Next state logic
-    always_begin
+    always @(*) begin
         case (state)
             LEFT: begin
                 if (bump_left)
@@ -39,8 +35,12 @@ module TopModule (
         endcase
     end
 
-    // Output logic
-    assign walk_left = (state == LEFT);
-    assign walk_right = (state == RIGHT);
+    // Sequential logic
+    always @(posedge clk or posedge areset) begin
+        if (areset)
+            state <= LEFT;
+        else
+            state <= next_state;
+    end
 
 endmodule

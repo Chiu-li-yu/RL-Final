@@ -1,10 +1,10 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input logic [7:0] a,
-    input logic [7:0] b,
-    output logic [7:0] s,
-    output logic overflow
+    input  [7:0] a,
+    input  [7:0] b,
+    output [7:0] s,
+    output       overflow
 );
 [attempt 1] ← compile_and_test: .
 

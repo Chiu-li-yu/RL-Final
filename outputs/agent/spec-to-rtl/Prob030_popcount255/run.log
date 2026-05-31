@@ -1,8 +1,8 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input [254:0] in,
-    output [7:0] out
+    input  logic [254:0] in,
+    output logic [7:0]   out
 );
 
     logic [7:0] count;

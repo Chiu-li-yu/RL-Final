@@ -7,21 +7,23 @@ module TopModule (
     output out_n
 );
 
-    logic and1;
-    logic and2;
+    logic and1_out;
+    logic and2_out;
 
     always @(*) begin
-        and1 = a & b;
-        and2 = c & d;
+        and1_out = a & b;
+        and2_out = c & d;
     end
 
     always @(*) begin
-        // The output 'out' is the result of the OR gate
-        // The problem specifies the OR gate is the second layer.
-        // We can assign out here.
+        // out is the result of the OR gate
+        // assign out = and1_out | and2_out;
+        // out_n is the inverse of out
+        // assign out_n = ~out;
     end
 
-    assign out = and1 | and2;
+    // Direct assignments for logic gates
+    assign out = and1_out | and2_out;
     assign out_n = ~out;
 
 endmodule

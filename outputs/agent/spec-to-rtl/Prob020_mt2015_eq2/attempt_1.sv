@@ -4,16 +4,6 @@ module TopModule (
     output z
 );
 
-    logic z_val;
-
-    always @(*) begin
-        if (A == B) begin
-            z_val = 1'b1;
-        end else begin
-            z_val = 1'b0;
-        end
-    end
-
-    assign z = z_val;
+    assign z = (A == B) ? 1'b1 : 1'b0;
 
 endmodule

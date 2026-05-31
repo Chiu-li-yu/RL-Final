@@ -1,22 +1,45 @@
 
 [attempt 0] → decompose_spec
 [attempt 0] ← decompose_spec:
-為了完成這個 PS/2 滑鼠封包解析的 FSM 設計，您可以依照以下 5 個子目標進行開發：
+以下是將 PS/2 滑鼠封包偵測器分解後的 4 個子目標：
 
-1. 定義包含「搜尋模式 (SEARCH)」與「計數模式 (COUNT)」的狀態機，並宣告一個計數器 (2-bit) 用於追蹤已接收的位元組數量。
-2. 在「搜尋模式」下，當接收到 `in[3] == 1` 時，將狀態轉移至「計數模式」並將計數器重置為 1。
-3. 在「計數模式」下，每接收一個資料位元組就將計數器加 1，當計數器達到 3 時轉移回「搜尋模式」。
-4. 當「計數模式」下的第三個位元組被正確接收時，將輸出訊號 `done` 置為高電位維持一個時脈週期。
-5. 實作同步高電位有效的 `reset` 邏輯，確保系統在重置時能強制回到初始的「搜尋模式」並將計數器歸零。
+1. 定義有限狀態機（FSM），包含「等待起始位元」與「計數剩餘位元」兩種主要狀態。
+2. 實作狀態切換邏輯：當偵測到 `in[3] == 1` 時觸發狀態機進入封包接收流程。
+3. 實作計數器邏輯：在進入接收流程後，對連續接收到的三個 Byte 進行計數。
+4. 實作輸出邏輯：當計數器達到 3 時，將 `done` 訊號拉高一個時脈週期並重置狀態。
 
 [attempt 1] → compile_and_test
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     input [7:0] in,
-    output done
+    output logic done
 );
-[attempt 1] ← compile_and_test: .
+[attempt 1] ← compile_and_test: R  mismatches=176
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 176 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 176 out of 400 samples
 
-[attempt 1] → synthesize
-[attempt 1] ← synthesize: Y
+Simulation finished at 2001 ps
+Mismatches: 176 in 400 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

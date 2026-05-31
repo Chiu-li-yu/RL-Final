@@ -1,14 +1,14 @@
 module TopModule (
-    input a,
-    input b,
+    input  a,
+    input  b,
     output out_assign,
     output logic out_alwaysblock
 );
 
-assign out_assign = a & b;
+    assign out_assign = a & b;
 
-always @(*) begin
-    out_alwaysblock = a & b;
-end
+    always @(*) begin
+        out_alwaysblock = a & b;
+    end
 
 endmodule

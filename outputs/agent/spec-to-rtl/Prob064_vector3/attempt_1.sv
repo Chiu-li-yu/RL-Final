@@ -10,10 +10,12 @@ module TopModule (
     output logic [7:0] y,
     output logic [7:0] z
 );
+
     logic [31:0] combined;
 
     always @(*) begin
         combined = {a, b, c, d, e, f, 2'b11};
         {w, x, y, z} = combined;
     end
+
 endmodule

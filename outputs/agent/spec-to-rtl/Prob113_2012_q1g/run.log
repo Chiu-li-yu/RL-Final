@@ -4,9 +4,49 @@ module TopModule (
     input [3:0] x,
     output f
 );
-    // x[2]x[3] x[0]x[1]
-    // 00: 1 0 0 1
-[attempt 1] ← compile_and_test: .
+    // K-map table:
+    // x[2]x[3] | x[0]x[1]
+[attempt 1] ← compile_and_test: w
+/tmp/tmpkuhqjwzr.sv:67: error: f is not a valid l-value in tb.top_module1.
+/tmp/tmpkuhqjwzr.sv:3:      : f is declared here as wire.
+/tmp/tmpkuhqjwzr.sv:68: error: f is not a valid l-value in tb.top_module1.
+/tmp/tmpkuhqjwzr.sv:3:      : f is declared here as wire.
+/tmp/tmpkuhqjwzr.sv:69: error: f is not a valid l-value in tb.top_module1.
+/tmp/tmpkuhqjwzr.sv:3:      : f is declared here as wire.
+/tmp/tmpkuhqjwzr.sv:70: error: f is not a valid l-value in tb.top_module1.
+/tmp/tmpkuhqjwzr.sv:3:      : f is declared here as wire.
+/tmp/tmpkuhqjwzr.sv:71: error: f is not a valid l-value in tb.top_module1.
+/tmp/tmpkuhqjwzr.sv:3:      : f is declared here as wire.
+/tmp/tmpkuhqjwzr.sv:72: error: f is not a valid l-value in tb.top_module1.
+/tmp/tmpkuhqjwzr.sv:3:      : f is declared here as wire.
+/tmp/tmpkuhqjwzr.sv:73: error: f is not a valid l-value in tb.top_module1.
+/tmp/tmpkuhqjwzr.sv:3:      : f is declared here as wire.
+/tmp/tmpkuhqjwzr.sv:74: error: f is not a valid l-value in tb.top_mod
 
-[attempt 1] → synthesize
-[attempt 1] ← synthesize: Y
+[attempt 2] → compile_and_test
+module TopModule (
+    input [3:0] x,
+    output logic f
+);
+    always @(*) begin
+        case (x)
+[attempt 2] ← compile_and_test: R  mismatches=36
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob113_2012_q1g_test.sv:16: $finish called at 501 (1ps)
+Hint: Output 'f' has 36 mismatches. First mismatch occurred at time 10.
+Hint: Total mismatched samples is 36 out of 100 samples
+
+Simulation finished at 501 ps
+Mismatches: 36 in 100 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input [3:0] x,
+    output logic f
+);
+    // K-map:
+    //          x0 x1
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

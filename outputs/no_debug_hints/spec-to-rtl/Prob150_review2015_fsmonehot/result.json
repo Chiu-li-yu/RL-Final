@@ -1,22 +1,26 @@
 {
   "problem_id": "Prob150_review2015_fsmonehot",
-  "passed": true,
-  "sim_passed": true,
-  "synth_passed": true,
-  "attempts": 3,
-  "sim_error_type": ".",
-  "sim_error_log": "",
-  "synth_error_type": "Y",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob150_review2015_fsmonehot_test.sv:22: $finish called at 1501 (1ps)\nHint: Output 'B3_next' has no mismatches.\nHint: Output 'S_next' has 1 mismatches. First mismatch occurred at time 5.\nHint: Output 'S1_next' has no mismatches.\nHint: Output 'Count_next' has no mismatches.\nHint: Output 'Wait_next' has no mismatches.\nHint: Output 'done' has no mismatches.\nHint: Output 'counting' has no mismatches.\nHint: Output 'shift_ena' has no mismatches.\nHint: Total mismatched samples is 1 out of 300 samples\n\nSimulation finished at 1501 ps\nMismatches: 1 in 300 samples",
+  "synth_error_type": "",
   "synth_error_log": "",
   "sim_error_sequence": [
     "R",
     "R",
-    "."
+    "R",
+    "R",
+    "R"
   ],
   "synth_error_sequence": [
     null,
     null,
-    "Y"
+    null,
+    null,
+    null
   ],
   "decompose_spec_calls": 1,
   "get_debug_hints_calls": 0,

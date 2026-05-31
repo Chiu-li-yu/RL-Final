@@ -4,18 +4,20 @@ module TopModule (
     output logic [2:0] ena,
     output logic [15:0] q
 );
-
     // BCD digits
     logic [3:0] d0, d1, d2, d3;
 
-    // Enable signals logic
+    // Internal enable signals for each stage
+    // ena[0] -> digit 1
+    // ena[1] -> digit 2
+    // ena[2] -> digit 3
     always @(*) begin
         ena[0] = (d0 == 4'd9);
-        ena[1] = (d0 == 4'd9) && (d1 == 4'd9);
-        ena[2] = (d0 == 4'd9) && (d1 == 4'd9) && (d2 == 4'd9);
+        ena[1] = (d0 == 4'd9 && d1 == 4'd9);
+        ena[2] = (d0 == 4'd9 && d1 == 4'd9 && d2 == 4'd9);
     end
 
-    // Counter logic
+    // Sequential logic for each digit
     always @(posedge clk) begin
         if (reset) begin
             d0 <= 4'd0;

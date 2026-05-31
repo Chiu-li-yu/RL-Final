@@ -10,17 +10,14 @@ module TopModule (
     output logic [7:0] y,
     output logic [7:0] z
 );
-    logic [31:0] combined;
 
+    // The specification: "concatenate the input vectors together then split them up into several output vectors"
+    // "concatenation of the input vectors followed by two 1 bits"
+    // Let's try reversing the order of input concatenation to {f, e, d, c, b, a}
+    // and see if that matches the expected testbench.
+    
     always @(*) begin
-        // The concatenation order should be: {a, b, c, d, e, f, 1, 1}
-        // Let's re-verify the split order.
-        // {w, x, y, z} = combined; 
-        // This splits combined[31:24] to w, [23:16] to x, [15:8] to y, [7:0] to z.
-        combined = {a, b, c, d, e, f, 2'b11};
-        w = combined[31:24];
-        x = combined[23:16];
-        y = combined[15:8];
-        z = combined[7:0];
+        {w, x, y, z} = {a, b, c, d, e, f, 2'b11};
     end
+
 endmodule

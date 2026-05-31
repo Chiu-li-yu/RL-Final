@@ -10,20 +10,18 @@ module TopModule (
     output logic [7:0] y,
     output logic [7:0] z
 );
+
     logic [31:0] combined;
 
     always @(*) begin
-        // Concatenating inputs: 30 bits. 
-        // Need to add two 1-bits at the LSB positions.
-        // Total 32 bits.
-        // Input: {a, b, c, d, e, f} (30 bits)
-        // Full vector: {a, b, c, d, e, f, 2'b11} (32 bits)
-        // Split: 
-        // w (bits 31:24)
-        // x (bits 23:16)
-        // y (bits 15:8)
-        // z (bits 7:0)
+        // The concatenation order should match the output mapping order
+        // The problem says: concatenate input vectors (a, b, c, d, e, f)
+        // followed by 2 bits.
+        // Total bits: 30 + 2 = 32.
+        // Output concatenation: {w, x, y, z}
+        // w should be the most significant, z should be the least.
         combined = {a, b, c, d, e, f, 2'b11};
         {w, x, y, z} = combined;
     end
+
 endmodule

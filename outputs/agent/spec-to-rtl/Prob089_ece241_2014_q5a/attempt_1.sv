@@ -2,35 +2,35 @@ module TopModule (
     input clk,
     input areset,
     input x,
-    output logic z
+    output z
 );
-    // Moore FSM: 0 = No carry (first 1 encountered), 1 = Carry (after first 1)
+
     logic state, next_state;
 
-    always_ff @(posedge clk or posedge areset) begin
+    // Moore machine states:
+    // S0: No 1 seen yet. Output = Input
+    // S1: 1 seen. Output = !Input
+    localparam S0 = 1'b0;
+    localparam S1 = 1'b1;
+
+    // State transition logic
+    always @(*) begin
+        case (state)
+            S0: next_state = x ? S1 : S0;
+            S1: next_state = S1;
+            default: next_state = S0;
+        endcase
+    end
+
+    // Output logic
+    assign z = (state == S0) ? x : ~x;
+
+    // State register
+    always @(posedge clk or posedge areset) begin
         if (areset)
-            state <= 1'b0;
+            state <= S0;
         else
             state <= next_state;
     end
 
-    always_comb begin
-        case (state)
-            1'b0: begin
-                z = x;
-                if (x == 1'b1)
-                    next_state = 1'b1;
-                else
-                    next_state = 1'b0;
-            end
-            1'b1: begin
-                z = ~x;
-                next_state = 1'b1;
-            end
-            default: begin
-                z = 1'b0;
-                next_state = 1'b0;
-            end
-        endcase
-    end
 endmodule

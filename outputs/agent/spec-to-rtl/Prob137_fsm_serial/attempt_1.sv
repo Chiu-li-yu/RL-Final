@@ -1,38 +1,42 @@
 module TopModule (
-    input clk,
-    input reset,
-    input in,
-    output done
+    input logic clk,
+    input logic reset,
+    input logic in,
+    output logic done
 );
 
     typedef enum logic [2:0] {
-        IDLE  = 3'd0,
-        DATA  = 3'd1,
-        STOP  = 3'd2,
-        WAIT  = 3'd3
+        IDLE,
+        START,
+        DATA,
+        STOP,
+        WAIT_STOP
     } state_t;
 
-    logic [2:0] state, next_state;
-    logic [3:0] count;
-    logic done_r;
+    state_t state, next_state;
+    logic [3:0] bit_cnt;
+    logic [7:0] data_reg;
+    logic done_reg;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
             state <= IDLE;
-            count <= 4'd0;
-            done_r <= 1'b0;
+            bit_cnt <= 0;
+            data_reg <= 0;
+            done_reg <= 0;
         end else begin
             state <= next_state;
             if (state == DATA) begin
-                count <= count + 1'b1;
-            end else begin
-                count <= 4'd0;
+                bit_cnt <= bit_cnt + 1;
+                data_reg[bit_cnt] <= in;
+            end else if (state == IDLE || state == STOP) begin
+                bit_cnt <= 0;
             end
             
             if (state == STOP && in == 1'b1) begin
-                done_r <= 1'b1;
+                done_reg <= 1'b1;
             end else begin
-                done_r <= 1'b0;
+                done_reg <= 1'b0;
             end
         end
     end
@@ -41,30 +45,30 @@ module TopModule (
         next_state = state;
         case (state)
             IDLE: begin
-                if (in == 1'b0) begin
-                    next_state = DATA;
-                end
+                if (in == 1'b0)
+                    next_state = START;
+            end
+            START: begin
+                next_state = DATA;
             end
             DATA: begin
-                if (count == 4'd7) begin
+                if (bit_cnt == 4'd7)
                     next_state = STOP;
-                end
             end
             STOP: begin
-                if (in == 1'b1) begin
+                if (in == 1'b1)
                     next_state = IDLE;
-                end else begin
-                    next_state = WAIT;
-                end
+                else
+                    next_state = WAIT_STOP;
             end
-            WAIT: begin
-                if (in == 1'b1) begin
+            WAIT_STOP: begin
+                if (in == 1'b1)
                     next_state = IDLE;
-                end
             end
+            default: next_state = IDLE;
         endcase
     end
 
-    assign done = done_r;
+    assign done = done_reg;
 
 endmodule

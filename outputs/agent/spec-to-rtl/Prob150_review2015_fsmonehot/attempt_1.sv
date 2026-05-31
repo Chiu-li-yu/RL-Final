@@ -13,59 +13,47 @@ module TopModule (
     output shift_ena
 );
 
-    // Encoding:
-    // S     = 10'b0000000001
-    // S1    = 10'b0000000010
-    // S11   = 10'b0000000100
-    // S110  = 10'b0000001000
-    // B0    = 10'b0000010000
-    // B1    = 10'b0000100000
-    // B2    = 10'b0010000000
-    // B3    = 10'b0100000000
-    // Count = 10'b1000000000
-    // Wait  = 10'b10000000000 (Wait is 10th bit)
+    // Encoding (one-hot)
+    localparam S    = 10'b0000000001;
+    localparam S1   = 10'b0000000010;
+    localparam S11  = 10'b0000000100;
+    localparam S110 = 10'b0000001000;
+    localparam B0   = 10'b0000010000;
+    localparam B1   = 10'b0000100000;
+    localparam B2   = 10'b0001000000;
+    localparam B3   = 10'b0010000000;
+    localparam Count= 10'b0100000000;
+    localparam Wait = 10'b1000000000;
 
-    // Wait, the state input is 10 bits, but there are 10 states.
-    // Let's re-verify the encoding:
-    // S     (0) : 10'b0000000001
-    // S1    (1) : 10'b0000000010
-    // S11   (2) : 10'b0000000100
-    // S110  (3) : 10'b0000001000
-    // B0    (4) : 10'b0000010000
-    // B1    (5) : 10'b0000100000
-    // B2    (6) : 10'b0001000000
-    // B3    (7) : 10'b0010000000
-    // Count (8) : 10'b0100000000
-    // Wait  (9) : 10'b1000000000
-
-    logic S, S1, S11, S110, B0, B1, B2, B3, Count, Wait;
-    assign {Wait, Count, B3, B2, B1, B0, S110, S11, S1, S} = state;
-
-    // Next state logic
-    logic next_S, next_S1, next_S11, next_S110, next_B0, next_B1, next_B2, next_B3, next_Count, next_Wait;
+    logic [9:0] next_state;
 
     always @(*) begin
-        next_S     = (S & ~d) | (S1 & ~d) | (S110 & ~d) | (Wait & ack);
-        next_S1    = (S & d);
-        next_S11   = (S1 & d) | (S11 & d);
-        next_S110  = (S11 & ~d);
-        next_B0    = (S110 & d);
-        next_B1    = B0;
-        next_B2    = B1;
-        next_B3    = B2;
-        next_Count = B3 | (Count & ~done_counting);
-        next_Wait  = (Count & done_counting) | (Wait & ~ack);
+        next_state = 10'b0;
+        case (state)
+            S:    next_state = d ? S1 : S;
+            S1:   next_state = d ? S11 : S;
+            S11:  next_state = d ? S11 : S110;
+            S110: next_state = d ? B0 : S;
+            B0:   next_state = B1;
+            B1:   next_state = B2;
+            B2:   next_state = B3;
+            B3:   next_state = Count;
+            Count: next_state = done_counting ? Wait : Count;
+            Wait:  next_state = ack ? S : Wait;
+            default: next_state = S;
+        endcase
     end
 
-    assign B3_next    = next_B3;
-    assign S_next     = next_S;
-    assign S1_next    = next_S1;
-    assign Count_next = next_Count;
-    assign Wait_next  = next_Wait;
+    // Outputs logic
+    assign shift_ena = (state == B0) || (state == B1) || (state == B2) || (state == B3);
+    assign counting  = (state == Count);
+    assign done      = (state == Wait);
 
-    // Output logic
-    assign shift_ena = B0 | B1 | B2 | B3;
-    assign counting  = Count;
-    assign done      = Wait;
+    // Next state outputs
+    assign B3_next    = (next_state == B3);
+    assign S_next     = (next_state == S);
+    assign S1_next    = (next_state == S1);
+    assign Count_next = (next_state == Count);
+    assign Wait_next  = (next_state == Wait);
 
 endmodule

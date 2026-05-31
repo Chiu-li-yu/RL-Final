@@ -3,17 +3,20 @@ module TopModule (
     input L,
     input q_in,
     input r_in,
-    output logic Q
+    output Q
 );
+    // Based on standard implementation of DFF with MUX
+    // D = L ? r_in : q_in
+    logic d;
+    logic q_reg;
+    
+    assign Q = q_reg;
 
-    logic q_val;
-    assign Q = q_val;
-
-    always_ff @(posedge clk) begin
-        if (L)
-            q_val <= r_in;
-        else
-            q_val <= q_in;
+    always @(*) begin
+        d = L ? r_in : q_in;
     end
 
+    always @(posedge clk) begin
+        q_reg <= d;
+    end
 endmodule

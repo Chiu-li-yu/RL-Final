@@ -3,25 +3,44 @@ module TopModule (
     input reset,
     output logic [4:0] q
 );
-    // 5-bit Galois LFSR, taps at 5 and 3.
-    // Positions are 1-based (bit 5, bit 3).
-    // In 0-indexed terms, bit 5 is index 4, bit 3 is index 2.
-    // Next state logic:
-    // q_next[4] = q[0]
-    // q_next[3] = q[4]
-    // q_next[2] = q[3] ^ q[0]
-    // q_next[1] = q[2]
-    // q_next[0] = q[1]
+
+    // Galois LFSR: 
+    // Shift right: q[n-1] -> q[n-2], ..., q[1] -> q[0]
+    // Taps at bit positions 5 and 3 (assuming 1-based indexing in spec, 
+    // corresponds to q[4] and q[2] in 0-based indexing).
+    // The feedback is usually:
+    // next_q[4] = q[0]
+    // next_q[3] = q[4]
+    // next_q[2] = q[3] ^ q[0]
+    // next_q[1] = q[2]
+    // next_q[0] = q[1]
+    
+    // Let's re-verify:
+    // If bits are [4, 3, 2, 1, 0]
+    // Taps at 5 and 3 (1-based) mean bit 4 (tap) and bit 2 (tap).
+    // In Galois LFSR:
+    // next_q[4] = q[0]
+    // next_q[3] = q[4]
+    // next_q[2] = q[3] ^ q[0]
+    // next_q[1] = q[2]
+    // next_q[0] = q[1]
+
+    logic [4:0] next_q;
+
+    always @(*) begin
+        next_q[4] = q[0];
+        next_q[3] = q[4];
+        next_q[2] = q[3] ^ q[0];
+        next_q[1] = q[2];
+        next_q[0] = q[1];
+    end
 
     always @(posedge clk) begin
         if (reset) begin
-            q <= 5'd1;
+            q <= 5'b00001;
         end else begin
-            q[4] <= q[0];
-            q[3] <= q[4];
-            q[2] <= q[3] ^ q[0];
-            q[1] <= q[2];
-            q[0] <= q[1];
+            q <= next_q;
         end
     end
+
 endmodule

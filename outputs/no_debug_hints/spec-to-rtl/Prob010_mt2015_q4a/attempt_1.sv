@@ -3,9 +3,5 @@ module TopModule (
     input y,
     output z
 );
-
-    always @(*) begin
-        z = (x ^ y) & x;
-    end
-
+    assign z = (x ^ y) & x;
 endmodule

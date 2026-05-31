@@ -3,5 +3,13 @@ module TopModule (
     input y,
     output z
 );
-    assign z = (x ^ y) & x;
+
+    logic z_val;
+
+    always @(*) begin
+        z_val = (x ^ y) & x;
+    end
+
+    assign z = z_val;
+
 endmodule

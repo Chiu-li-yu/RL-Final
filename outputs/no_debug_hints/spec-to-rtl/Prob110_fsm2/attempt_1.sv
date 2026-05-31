@@ -5,15 +5,11 @@ module TopModule (
     input k,
     output out
 );
+    logic state, next_state;
+    localparam OFF = 1'b0;
+    localparam ON  = 1'b1;
 
-    typedef enum logic {
-        OFF = 1'b0,
-        ON  = 1'b1
-    } state_t;
-
-    state_t state, next_state;
-
-    always_ff @(posedge clk or posedge areset) begin
+    always @(posedge clk or posedge areset) begin
         if (areset)
             state <= OFF;
         else
@@ -22,22 +18,11 @@ module TopModule (
 
     always @(*) begin
         case (state)
-            OFF: begin
-                if (j)
-                    next_state = ON;
-                else
-                    next_state = OFF;
-            end
-            ON: begin
-                if (k)
-                    next_state = OFF;
-                else
-                    next_state = ON;
-            end
+            OFF: next_state = j ? ON : OFF;
+            ON:  next_state = k ? OFF : ON;
             default: next_state = OFF;
         endcase
     end
 
     assign out = (state == ON);
-
 endmodule

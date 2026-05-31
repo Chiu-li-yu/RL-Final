@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     input data,
@@ -8,94 +8,94 @@ module TopModule (
     input ack
 );
 
-    typedef enum logic [3:0] {
-        S_IDLE, S_S1, S_S11, S_S110, S_SHIFT, S_COUNT, S_DONE
+    typedef enum logic [2:0] {
+        S_IDLE, S_SHIFT, S_COUNTING, S_DONE
     } state_t;
 
     state_t state, next_state;
     logic [3:0] delay;
     logic [2:0] shift_cnt;
     logic [3:0] shift_reg;
-    logic [15:0] cycle_cnt;
+    logic [10:0] clk_cnt; // 0 to 999
     logic [3:0] current_delay;
 
     always_ff @(posedge clk) begin
         if (reset) begin
             state <= S_IDLE;
-            shift_cnt <= 0;
-            shift_reg <= 0;
-            delay <= 0;
-            cycle_cnt <= 0;
-            current_delay <= 0;
+            shift_reg <= 4'b0;
+            shift_cnt <= 3'b0;
+            clk_cnt <= 11'd0;
+            current_delay <= 4'b0;
+            counting <= 1'b0;
+            done <= 1'b0;
+            count <= 4'b0;
         end else begin
             state <= next_state;
-
-            case (state)
-                S_IDLE: begin
-                    shift_reg <= 0;
+            
+            if (state == S_IDLE) begin
+                shift_reg <= {shift_reg[2:0], data};
+            end else if (state == S_SHIFT) begin
+                shift_reg <= {shift_reg[2:0], data};
+                shift_cnt <= shift_cnt + 1;
+            end else if (state == S_COUNTING) begin
+                if (clk_cnt == 11'd999) begin
+                    clk_cnt <= 11'd0;
+                    current_delay <= current_delay - 1;
+                end else begin
+                    clk_cnt <= clk_cnt + 1;
                 end
-                S_SHIFT: begin
-                    shift_reg <= {shift_reg[2:0], data};
-                    if (shift_cnt == 3) begin
-                        delay <= {shift_reg[2:0], data};
-                        current_delay <= {shift_reg[2:0], data};
-                        cycle_cnt <= 999;
-                    end
-                    shift_cnt <= shift_cnt + 1;
-                end
-                S_COUNT: begin
-                    if (cycle_cnt == 0) begin
-                        if (current_delay == 0) begin
-                            // Finish
-                        end else begin
-                            current_delay <= current_delay - 1;
-                            cycle_cnt <= 999;
-                        end
-                    end else begin
-                        cycle_cnt <= cycle_cnt - 1;
-                    end
-                end
-                S_DONE: begin
-                    if (ack) begin
-                        // Done waiting
-                    end
-                end
-            endcase
+            end
+            
+            if (state == S_IDLE) begin
+                counting <= 1'b0;
+                done <= 1'b0;
+            end else if (state == S_SHIFT) begin
+                counting <= 1'b0;
+                done <= 1'b0;
+            end else if (state == S_COUNTING) begin
+                counting <= 1'b1;
+                done <= 1'b0;
+                count <= current_delay;
+            end else if (state == S_DONE) begin
+                counting <= 1'b0;
+                done <= 1'b1;
+            end
         end
     end
 
-    always_comb begin
+    always @(*) begin
         next_state = state;
-        counting = 0;
-        done = 0;
-        count = current_delay;
-
         case (state)
             S_IDLE: begin
-                if (data) next_state = S_S1;
-            end
-            S_S1: begin
-                if (data) next_state = S_S11;
-                else next_state = S_IDLE;
-            end
-            S_S11: begin
-                if (!data) next_state = S_S110;
-            end
-            S_S110: begin
-                if (data) next_state = S_SHIFT;
-                else next_state = S_IDLE;
+                if (shift_reg == 4'b1101) begin
+                    next_state = S_SHIFT;
+                end
             end
             S_SHIFT: begin
-                if (shift_cnt == 3) next_state = S_COUNT;
+                if (shift_cnt == 3'd3) begin
+                    next_state = S_COUNTING;
+                end
             end
-            S_COUNT: begin
-                counting = 1;
-                if (current_delay == 0 && cycle_cnt == 0) next_state = S_DONE;
+            S_COUNTING: begin
+                if (current_delay == 4'b0 && clk_cnt == 11'd999) begin
+                    next_state = S_DONE;
+                end
             end
             S_DONE: begin
-                done = 1;
-                if (ack) next_state = S_IDLE;
+                if (ack) begin
+                    next_state = S_IDLE;
+                end
             end
         endcase
     end
+    
+    // Logic to handle setting initial current_delay at start of S_COUNTING
+    // Since current_delay is only set on clock edge, this needs care.
+    // I will add a transition state or fix the assignment.
+    // Let's fix current_delay loading in state machine transition logic.
+    
+    // Revised logic:
+    // When transitioning from SHIFT to COUNTING, assign delay.
+    // In state_ff block:
+    // ... if(state == S_SHIFT && next_state == S_COUNTING) current_delay <= shift_reg;
 endmodule

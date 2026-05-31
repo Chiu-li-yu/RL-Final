@@ -9,20 +9,18 @@ module TopModule (
     output [31:0] predict_history
 );
 
-    logic [31:0] history_reg;
+    logic [31:0] history;
 
-    assign predict_history = history_reg;
+    assign predict_history = history;
 
     always_ff @(posedge clk or posedge areset) begin
         if (areset) begin
-            history_reg <= 32'b0;
+            history <= 32'b0;
         end else begin
             if (train_mispredicted) begin
-                // Load history after mispredicted branch: train_history concatenated with train_taken
-                history_reg <= {train_history[30:0], train_taken};
+                history <= {train_history[30:0], train_taken};
             end else if (predict_valid) begin
-                // Shift in predict_taken from the LSB side
-                history_reg <= {history_reg[30:0], predict_taken};
+                history <= {history[30:0], predict_taken};
             end
         end
     end

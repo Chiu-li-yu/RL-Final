@@ -1,6 +1,6 @@
 module TopModule (
-    input  a,
-    input  b,
+    input a,
+    input b,
     output out_and,
     output out_or,
     output out_xor,
@@ -10,30 +10,30 @@ module TopModule (
     output out_anotb
 );
 
-    logic out_and_val;
-    logic out_or_val;
-    logic out_xor_val;
-    logic out_nand_val;
-    logic out_nor_val;
-    logic out_xnor_val;
-    logic out_anotb_val;
+    logic out_and_reg;
+    logic out_or_reg;
+    logic out_xor_reg;
+    logic out_nand_reg;
+    logic out_nor_reg;
+    logic out_xnor_reg;
+    logic out_anotb_reg;
 
     always @(*) begin
-        out_and_val   = a & b;
-        out_or_val    = a | b;
-        out_xor_val   = a ^ b;
-        out_nand_val  = ~(a & b);
-        out_nor_val   = ~(a | b);
-        out_xnor_val  = ~(a ^ b);
-        out_anotb_val = a & (~b);
+        out_and_reg = a & b;
+        out_or_reg = a | b;
+        out_xor_reg = a ^ b;
+        out_nand_reg = ~(a & b);
+        out_nor_reg = ~(a | b);
+        out_xnor_reg = ~(a ^ b);
+        out_anotb_reg = a & (~b);
     end
 
-    assign out_and   = out_and_val;
-    assign out_or    = out_or_val;
-    assign out_xor   = out_xor_val;
-    assign out_nand  = out_nand_val;
-    assign out_nor   = out_nor_val;
-    assign out_xnor  = out_xnor_val;
-    assign out_anotb = out_anotb_val;
+    assign out_and = out_and_reg;
+    assign out_or = out_or_reg;
+    assign out_xor = out_xor_reg;
+    assign out_nand = out_nand_reg;
+    assign out_nor = out_nor_reg;
+    assign out_xnor = out_xnor_reg;
+    assign out_anotb = out_anotb_reg;
 
 endmodule

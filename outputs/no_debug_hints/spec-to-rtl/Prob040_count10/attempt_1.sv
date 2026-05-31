@@ -4,7 +4,7 @@ module TopModule (
     output logic [3:0] q
 );
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
             q <= 4'd0;
         end else begin

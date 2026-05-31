@@ -1,34 +1,35 @@
 module TopModule (
-    input logic clk,
-    input logic areset,
-    input logic x,
+    input clk,
+    input areset,
+    input x,
     output logic z
 );
+    typedef enum logic { S0 = 1'b0, S1 = 1'b1 } state_t;
+    state_t current_state, next_state;
 
-    logic state; // 0: S0, 1: S1
-    logic next_state;
-
-    always_ff @(posedge clk or posedge areset) begin
+    // Sequential logic for state transition
+    always @(posedge clk or posedge areset) begin
         if (areset)
-            state <= 1'b0;
+            current_state <= S0;
         else
-            state <= next_state;
+            current_state <= next_state;
     end
 
-    always_comb begin
-        case (state)
-            1'b0: next_state = (x == 1'b1) ? 1'b1 : 1'b0;
-            1'b1: next_state = 1'b1;
-            default: next_state = 1'b0;
+    // Combinational logic for next state
+    always @(*) begin
+        case (current_state)
+            S0: next_state = (x) ? S1 : S0;
+            S1: next_state = S1;
+            default: next_state = S0;
         endcase
     end
 
-    always_comb begin
-        case (state)
-            1'b0: z = x;
-            1'b1: z = ~x;
-            default: z = x;
+    // Combinational logic for output
+    always @(*) begin
+        case (current_state)
+            S0: z = x;
+            S1: z = ~x;
+            default: z = 1'b0;
         endcase
     end
-
 endmodule

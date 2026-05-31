@@ -3,7 +3,7 @@
   "passed": true,
   "sim_passed": true,
   "synth_passed": true,
-  "attempts": 5,
+  "attempts": 4,
   "sim_error_type": ".",
   "sim_error_log": "",
   "synth_error_type": "Y",
@@ -12,11 +12,9 @@
     "R",
     "R",
     "R",
-    "R",
     "."
   ],
   "synth_error_sequence": [
-    null,
     null,
     null,
     null,

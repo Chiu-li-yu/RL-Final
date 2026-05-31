@@ -5,14 +5,11 @@ module TopModule(
     output [2:0] g
 );
 
-    localparam A = 2'b00;
-    localparam B = 2'b01;
-    localparam C = 2'b10;
-    localparam D = 2'b11;
+    localparam A = 2'b00, B = 2'b01, C = 2'b10, D = 2'b11;
 
     logic [1:0] state, next_state;
 
-    // State flip-flops
+    // State Flip-Flops
     always @(posedge clk) begin
         if (!resetn)
             state <= A;
@@ -20,7 +17,7 @@ module TopModule(
             state <= next_state;
     end
 
-    // Next state logic
+    // State Transition Logic
     always @(*) begin
         case (state)
             A: begin
@@ -45,9 +42,14 @@ module TopModule(
         endcase
     end
 
-    // Output logic
-    assign g[0] = (state == B);
-    assign g[1] = (state == C);
-    assign g[2] = (state == D);
+    // Output Logic
+    always @(*) begin
+        case (state)
+            B: g = 3'b001;
+            C: g = 3'b010;
+            D: g = 3'b100;
+            default: g = 3'b000;
+        endcase
+    end
 
 endmodule

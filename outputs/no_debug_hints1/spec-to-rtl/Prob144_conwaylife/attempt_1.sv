@@ -1,0 +1,44 @@
+module TopModule(
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+
+    logic [255:0] next_q;
+    integer r, c;
+    integer i, j, ni, nj;
+    integer neighbors;
+
+    always @(*) begin
+        for (r = 0; r < 16; r = r + 1) begin
+            for (c = 0; c < 16; c = c + 1) begin
+                neighbors = 0;
+                // Check 8 neighbors
+                for (i = -1; i <= 1; i = i + 1) begin
+                    for (j = -1; j <= 1; j = j + 1) begin
+                        if (i == 0 && j == 0) continue;
+                        ni = (r + i + 16) % 16;
+                        nj = (c + j + 16) % 16;
+                        if (q[ni * 16 + nj]) neighbors = neighbors + 1;
+                    end
+                end
+                
+                // Rules
+                if (neighbors == 3)
+                    next_q[r * 16 + c] = 1;
+                else if (neighbors == 2)
+                    next_q[r * 16 + c] = q[r * 16 + c];
+                else
+                    next_q[r * 16 + c] = 0;
+            end
+        end
+    end
+
+    always @(posedge clk) begin
+        if (load)
+            q <= data;
+        else
+            q <= next_q;
+    end
+endmodule

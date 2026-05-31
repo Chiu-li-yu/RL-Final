@@ -1,16 +1,16 @@
 
 [attempt 0] → decompose_spec
 [attempt 0] ← decompose_spec:
-根據您的需求，將設計此 Moore 狀態機的步驟分解如下：
+以下是針對該 Moore Machine 的 Verilog 實作分解步驟：
 
-1. 定義狀態編碼（使用 `parameter` 或 `localparam` 定義狀態 A 與 B）。
-2. 宣告狀態暫存器（`state` 與 `next_state`）以及同步/非同步重置邏輯。
-3. 實作組合邏輯（根據當前狀態與輸入 `in` 決定下一個狀態 `next_state`）。
-4. 實作輸出邏輯（根據當前狀態 `state` 直接決定輸出 `out` 的值）。
-5. 實作時序邏輯（在 `clk` 上升緣更新 `state`，並在 `areset` 為高電位時重置為狀態 B）。
+1. 定義模組介面並使用 `parameter` 或 `localparam` 定義狀態 A 與 B 的編碼。
+2. 使用 `reg` 宣告目前的狀態暫存器 (current_state) 以及下一個狀態暫存器 (next_state)。
+3. 編寫 `always @(posedge clk or posedge areset)` 區塊，處理狀態暫存器的更新與非同步重置 (reset 為 B)。
+4. 編寫 `always @(*)` 組合邏輯區塊，根據 current_state 與輸入 in 決定 next_state 的轉換邏輯。
+5. 使用 `assign` 敘述或組合邏輯區塊，根據 current_state 設定輸出的值 (Moore machine 特性)。
 
 [attempt 1] → compile_and_test
-module TopModule(
+module TopModule (
     input clk,
     input areset,
     input in,

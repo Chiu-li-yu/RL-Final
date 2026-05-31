@@ -3,14 +3,20 @@ module TopModule (
     input L,
     input q_in,
     input r_in,
-    output logic Q
+    output Q
 );
+    logic q_reg;
+    logic mux_out;
 
-    always_ff @(posedge clk) begin
+    assign Q = q_reg;
+    always @(*) begin
         if (L)
-            Q <= r_in;
+            mux_out = r_in;
         else
-            Q <= q_in;
+            mux_out = q_in;
     end
 
+    always @(posedge clk) begin
+        q_reg <= mux_out;
+    end
 endmodule

@@ -5,7 +5,7 @@ module TopModule (
     input  logic [7:0]   sel,
     output logic         out
 );
-    always @(*) begin
+
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

@@ -4,14 +4,13 @@ module TopModule (
     input in,
     output out
 );
-    typedef enum logic [1:0] {
-        A = 2'b00,
-        B = 2'b01,
-        C = 2'b10,
-        D = 2'b11
-    } state_t;
 
-    state_t state, next_state;
+    logic [1:0] state, next_state;
+
+    parameter A = 2'b00;
+    parameter B = 2'b01;
+    parameter C = 2'b10;
+    parameter D = 2'b11;
 
     always_ff @(posedge clk or posedge areset) begin
         if (areset)
@@ -31,4 +30,5 @@ module TopModule (
     end
 
     assign out = (state == D);
+
 endmodule

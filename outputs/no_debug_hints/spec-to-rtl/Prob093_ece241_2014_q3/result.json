@@ -3,13 +3,12 @@
   "passed": true,
   "sim_passed": true,
   "synth_passed": true,
-  "attempts": 5,
+  "attempts": 4,
   "sim_error_type": ".",
   "sim_error_log": "",
   "synth_error_type": "Y",
   "synth_error_log": "",
   "sim_error_sequence": [
-    "C",
     "R",
     "R",
     "R",
@@ -19,10 +18,9 @@
     null,
     null,
     null,
-    null,
     "Y"
   ],
-  "decompose_spec_calls": 2,
+  "decompose_spec_calls": 4,
   "get_debug_hints_calls": 0,
   "task": "spec-to-rtl",
   "experiment": "no_debug_hints"

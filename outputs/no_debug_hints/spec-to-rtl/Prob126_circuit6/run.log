@@ -7,21 +7,21 @@ module TopModule (
     always @(*) begin
         case (a)
 [attempt 1] ← compile_and_test: w
-/tmp/tmpwud2o7b_.sv:7: error: q is not a valid l-value in tb.top_module1.
-/tmp/tmpwud2o7b_.sv:3:      : q is declared here as wire.
-/tmp/tmpwud2o7b_.sv:8: error: q is not a valid l-value in tb.top_module1.
-/tmp/tmpwud2o7b_.sv:3:      : q is declared here as wire.
-/tmp/tmpwud2o7b_.sv:9: error: q is not a valid l-value in tb.top_module1.
-/tmp/tmpwud2o7b_.sv:3:      : q is declared here as wire.
-/tmp/tmpwud2o7b_.sv:10: error: q is not a valid l-value in tb.top_module1.
-/tmp/tmpwud2o7b_.sv:3:      : q is declared here as wire.
-/tmp/tmpwud2o7b_.sv:11: error: q is not a valid l-value in tb.top_module1.
-/tmp/tmpwud2o7b_.sv:3:      : q is declared here as wire.
-/tmp/tmpwud2o7b_.sv:12: error: q is not a valid l-value in tb.top_module1.
-/tmp/tmpwud2o7b_.sv:3:      : q is declared here as wire.
-/tmp/tmpwud2o7b_.sv:13: error: q is not a valid l-value in tb.top_module1.
-/tmp/tmpwud2o7b_.sv:3:      : q is declared here as wire.
-/tmp/tmpwud2o7b_.sv:14: error: q is not a valid l-value in tb.top_module
+/tmp/tmpbbfa5s4a.sv:7: error: q is not a valid l-value in tb.top_module1.
+/tmp/tmpbbfa5s4a.sv:3:      : q is declared here as wire.
+/tmp/tmpbbfa5s4a.sv:8: error: q is not a valid l-value in tb.top_module1.
+/tmp/tmpbbfa5s4a.sv:3:      : q is declared here as wire.
+/tmp/tmpbbfa5s4a.sv:9: error: q is not a valid l-value in tb.top_module1.
+/tmp/tmpbbfa5s4a.sv:3:      : q is declared here as wire.
+/tmp/tmpbbfa5s4a.sv:10: error: q is not a valid l-value in tb.top_module1.
+/tmp/tmpbbfa5s4a.sv:3:      : q is declared here as wire.
+/tmp/tmpbbfa5s4a.sv:11: error: q is not a valid l-value in tb.top_module1.
+/tmp/tmpbbfa5s4a.sv:3:      : q is declared here as wire.
+/tmp/tmpbbfa5s4a.sv:12: error: q is not a valid l-value in tb.top_module1.
+/tmp/tmpbbfa5s4a.sv:3:      : q is declared here as wire.
+/tmp/tmpbbfa5s4a.sv:13: error: q is not a valid l-value in tb.top_module1.
+/tmp/tmpbbfa5s4a.sv:3:      : q is declared here as wire.
+/tmp/tmpbbfa5s4a.sv:14: error: q is not a valid l-value in tb.top_module
 
 [attempt 2] → compile_and_test
 module TopModule (

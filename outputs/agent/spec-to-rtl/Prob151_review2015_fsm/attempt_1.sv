@@ -8,66 +8,68 @@ module TopModule (
     output logic counting,
     output logic done
 );
+
     typedef enum logic [3:0] {
-        S_IDLE,
-        S_WAIT_1,
-        S_WAIT_11,
-        S_WAIT_110,
-        S_SHIFT,
-        S_COUNT,
-        S_DONE
+        IDLE, S1, S11, S110,
+        SHIFT,
+        WAIT_COUNT,
+        DONE
     } state_t;
 
     state_t state, next_state;
-    logic [2:0] shift_count;
+    logic [2:0] shift_cnt;
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (reset) begin
-            state <= S_IDLE;
-            shift_count <= 0;
+            state <= IDLE;
         end else begin
             state <= next_state;
-            if (state == S_SHIFT) begin
-                if (shift_count == 3) shift_count <= 0;
-                else shift_count <= shift_count + 1;
-            end
         end
     end
 
     always @(*) begin
         next_state = state;
-        shift_ena = 0;
-        counting = 0;
-        done = 0;
-
         case (state)
-            S_IDLE: begin
-                if (data) next_state = S_WAIT_1;
+            IDLE: begin
+                if (data) next_state = S1;
             end
-            S_WAIT_1: begin
-                if (data) next_state = S_WAIT_11;
-                else next_state = S_IDLE;
+            S1: begin
+                if (data) next_state = S11;
+                else next_state = IDLE;
             end
-            S_WAIT_11: begin
-                if (!data) next_state = S_WAIT_110;
-                else next_state = S_WAIT_11;
+            S11: begin
+                if (!data) next_state = S110;
+                else next_state = S11;
             end
-            S_WAIT_110: begin
-                if (data) next_state = S_SHIFT;
-                else next_state = S_IDLE;
+            S110: begin
+                if (data) next_state = SHIFT;
+                else next_state = IDLE;
             end
-            S_SHIFT: begin
-                shift_ena = 1;
-                if (shift_count == 3) next_state = S_COUNT;
+            SHIFT: begin
+                if (shift_cnt == 3'd3) next_state = WAIT_COUNT;
             end
-            S_COUNT: begin
-                counting = 1;
-                if (done_counting) next_state = S_DONE;
+            WAIT_COUNT: begin
+                if (done_counting) next_state = DONE;
             end
-            S_DONE: begin
-                done = 1;
-                if (ack) next_state = S_IDLE;
+            DONE: begin
+                if (ack) next_state = IDLE;
             end
+            default: next_state = IDLE;
         endcase
+    end
+
+    always @(posedge clk) begin
+        if (reset) begin
+            shift_cnt <= 3'd0;
+        end else begin
+            if (state == SHIFT) shift_cnt <= shift_cnt + 1'b1;
+            else shift_cnt <= 3'd0;
+        end
+    end
+
+    always @(*) begin
+        shift_ena = (state == SHIFT);
+        counting = (state == WAIT_COUNT);
+        done = (state == DONE);
     end
 endmodule

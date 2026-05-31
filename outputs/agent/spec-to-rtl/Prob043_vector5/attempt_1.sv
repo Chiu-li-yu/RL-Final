@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input a,
     input b,
     input c,
@@ -6,20 +6,18 @@ module TopModule (
     input e,
     output logic [24:0] out
 );
-    logic [4:0] inputs;
-    assign inputs = {a, b, c, d, e};
+    logic [4:0] in;
+    assign in = {a, b, c, d, e};
 
     always @(*) begin
         for (int i = 0; i < 5; i = i + 1) begin
             for (int j = 0; j < 5; j = j + 1) begin
-                // out[24 - (i*5 + j)] = inputs[i] == inputs[j]
-                // 題目說明: out[24] = ~a ^ a (即 a == a ? 1 : 0)
-                // 題目說明: out[23] = ~a ^ b (即 a == b ? 1 : 0)
-                // 順序是 i 跑 0~4, j 跑 0~4
-                // i=0 (a), j=0 (a) -> out[24]
-                // i=0 (a), j=1 (b) -> out[23]
-                // i=4 (e), j=4 (e) -> out[0]
-                out[24 - (i * 5 + j)] = (inputs[i] == inputs[j]);
+                // out[24] = in[4] == in[4], out[23] = in[4] == in[3], ...
+                // The index calculation:
+                // i goes from 0 (a) to 4 (e)
+                // j goes from 0 (a) to 4 (e)
+                // The bit position for (in[4-i], in[4-j]) is 24 - (i * 5 + j)
+                out[24 - (i * 5 + j)] = ~(in[4 - i] ^ in[4 - j]);
             end
         end
     end

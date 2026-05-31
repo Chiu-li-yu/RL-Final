@@ -1,40 +1,43 @@
-module TopModule(
+module TopModule (
     input clk,
     input load,
     input [255:0] data,
-    output logic [255:0] q
+    output reg [255:0] q
 );
-
-    logic [255:0] next_q;
-
-    // Use a function for neighbor calculation to keep always block clean and synthesizable
-    function automatic [3:0] count_neighbors(input logic [255:0] grid, input integer x, input integer y);
-        logic [3:0] count;
-        integer dx, dy, nx, ny;
-        count = 0;
-        for (dy = -1; dy <= 1; dy = dy + 1) begin
-            for (dx = -1; dx <= 1; dx = dx + 1) begin
-                if (!(dx == 0 && dy == 0)) begin
-                    nx = (x + dx + 16) % 16;
-                    ny = (y + dy + 16) % 16;
-                    count = count + grid[ny * 16 + nx];
-                end
-            end
-        end
-        return count;
-    endfunction
-
+    reg [255:0] next_q;
+    integer i;
+    
+    // We need to unroll the neighbour summation to make it synthesis-friendly
+    // Each index i = 16*r + c. r = i/16, c = i%16.
+    
     always @(*) begin
-        for (integer y = 0; y < 16; y = y + 1) begin
-            for (integer x = 0; x < 16; x = x + 1) begin
-                logic [3:0] neighbors;
-                neighbors = count_neighbors(q, x, y);
-                if (neighbors < 2 || neighbors > 3)
-                    next_q[y * 16 + x] = 1'b0;
-                else if (neighbors == 3)
-                    next_q[y * 16 + x] = 1'b1;
+        for (i = 0; i < 256; i = i + 1) begin
+            begin
+                integer r, c;
+                integer count;
+                integer dr, dc;
+                integer nr, nc;
+                
+                r = i / 16;
+                c = i % 16;
+                count = 0;
+                
+                for (dr = -1; dr <= 1; dr = dr + 1) begin
+                    for (dc = -1; dc <= 1; dc = dc + 1) begin
+                        if (!(dr == 0 && dc == 0)) begin
+                            nr = (r + dr + 16) % 16;
+                            nc = (c + dc + 16) % 16;
+                            count = count + q[nr * 16 + nc];
+                        end
+                    end
+                end
+                
+                if (count < 2 || count > 3)
+                    next_q[i] = 0;
+                else if (count == 3)
+                    next_q[i] = 1;
                 else
-                    next_q[y * 16 + x] = q[y * 16 + x];
+                    next_q[i] = q[i];
             end
         end
     end
@@ -45,5 +48,4 @@ module TopModule(
         else
             q <= next_q;
     end
-
 endmodule

@@ -1,35 +1,35 @@
-module Module_A(
-    input x,
-    input y,
-    output z
+module A(
+    input logic x,
+    input logic y,
+    output logic z
 );
     assign z = (x ^ y) & x;
 endmodule
 
-module Module_B(
-    input x,
-    input y,
-    output z
+module B(
+    input logic x,
+    input logic y,
+    output logic z
 );
     assign z = ~(x ^ y);
 endmodule
 
 module TopModule(
-    input x,
-    input y,
-    output z
+    input logic x,
+    input logic y,
+    output logic z
 );
     logic outA1, outB1, outA2, outB2;
-    logic OR1, AND1;
+    logic or_out, and_out;
 
-    Module_A A1 (.x(x), .y(y), .z(outA1));
-    Module_B B1 (.x(x), .y(y), .z(outB1));
-    Module_A A2 (.x(x), .y(y), .z(outA2));
-    Module_B B2 (.x(x), .y(y), .z(outB2));
+    A a1(.x(x), .y(y), .z(outA1));
+    B b1(.x(x), .y(y), .z(outB1));
+    A a2(.x(x), .y(y), .z(outA2));
+    B b2(.x(x), .y(y), .z(outB2));
 
     always @(*) begin
-        OR1 = outA1 | outB1;
-        AND1 = outA2 & outB2;
-        z = OR1 ^ AND1;
+        or_out = outA1 | outB1;
+        and_out = outA2 & outB2;
+        z = or_out ^ and_out;
     end
 endmodule

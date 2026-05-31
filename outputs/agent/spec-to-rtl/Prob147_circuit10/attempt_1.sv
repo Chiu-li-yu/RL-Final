@@ -2,25 +2,54 @@ module TopModule (
     input clk,
     input a,
     input b,
-    output q,
-    output state
+    output logic q,
+    output logic state
 );
-    logic state_reg;
+
     logic next_state;
-    logic q_comb;
 
-    assign state = state_reg;
-    assign q = q_comb;
+    // Based on the observed waveform:
+    // (state, a, b) -> (next_state, q)
+    // (0, 0, 0) -> (0, 0)
+    // (0, 0, 1) -> (0, 1)
+    // (0, 1, 0) -> (0, 1)
+    // (0, 1, 1) -> (1, 0)
+    // (1, 0, 0) -> (0, 1)
+    // (1, 0, 1) -> (1, 0)
+    // (1, 1, 0) -> (1, 0)
+    // (1, 1, 1) -> (1, 1)
 
-    // Based on the waveform analysis:
-    // next_state = a ^ b ^ state
-    // q = a ^ b
-    always @(*) begin
-        next_state = a ^ b ^ state_reg;
-        q_comb = a ^ b;
-    end
+    // Truth Table for next_state:
+    // s  a  b  | ns
+    // 0  0  0  | 0
+    // 0  0  1  | 0
+    // 0  1  0  | 0
+    // 0  1  1  | 1
+    // 1  0  0  | 0
+    // 1  0  1  | 1
+    // 1  1  0  | 1
+    // 1  1  1  | 1
+    // next_state = (s & a) | (s & b) | (a & b)  (Majority function of s, a, b)
+
+    // Truth Table for q:
+    // s  a  b  | q
+    // 0  0  0  | 0
+    // 0  0  1  | 1
+    // 0  1  0  | 1
+    // 0  1  1  | 0
+    // 1  0  0  | 1
+    // 1  0  1  | 0
+    // 1  1  0  | 0
+    // 1  1  1  | 1
+    // q = s ^ a ^ b
 
     always @(posedge clk) begin
-        state_reg <= next_state;
+        state <= next_state;
     end
+
+    always @(*) begin
+        next_state = (state & a) | (state & b) | (a & b);
+        q = state ^ a ^ b;
+    end
+
 endmodule

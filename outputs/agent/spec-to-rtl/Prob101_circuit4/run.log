@@ -1,6 +1,16 @@
 
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 Verilog 題目，建議將工作分解為以下五個具體步驟：
+
+1. 分析真值表數據，找出輸出 `q` 為 1 的所有輸入組合（a, b, c, d）。
+2. 使用卡諾圖 (Karnaugh Map) 或布林代數簡化邏輯運算式，求得 `q` 的邏輯函數。
+3. 根據簡化後的邏輯式，編寫 `TopModule` 的 Verilog 程式碼並宣告所需的輸入輸出埠。
+4. 使用 assign 語句實作該邏輯電路（例如：`assign q = ...;`）。
+5. 編寫簡單的 Testbench 進行驗證，確保模擬結果與題目提供的波形數據一致。
+
 [attempt 1] → compile_and_test
-module TopModule (
+module TopModule(
     input a,
     input b,
     input c,

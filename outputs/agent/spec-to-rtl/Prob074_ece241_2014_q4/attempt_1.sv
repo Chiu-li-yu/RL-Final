@@ -1,29 +1,23 @@
-module TopModule (
+module TopModule(
     input clk,
     input x,
     output z
 );
-    logic q_xor, q_and, q_or;
-    logic d_xor, d_and, d_or;
+    logic q1, q2, q3;
+    logic d1, d2, d3;
 
-    // Flip-flop updates
-    always_ff @(posedge clk) begin
-        q_xor <= d_xor;
-        q_and <= d_and;
-        q_or  <= d_or;
+    always @(posedge clk) begin
+        q1 <= d1;
+        q2 <= d2;
+        q3 <= d3;
     end
 
-    // Combinational logic for D inputs
-    // XOR: x ^ q_xor
-    // AND: x & ~q_and
-    // OR:  x | ~q_or
     always @(*) begin
-        d_xor = x ^ q_xor;
-        d_and = x & ~q_and;
-        d_or  = x | ~q_or;
+        d1 = x ^ q1;
+        d2 = x & (~q2);
+        d3 = x | (~q3);
     end
 
-    // NOR gate output
-    assign z = ~(q_xor | q_and | q_or);
+    assign z = ~(q1 | q2 | q3);
 
 endmodule

@@ -1,6 +1,6 @@
 module TopModule (
-    input logic clk,
-    input logic a,
+    input clk,
+    input a,
     output logic [2:0] q
 );
 
@@ -8,7 +8,7 @@ module TopModule (
         if (a) begin
             q <= 3'd4;
         end else begin
-            if (q >= 3'd6) begin
+            if (q == 3'd6) begin
                 q <= 3'd0;
             end else begin
                 q <= q + 3'd1;

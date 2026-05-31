@@ -1,6 +1,6 @@
 
 [attempt 1] → compile_and_test
-module TopModule(
+module TopModule (
     input clk,
     input resetn,
     input x,
@@ -10,7 +10,7 @@ module TopModule(
 VCD info: dumpfile wave.vcd opened for output.
 /mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob139_2013_q2bfsm_test.sv:24: $finish called at 5011 (1ps)
 Hint: Output 'f' has no mismatches.
-Hint: Output 'g' has 518 mismatches. First mismatch occurred at time 280.
+Hint: Output 'g' has 518 mismatches. First mismatch occurred at time 270.
 Hint: Total mismatched samples is 518 out of 1002 samples
 
 Simulation finished at 5011 ps
@@ -18,56 +18,22 @@ Mismatches: 518 in 1002 samples
 
 [attempt 1] → decompose_spec
 [attempt 1] ← decompose_spec:
-為了完成這個 FSM 設計，建議將任務分解為以下 5 個具體且可執行的步驟：
+為了實現上述的 FSM 邏輯，您可以將任務分解為以下 5 個具體步驟：
 
-1. 定義狀態機（FSM）的狀態編碼，包含初始狀態、序列檢測狀態（捕捉 1-0-1）以及輸出控制狀態（g=1 判斷期與維持期）。
-2. 實作重置後輸出 f=1 的邏輯，並確保該行為僅在重置解除後的下一個時鐘週期執行一次。
-3. 實作一個序列檢測器（Sequence Detector），利用狀態遷移記錄連續的 x 輸入，直到檢測到 1-0-1 序列。
-4. 設計一個計數器或額外狀態，用於在檢測到 1-0-1 後的兩個時鐘週期內監控輸入 y。
-5. 根據 y 的監控結果設定輸出 g 的最終行為（設定為永久 1 或永久 0），並完成所有狀態遷移邏輯的編寫。
+1. 定義 FSM 狀態機架構：建立初始狀態 A 以及用於監控 `x` 序列、`y` 反應的各個中間狀態。
+2. 實作序列偵測邏輯：設計狀態轉移邏輯，當偵測到 `x` 為 `1 -> 0 -> 1` 序列後，將輸出 `g` 設為 1。
+3. 實作計時器邏輯：在 `g=1` 的狀態下，啟用一個 2-cycle 的計數器，用於追蹤是否在此期間內收到 `y=1`。
+4. 實作條件判斷分支：根據計數器結果進行條件轉移：若收到 `y=1` 則跳轉至維持狀態，若計時結束仍未收到則跳轉至復歸狀態。
+5. 設定輸出邏輯與永久狀態：定義 `f` 的初始值以及 `g` 在滿足/不滿足 `y` 條件後的永久輸出行為（鎖定或重設）。
 
 [attempt 2] → compile_and_test
-module TopModule(
+module TopModule (
     input clk,
     input resetn,
     input x,
     input y,
     output logic f,
-[attempt 2] ← compile_and_test: R  mismatches=7
-VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob139_2013_q2bfsm_test.sv:24: $finish called at 5011 (1ps)
-Hint: Output 'f' has no mismatches.
-Hint: Output 'g' has 7 mismatches. First mismatch occurred at time 55.
-Hint: Total mismatched samples is 7 out of 1002 samples
+[attempt 2] ← compile_and_test: .
 
-Simulation finished at 5011 ps
-Mismatches: 7 in 1002 samples
-
-[attempt 3] → compile_and_test
-module TopModule(
-    input clk,
-    input resetn,
-    input x,
-    input y,
-    output logic f,
-[attempt 3] ← compile_and_test: R  mismatches=210
-VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob139_2013_q2bfsm_test.sv:24: $finish called at 5011 (1ps)
-Hint: Output 'f' has no mismatches.
-Hint: Output 'g' has 210 mismatches. First mismatch occurred at time 1970.
-Hint: Total mismatched samples is 210 out of 1002 samples
-
-Simulation finished at 5011 ps
-Mismatches: 210 in 1002 samples
-
-[attempt 4] → compile_and_test
-module TopModule(
-    input clk,
-    input resetn,
-    input x,
-    input y,
-    output logic f,
-[attempt 4] ← compile_and_test: .
-
-[attempt 4] → synthesize
-[attempt 4] ← synthesize: Y
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

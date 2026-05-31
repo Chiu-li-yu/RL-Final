@@ -1,6 +1,6 @@
 module TopModule (
-    input logic clk,
-    input logic d,
+    input clk,
+    input d,
     output logic q
 );
 

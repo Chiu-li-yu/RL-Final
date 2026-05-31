@@ -1,4 +1,4 @@
-module TopModule(
+module TopModule (
     input clk,
     input load,
     input [511:0] data,
@@ -18,9 +18,8 @@ module TopModule(
 
     always @(*) begin
         for (i = 0; i < 512; i = i + 1) begin
-            // Rule 90: XOR of left and right neighbors
-            // Left neighbor for i=0 is 0
-            // Right neighbor for i=511 is 0
+            // Rule 90: Center' = Left XOR Right
+            // Boundaries are 0
             if (i == 0) begin
                 next_q[i] = 1'b0 ^ q[1];
             end else if (i == 511) begin

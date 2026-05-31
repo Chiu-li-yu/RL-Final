@@ -1,5 +1,5 @@
 module TopModule (
-    input  [2:0] in,
+    input [2:0] in,
     output [1:0] out
 );
     logic [1:0] count;

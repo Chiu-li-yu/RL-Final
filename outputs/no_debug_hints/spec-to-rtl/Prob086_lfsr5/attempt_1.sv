@@ -1,33 +1,28 @@
 module TopModule (
-    input logic clk,
-    input logic reset,
+    input clk,
+    input reset,
     output logic [4:0] q
 );
-
-    logic [4:0] q_next;
+    // 5-bit Galois LFSR, taps at bit positions 5 and 3 (1-based index).
+    // In 0-based index: 
+    // Tap at position 5 -> index 4
+    // Tap at position 3 -> index 2
+    // Galois LFSR shift right:
+    // next_q[4] = 0 ^ (q[0] == 1 ? 1'b1 : 1'b0) // q[0] XOR bit 4
+    // next_q[3] = q[4]
+    // next_q[2] = q[3] ^ (q[0] == 1 ? 1'b1 : 1'b0) // q[0] XOR bit 2
+    // next_q[1] = q[2]
+    // next_q[0] = q[1]
 
     always_ff @(posedge clk) begin
-        if (reset)
+        if (reset) begin
             q <= 5'b00001;
-        else
-            q <= q_next;
+        end else begin
+            q[4] <= q[0];
+            q[3] <= q[4];
+            q[2] <= q[3] ^ q[0];
+            q[1] <= q[2];
+            q[0] <= q[1];
+        end
     end
-
-    always_comb begin
-        // Galois LFSR: 5-bit, taps at 5 and 3.
-        // Positions are 4, 3, 2, 1, 0 (5 bits)
-        // Bit positions are 1-indexed in common LFSR theory (taps at 5 and 3),
-        // which corresponds to bit 4 and bit 2 in a 0-indexed 5-bit vector.
-        // Rule: If bit i has a tap, next_bit[i-1] = bit[0] ^ bit[i].
-        // Else next_bit[i-1] = bit[i].
-        // Special case: next_bit[4] = bit[0] (always).
-        
-        // Tap at 5 (index 4) and 3 (index 2)
-        q_next[4] = q[0];
-        q_next[3] = q[4];
-        q_next[2] = q[3] ^ q[0];
-        q_next[1] = q[2];
-        q_next[0] = q[1];
-    end
-
 endmodule

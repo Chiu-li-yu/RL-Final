@@ -1,53 +1,46 @@
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     input [7:0] in,
-    output done
+    output logic done
 );
+    typedef enum logic [1:0] {
+        STATE_WAIT = 2'd0,
+        STATE_BYTE2 = 2'd1,
+        STATE_BYTE3 = 2'd2
+    } state_t;
 
-    logic [1:0] state;
-    logic [1:0] count;
-    logic done_q;
-
-    localparam SEARCH = 2'b00;
-    localparam BYTE2  = 2'b01;
-    localparam BYTE3  = 2'b10;
+    state_t state, next_state;
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            state <= SEARCH;
-            count <= 2'b0;
-            done_q <= 1'b0;
+            state <= STATE_WAIT;
         end else begin
-            case (state)
-                SEARCH: begin
-                    if (in[3]) begin
-                        state <= BYTE2;
-                        count <= 2'd1;
-                        done_q <= 1'b0;
-                    end else begin
-                        state <= SEARCH;
-                        done_q <= 1'b0;
-                    end
-                end
-                BYTE2: begin
-                    state <= BYTE3;
-                    count <= 2'd2;
-                    done_q <= 1'b0;
-                end
-                BYTE3: begin
-                    state <= SEARCH;
-                    count <= 2'd3;
-                    done_q <= 1'b1;
-                end
-                default: begin
-                    state <= SEARCH;
-                    done_q <= 1'b0;
-                end
-            endcase
+            state <= next_state;
         end
     end
 
-    assign done = done_q;
+    always_comb begin
+        next_state = state;
+        done = 1'b0;
 
+        case (state)
+            STATE_WAIT: begin
+                if (in[3]) begin
+                    next_state = STATE_BYTE2;
+                end
+            end
+            STATE_BYTE2: begin
+                next_state = STATE_BYTE3;
+            end
+            STATE_BYTE3: begin
+                done = 1'b1;
+                if (in[3]) begin
+                    next_state = STATE_BYTE2;
+                end else begin
+                    next_state = STATE_WAIT;
+                end
+            end
+        endcase
+    end
 endmodule

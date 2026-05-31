@@ -14,36 +14,27 @@ module TopModule (
     // F: y[5] = 100000
 
     // State transitions:
-    // A --0--> B (y[0] & ~w)
-    // A --1--> A (y[0] & w)
-    // B --0--> C (y[1] & ~w)
-    // B --1--> D (y[1] & w)
-    // C --0--> E (y[2] & ~w)
-    // C --1--> D (y[2] & w)
-    // D --0--> F (y[3] & ~w)
-    // D --1--> A (y[3] & w)
-    // E --0--> E (y[4] & ~w)
-    // E --1--> D (y[4] & w)
-    // F --0--> C (y[5] & ~w)
-    // F --1--> D (y[5] & w)
+    // A --0--> B (y[1] next)
+    // A --1--> A
+    // B --0--> C
+    // B --1--> D (y[3] next)
+    // C --0--> E
+    // C --1--> D (y[3] next)
+    // D --0--> F
+    // D --1--> A
+    // E --0--> E (y[4] next)
+    // E --1--> D (y[3] next)
+    // F --0--> C
+    // F --1--> D (y[3] next)
 
     // Next State Logic:
-    // Next A (y[0]_next) = (y[0] & w) | (y[3] & w)
-    // Next B (y[1]_next) = (y[0] & ~w)
-    // Next C (y[2]_next) = (y[1] & ~w) | (y[5] & ~w)
-    // Next D (y[3]_next) = (y[1] & w) | (y[2] & w) | (y[4] & w) | (y[5] & w)
-    // Next E (y[4]_next) = (y[2] & ~w) | (y[4] & ~w)
-    // Next F (y[5]_next) = (y[3] & ~w)
+    // Y[1] = (y[0] & ~w)
+    // Y[3] = (y[1] & w) | (y[2] & w) | (y[4] & w) | (y[5] & w)
+    
+    // Simplify Y3:
+    // Y3 = w & (y[1] | y[2] | y[4] | y[5])
 
-    // Output Y1 corresponds to next state B
-    // Output Y3 corresponds to next state D
-
-    always @(*) begin
-        // Y1 is the next state of B, which is 1 only when from A and w=0
-        // Y1 = y[0] & ~w
-    end
-
-    assign Y1 = y[0] & ~w;
-    assign Y3 = (y[1] & w) | (y[2] & w) | (y[4] & w) | (y[5] & w);
+    assign Y1 = (y[0] & ~w);
+    assign Y3 = w & (y[1] | y[2] | y[4] | y[5]);
 
 endmodule

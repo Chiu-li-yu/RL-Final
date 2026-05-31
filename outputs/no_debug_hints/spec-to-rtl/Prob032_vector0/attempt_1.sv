@@ -5,12 +5,10 @@ module TopModule (
     output logic o1,
     output logic o0
 );
-
     always @(*) begin
         outv = vec;
         o2 = vec[2];
         o1 = vec[1];
         o0 = vec[0];
     end
-
 endmodule

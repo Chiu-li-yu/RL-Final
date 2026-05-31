@@ -1,17 +1,17 @@
-module TopModule (
-    input clk,
-    input reset,
+module TopModule(
+    input logic clk,
+    input logic reset,
     output logic [3:0] q
 );
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
             q <= 4'd0;
         end else begin
-            if (q == 4'd9) begin
+            if (q >= 4'd9) begin
                 q <= 4'd0;
             end else begin
-                q <= q + 1'b1;
+                q <= q + 4'd1;
             end
         end
     end

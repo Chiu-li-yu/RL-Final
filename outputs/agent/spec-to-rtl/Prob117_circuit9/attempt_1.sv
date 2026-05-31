@@ -4,11 +4,15 @@ module TopModule (
     output logic [2:0] q
 );
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (a) begin
             q <= 3'd4;
         end else begin
-            q <= q + 1'b1;
+            if (q == 3'd6) begin
+                q <= 3'd0;
+            end else begin
+                q <= q + 3'd1;
+            end
         end
     end
 

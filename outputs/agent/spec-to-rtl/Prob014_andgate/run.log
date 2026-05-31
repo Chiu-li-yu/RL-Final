@@ -5,7 +5,7 @@ module TopModule (
     input  b,
     output out
 );
-    logic out_reg;
+    assign out = a & b;
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

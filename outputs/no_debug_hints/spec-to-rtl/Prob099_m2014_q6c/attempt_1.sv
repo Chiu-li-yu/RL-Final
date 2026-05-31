@@ -4,31 +4,30 @@ module TopModule (
     output Y1,
     output Y3
 );
+    // State definitions (one-hot):
+    // A: y[0] = 000001
+    // B: y[1] = 000010
+    // C: y[2] = 000100
+    // D: y[3] = 001000
+    // E: y[4] = 010000
+    // F: y[5] = 100000
 
-    // One-hot state assignment:
-    // A (000001), B (000010), C (000100), D (001000), E (010000), F (100000)
-    // y[0]: A, y[1]: B, y[2]: C, y[3]: D, y[4]: E, y[5]: F
+    // Next state equations based on the transition diagram:
+    // Next state A is 1 if (A AND w=1) OR (D AND w=1)
+    // Next state B is 1 if (A AND w=0)
+    // Next state C is 1 if (B AND w=0) OR (F AND w=0)
+    // Next state D is 1 if (B AND w=1) OR (C AND w=1) OR (E AND w=1) OR (F AND w=1)
+    // Next state E is 1 if (C AND w=0) OR (E AND w=0)
+    // Next state F is 1 if (D AND w=0)
 
-    // Next State Logic:
-    // A -> 0 -> B, 1 -> A
-    // B -> 0 -> C, 1 -> D
-    // C -> 0 -> E, 1 -> D
-    // D -> 0 -> F, 1 -> A
-    // E -> 0 -> E, 1 -> D
-    // F -> 0 -> C, 1 -> D
+    // Y1 (next state B)
+    // Y1 = A & w_bar = y[0] & ~w
 
-    // Next State B (y[1]):
-    // If current state A and w=0, then next state is B.
-    // Y1 = (y[0] & ~w)
-    
-    // Next State D (y[3]):
-    // If current state B and w=1, then next state is D.
-    // If current state C and w=1, then next state is D.
-    // If current state E and w=1, then next state is D.
-    // If current state F and w=1, then next state is D.
-    // Y3 = (y[1] & w) | (y[2] & w) | (y[4] & w) | (y[5] & w)
+    // Y3 (next state D)
+    // Y3 = (B & w) | (C & w) | (E & w) | (F & w)
+    // Y3 = w & (y[1] | y[2] | y[4] | y[5])
 
-    assign Y1 = (y[0] & ~w);
-    assign Y3 = ((y[1] | y[2] | y[4] | y[5]) & w);
+    assign Y1 = y[0] & (~w);
+    assign Y3 = w & (y[1] | y[2] | y[4] | y[5]);
 
 endmodule

@@ -1,9 +1,9 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input logic clk,
-    input logic reset,
-    input logic slowena,
+    input clk,
+    input reset,
+    input slowena,
     output logic [3:0] q
 );
 [attempt 1] ← compile_and_test: .

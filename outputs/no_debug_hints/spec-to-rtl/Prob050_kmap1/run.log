@@ -6,19 +6,7 @@ module TopModule (
     input c,
     output out
 );
-[attempt 1] ← compile_and_test: w
-/tmp/tmpilfoh8qi.sv:22: error: out is not a valid l-value in tb.top_module1.
-/tmp/tmpilfoh8qi.sv:5:      : out is declared here as wire.
-1 error(s) during elaboration.
+[attempt 1] ← compile_and_test: .
 
-[attempt 2] → compile_and_test
-module TopModule (
-    input a,
-    input b,
-    input c,
-    output logic out
-);
-[attempt 2] ← compile_and_test: .
-
-[attempt 2] → synthesize
-[attempt 2] ← synthesize: Y
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

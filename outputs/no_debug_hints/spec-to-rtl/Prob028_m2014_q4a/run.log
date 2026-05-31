@@ -3,7 +3,7 @@
 module TopModule (
     input d,
     input ena,
-    output logic q
+    output q
 );
 
 [attempt 1] ← compile_and_test: .

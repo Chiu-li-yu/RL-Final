@@ -1,28 +1,12 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input logic in,
-    output logic out
+    input in,
+    output out
 );
-
-    always @(*) begin
-[attempt 1] ← compile_and_test: R  mismatches=2
-VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob008_m2014_q4h_test.sv:16: $finish called at 501 (1ps)
-Hint: Output 'out' has 2 mismatches. First mismatch occurred at time 5.
-Hint: Total mismatched samples is 2 out of 100 samples
-
-Simulation finished at 501 ps
-Mismatches: 2 in 100 samples
-
-[attempt 2] → compile_and_test
-module TopModule (
-    input logic in,
-    output logic out
-);
-
     assign out = in;
-[attempt 2] ← compile_and_test: .
+endmodule
+[attempt 1] ← compile_and_test: .
 
-[attempt 2] → synthesize
-[attempt 2] ← synthesize: Y
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

@@ -1,43 +1,39 @@
-module TopModule(
+module TopModule (
     input clk,
     input areset,
     input in,
     output out
 );
+    localparam STATE_A = 1'b0;
+    localparam STATE_B = 1'b1;
 
-    parameter B = 1'b0;
-    parameter A = 1'b1;
+    logic current_state;
+    logic next_state;
 
-    logic state, next_state;
-
-    // 非同步重置邏輯，進入狀態 B
+    // 非同步重置，狀態為 B
     always_ff @(posedge clk or posedge areset) begin
         if (areset)
-            state <= B;
+            current_state <= STATE_B;
         else
-            state <= next_state;
+            current_state <= next_state;
     end
 
-    // 狀態轉移組合邏輯
-    always @(*) begin
-        case (state)
-            B: begin
-                if (in) next_state = B;
-                else    next_state = A;
+    // 狀態轉移邏輯
+    always_comb begin
+        case (current_state)
+            STATE_A: begin
+                if (in) next_state = STATE_A;
+                else    next_state = STATE_B;
             end
-            A: begin
-                if (in) next_state = A;
-                else    next_state = B;
+            STATE_B: begin
+                if (in) next_state = STATE_B;
+                else    next_state = STATE_A;
             end
-            default: next_state = B;
+            default: next_state = STATE_B;
         endcase
     end
 
-    // 輸出組合邏輯 (Moore machine)
-    // B (1) --0--> A
-    // B (1) --1--> B
-    // A (0) --0--> B
-    // A (0) --1--> A
-    assign out = (state == B) ? 1'b1 : 1'b0;
+    // 輸出邏輯 (Moore Machine: 輸出僅取決於當前狀態)
+    assign out = (current_state == STATE_B);
 
 endmodule

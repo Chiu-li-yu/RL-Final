@@ -1,10 +1,10 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input clk,
-    input load,
-    input [9:0] data,
-    output tc
+    input logic clk,
+    input logic load,
+    input logic [9:0] data,
+    output logic tc
 );
 [attempt 1] ← compile_and_test: .
 

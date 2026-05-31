@@ -5,7 +5,7 @@
   "synth_passed": false,
   "attempts": 5,
   "sim_error_type": "R",
-  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob116_m2014_q3_test.sv:16: $finish called at 501 (1ps)\nHint: Output 'f' has 35 mismatches. First mismatch occurred at time 10.\nHint: Total mismatched samples is 35 out of 100 samples\n\nSimulation finished at 501 ps\nMismatches: 35 in 100 samples",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob116_m2014_q3_test.sv:16: $finish called at 501 (1ps)\nHint: Output 'f' has 17 mismatches. First mismatch occurred at time 10.\nHint: Total mismatched samples is 17 out of 100 samples\n\nSimulation finished at 501 ps\nMismatches: 17 in 100 samples",
   "synth_error_type": "",
   "synth_error_log": "",
   "sim_error_sequence": [

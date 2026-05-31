@@ -8,60 +8,59 @@ module TopModule (
     output logic [7:0] ss
 );
 
-    logic [3:0] ss_ones, ss_tens;
-    logic [3:0] mm_ones, mm_tens;
-    logic [3:0] hh_ones, hh_tens;
+    logic [7:0] ss_next, mm_next, hh_next;
+    logic pm_next;
 
-    assign ss = {ss_tens, ss_ones};
-    assign mm = {mm_tens, mm_ones};
-    assign hh = {hh_tens, hh_ones};
-
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (reset) begin
-            ss_ones <= 4'd0; ss_tens <= 4'd0;
-            mm_ones <= 4'd0; mm_tens <= 4'd0;
-            hh_ones <= 4'd2; hh_tens <= 4'd1;
+            ss <= 8'h00;
+            mm <= 8'h00;
+            hh <= 8'h12;
             pm <= 1'b0;
         end else if (ena) begin
-            // Seconds
-            if (ss_ones == 4'd9) begin
-                ss_ones <= 4'd0;
-                if (ss_tens == 4'd5) ss_tens <= 4'd0;
-                else ss_tens <= ss_tens + 1'b1;
+            ss <= ss_next;
+            mm <= mm_next;
+            hh <= hh_next;
+            pm <= pm_next;
+        end
+    end
+
+    always @(*) begin
+        // Seconds Logic
+        if (ss[3:0] == 9) begin
+            ss_next = {ss[7:4] + 1'b1, 4'h0};
+            if (ss[7:4] == 5) ss_next = 8'h00;
+        end else begin
+            ss_next = ss + 1'b1;
+        end
+
+        // Minutes Logic
+        mm_next = mm;
+        if (ss[3:0] == 9 && ss[7:4] == 5) begin
+            if (mm[3:0] == 9) begin
+                mm_next = {mm[7:4] + 1'b1, 4'h0};
+                if (mm[7:4] == 5) mm_next = 8'h00;
             end else begin
-                ss_ones <= ss_ones + 1'b1;
+                mm_next = mm + 1'b1;
             end
+        end
 
-            // Minutes
-            if (ss_ones == 4'd9 && ss_tens == 4'd5) begin
-                if (mm_ones == 4'd9) begin
-                    mm_ones <= 4'd0;
-                    if (mm_tens == 4'd5) mm_tens <= 4'd0;
-                    else mm_tens <= mm_tens + 1'b1;
+        // Hours & PM Logic
+        hh_next = hh;
+        pm_next = pm;
+        if (ss[3:0] == 9 && ss[7:4] == 5 && mm[3:0] == 9 && mm[7:4] == 5) begin
+            if (hh == 8'h11) begin
+                hh_next = 8'h12;
+                pm_next = !pm;
+            end else if (hh == 8'h12) begin
+                hh_next = 8'h01;
+            end else begin
+                if (hh[3:0] == 9) begin
+                    hh_next = {hh[7:4] + 1'b1, 4'h0};
                 end else begin
-                    mm_ones <= mm_ones + 1'b1;
-                end
-            end
-
-            // Hours
-            if (ss_ones == 4'd9 && ss_tens == 4'd5 && mm_ones == 4'd9 && mm_tens == 4'd5) begin
-                if (hh_ones == 4'd2 && hh_tens == 4'd1) begin // 12 -> 01
-                    hh_ones <= 4'd1; hh_tens <= 4'd0;
-                end else if (hh_ones == 4'd9) begin // 09 -> 10
-                    hh_ones <= 4'd0; hh_tens <= 4'd1;
-                end else begin // Increment
-                    hh_ones <= hh_ones + 1'b1;
-                    if (hh_ones == 4'd1 && hh_tens == 4'd1) begin // 11 -> 12
-                        hh_ones <= 4'd2; hh_tens <= 4'd1;
-                    end
-                end
-
-                // AM/PM Toggle
-                if (hh_ones == 4'd1 && hh_tens == 4'd1) begin
-                    pm <= ~pm;
+                    hh_next = hh + 1'b1;
                 end
             end
         end
     end
-
 endmodule

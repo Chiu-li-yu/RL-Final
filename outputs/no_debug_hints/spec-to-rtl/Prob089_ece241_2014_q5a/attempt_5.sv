@@ -1,41 +1,32 @@
 module TopModule (
-    input logic clk,
-    input logic areset,
-    input logic x,
+    input clk,
+    input areset,
+    input x,
     output logic z
 );
+    typedef enum logic [1:0] { S0, S1, S2 } state_t;
+    state_t current_state, next_state;
 
-    // Re-evaluating 2's complement serial:
-    // It is normally Mealy. If I must implement as Moore, I must register the output.
-    // The output for Mealy is: 
-    // z = x if no 1 seen
-    // z = !x if 1 seen
-    
-    // To make it Moore, output z must be registered.
-    // Let's use a Mealy implementation and register the output.
-    
-    logic state;
-    logic next_state;
-    logic z_mealy;
-
-    always_ff @(posedge clk or posedge areset) begin
-        if (areset) begin
-            state <= 1'b0;
-            z <= 1'b0;
-        end else begin
-            state <= next_state;
-            z <= z_mealy;
-        end
+    always @(posedge clk or posedge areset) begin
+        if (areset) current_state <= S0;
+        else current_state <= next_state;
     end
 
-    always_comb begin
-        if (state == 1'b0) begin
-            next_state = (x == 1'b1) ? 1'b1 : 1'b0;
-            z_mealy = x;
-        end else begin
-            next_state = 1'b1;
-            z_mealy = ~x;
-        end
+    always @(*) begin
+        case (current_state)
+            S0: next_state = (x) ? S1 : S0;
+            S1: next_state = (x) ? S2 : S1;
+            S2: next_state = (x) ? S2 : S1;
+            default: next_state = S0;
+        endcase
     end
 
+    always @(*) begin
+        case (current_state)
+            S0: z = 1'b0;
+            S1: z = 1'b1;
+            S2: z = 1'b0;
+            default: z = 1'b0;
+        endcase
+    end
 endmodule

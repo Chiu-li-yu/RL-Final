@@ -1,10 +1,10 @@
 module TopModule (
-    input clk,
-    input [7:0] d,
+    input logic clk,
+    input logic [7:0] d,
     output logic [7:0] q
 );
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         q <= d;
     end
 

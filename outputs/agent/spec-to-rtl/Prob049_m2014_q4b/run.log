@@ -1,9 +1,9 @@
 
 [attempt 1] → compile_and_test
-module TopModule (
-    input logic clk,
-    input logic ar,
-    input logic d,
+module TopModule(
+    input clk,
+    input ar,
+    input d,
     output logic q
 );
 [attempt 1] ← compile_and_test: .

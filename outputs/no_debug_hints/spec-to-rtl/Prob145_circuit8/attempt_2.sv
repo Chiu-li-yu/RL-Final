@@ -1,30 +1,23 @@
-module TopModule(
-    input clock,
-    input a,
-    output p,
-    output q
+module TopModule (
+    input logic clock,
+    input logic a,
+    output logic p,
+    output logic q
 );
 
-    logic p_out;
-    logic q_out;
-
-    always @(*) begin
+    // Analyze the transitions:
+    // When clock=1: p=a, q=0
+    // When clock=0: p=1, q=1
+    // This is a simple combinational logic based on clock and a.
+    
+    always_comb begin
         if (clock) begin
-            p_out = a;
+            p = a;
+            q = 1'b0;
         end else begin
-            p_out = q_out;
+            p = 1'b1;
+            q = 1'b1;
         end
     end
-
-    always_ff @(posedge clock or negedge clock) begin
-        if (clock) begin
-            // When clock is 1, maybe q follows some logic
-        end else begin
-            q_out <= p_out;
-        end
-    end
-
-    assign p = p_out;
-    assign q = q_out;
 
 endmodule

@@ -2,9 +2,14 @@ module TopModule (
     input        sel,
     input  [7:0] a,
     input  [7:0] b,
-    output [7:0] out
+    output logic [7:0] out
 );
 
-    assign out = sel ? b : a;
+    always @(*) begin
+        if (sel)
+            out = b;
+        else
+            out = a;
+    end
 
 endmodule

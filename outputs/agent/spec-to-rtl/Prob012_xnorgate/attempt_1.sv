@@ -1,11 +1,7 @@
 module TopModule (
-    input logic a,
-    input logic b,
-    output logic out
+    input a,
+    input b,
+    output out
 );
-
-    always @(*) begin
-        out = ~(a ^ b);
-    end
-
+    assign out = ~(a ^ b);
 endmodule

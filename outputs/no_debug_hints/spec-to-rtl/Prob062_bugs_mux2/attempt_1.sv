@@ -5,6 +5,11 @@ module TopModule (
     output [7:0] out
 );
 
-    assign out = (~sel ? a : b);
+    always @(*) begin
+        if (sel)
+            out = b;
+        else
+            out = a;
+    end
 
 endmodule

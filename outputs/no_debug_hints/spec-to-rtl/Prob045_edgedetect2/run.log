@@ -5,7 +5,7 @@ module TopModule (
     input [7:0] in,
     output [7:0] anyedge
 );
-    logic [7:0] in_prev;
+    logic [7:0] prev_in;
 [attempt 1] ← compile_and_test: R  mismatches=212
 VCD info: dumpfile wave.vcd opened for output.
 /mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob045_edgedetect2_test.sv:45: $finish called at 1140 (1ps)
@@ -19,9 +19,9 @@ Mismatches: 212 in 228 samples
 module TopModule (
     input clk,
     input [7:0] in,
-    output [7:0] anyedge
+    output logic [7:0] anyedge
 );
-    logic [7:0] in_prev;
+    logic [7:0] prev_in;
 [attempt 2] ← compile_and_test: .
 
 [attempt 2] → synthesize

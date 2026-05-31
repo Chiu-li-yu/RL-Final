@@ -1,0 +1,34 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input [99:0] in,
+    output [99:0] out_both,
+    output [99:0] out_any,
+    output [99:0] out_different
+);
+[attempt 1] ← compile_and_test: w
+/tmp/tmp9pzunr0c.sv:13: error: out_both[i] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:3:      : out_both[i] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:15: error: out_both['sd99] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:3:      : out_both['sd99] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:19: error: out_any[i] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:4:      : out_any[i] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:21: error: out_any['sd0] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:4:      : out_any['sd0] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:27: error: out_different[i] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:5:      : out_different[i] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:29: error: out_different['sd99] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:5:      : out_different['sd99] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:10: warning: @* found no
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input [99:0] in,
+    output logic [99:0] out_both,
+    output logic [99:0] out_any,
+    output logic [99:0] out_different
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

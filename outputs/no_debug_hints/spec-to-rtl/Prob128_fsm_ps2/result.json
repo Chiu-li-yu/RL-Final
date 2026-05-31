@@ -1,22 +1,26 @@
 {
   "problem_id": "Prob128_fsm_ps2",
-  "passed": true,
-  "sim_passed": true,
-  "synth_passed": true,
-  "attempts": 3,
-  "sim_error_type": ".",
-  "sim_error_log": "",
-  "synth_error_type": "Y",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)\nHint: Output 'done' has 177 mismatches. First mismatch occurred at time 210.\nHint: Total mismatched samples is 177 out of 400 samples\n\nSimulation finished at 2001 ps\nMismatches: 177 in 400 samples",
+  "synth_error_type": "",
   "synth_error_log": "",
   "sim_error_sequence": [
-    "S",
     "R",
-    "."
+    "R",
+    "R",
+    "R",
+    "R"
   ],
   "synth_error_sequence": [
     null,
     null,
-    "Y"
+    null,
+    null,
+    null
   ],
   "decompose_spec_calls": 1,
   "get_debug_hints_calls": 0,

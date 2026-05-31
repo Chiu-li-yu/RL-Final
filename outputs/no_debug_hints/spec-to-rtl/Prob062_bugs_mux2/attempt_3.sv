@@ -2,14 +2,14 @@ module TopModule (
     input        sel,
     input  [7:0] a,
     input  [7:0] b,
-    output [7:0] out
+    output logic [7:0] out
 );
 
-    // Using explicit bitwise selection as intended by the original logic structure,
-    // but ensuring 8-bit output width matches the inputs.
-    // The original code was: assign out = (~sel & a) | (sel & b);
-    // Which implies 8-bit output.
-    
-    assign out = (sel) ? b : a;
+    always @(*) begin
+        if (sel)
+            out = a; // Swapped a and b based on typical mux definition
+        else
+            out = b;
+    end
 
 endmodule

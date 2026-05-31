@@ -1,20 +1,20 @@
-module TopModule (
+module TopModule(
     input clk,
     input in,
     output out
 );
-
+    logic d;
     logic q;
-    logic next_q;
+
+    // XOR gate: output of D flip-flop (q) XORed with input (in)
+    always @(*) begin
+        d = in ^ q;
+    end
+
+    // D flip-flop
+    always @(posedge clk) begin
+        q <= d;
+    end
 
     assign out = q;
-
-    always @(posedge clk) begin
-        q <= next_q;
-    end
-
-    always @(*) begin
-        next_q = in ^ q;
-    end
-
 endmodule

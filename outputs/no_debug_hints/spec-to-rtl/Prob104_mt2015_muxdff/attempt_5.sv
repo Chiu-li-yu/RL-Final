@@ -3,14 +3,16 @@ module TopModule (
     input L,
     input q_in,
     input r_in,
-    output logic Q
+    output Q
 );
+    // 試試看在 always @(posedge clk) 裡面處理 mux
+    logic q_reg;
+    assign Q = q_reg;
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (L)
-            Q <= r_in;
+            q_reg <= r_in;
         else
-            Q <= q_in;
+            q_reg <= q_in;
     end
-
 endmodule

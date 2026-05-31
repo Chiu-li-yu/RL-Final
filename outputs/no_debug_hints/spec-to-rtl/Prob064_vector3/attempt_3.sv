@@ -11,22 +11,27 @@ module TopModule (
     output logic [7:0] z
 );
 
-    // Concatenate all inputs + two 1s
-    // Total bits = 5+5+5+5+5+5 + 2 = 32
-    // Concatenation order: {a, b, c, d, e, f, 2'b11}
-    // Result bit sequence:
-    // a[4:0] | b[4:0] | c[4:0] | d[4:0] | e[4:0] | f[4:0] | 1 | 1
-    
-    logic [31:0] full_vec;
+    logic [31:0] combined;
 
     always @(*) begin
-        full_vec = {a, b, c, d, e, f, 2'b11};
+        // The spec says:
+        // "concatenate the input vectors together ... followed by two 1 bits (LSB positions)"
+        // Concatenating 6 vectors of 5 bits = 30 bits.
+        // Adding 2 bits = 32 bits.
+        // Order: {a, b, c, d, e, f, 2'b11}
+        combined = {a, b, c, d, e, f, 2'b11};
         
-        // Output concatenation: {w, x, y, z} = full_vec
-        w = full_vec[31:24];
-        x = full_vec[23:16];
-        y = full_vec[15:8];
-        z = full_vec[7:0];
+        // Output concatenation: {w, x, y, z} = combined
+        // {w, x, y, z} = combined implies:
+        // w = combined[31:24]
+        // x = combined[23:16]
+        // y = combined[15:8]
+        // z = combined[7:0]
+        
+        w = combined[31:24];
+        x = combined[23:16];
+        y = combined[15:8];
+        z = combined[7:0];
     end
 
 endmodule

@@ -1,29 +1,20 @@
 module TopModule (
-    input  logic [1023:0] in,
-    input  logic [7:0]    sel,
-    output logic [3:0]    out
+    input  [1023:0] in,
+    input  [7:0]    sel,
+    output [3:0]    out
 );
-
-    // 256 inputs, each is 4 bits wide. 
-    // sel is 8 bits (range 0-255).
-    // The bits are packed as in[3:0], in[7:4], in[11:8], etc.
-    // This can be treated as a 256-element array of 4-bit vectors.
-
-    logic [3:0] data_array [0:255];
-
+    // 256 entries * 4 bits = 1024 bits
+    // We can use a 2D array approach or index calculation.
+    // Given the index sel:
+    // sel=0 -> bits [3:0]
+    // sel=1 -> bits [7:4]
+    // index i starts at sel * 4.
+    
+    logic [3:0] out_tmp;
+    
     always @(*) begin
-        // Split the 1024-bit input into 256 4-bit chunks
-        for (int i = 0; i < 256; i = i + 1) begin
-            data_array[i] = in[i*4 +: 4];
-        end
-        
-        // Select based on sel
-        // Ensure sel is within bounds [0:255]
-        if (sel < 256) begin
-            out = data_array[sel];
-        end else begin
-            out = 4'b0;
-        end
+        out_tmp = in[sel * 4 +: 4];
     end
-
+    
+    assign out = out_tmp;
 endmodule

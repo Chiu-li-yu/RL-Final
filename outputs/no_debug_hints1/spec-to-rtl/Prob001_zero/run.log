@@ -1,0 +1,27 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    output logic zero
+);
+    always @(*) begin
+        zero = 1'b0;
+    end
+[attempt 1] ← compile_and_test: R  mismatches=20
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob001_zero_test.sv:30: $finish called at 102 (1ps)
+Hint: Output 'zero' has 20 mismatches. First mismatch occurred at time 5.
+Hint: Total mismatched samples is 20 out of 20 samples
+
+Simulation finished at 102 ps
+Mismatches: 20 in 20 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    output logic zero
+);
+    assign zero = 1'b0;
+endmodule
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y
