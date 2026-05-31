@@ -10,23 +10,21 @@ module TopModule (
 
     always @(*) begin
         for (i = 0; i < 512; i = i + 1) begin
-            // Rule 90: next_state = left XOR right
-            // Boundary conditions: q[-1] = 0, q[512] = 0
-            
-            if (i == 0)
-                next_q[i] = 1'b0 ^ q[1];
-            else if (i == 511)
-                next_q[i] = q[510] ^ 1'b0;
-            else
-                next_q[i] = q[i-1] ^ q[i+1];
+            // Rule 90: next_state[i] = left_neighbor XOR right_neighbor
+            // q[i-1] for i=0 is 0
+            // q[i+1] for i=511 is 0
+            logic left, right;
+            left = (i == 0) ? 1'b0 : q[i-1];
+            right = (i == 511) ? 1'b0 : q[i+1];
+            next_q[i] = left ^ right;
         end
     end
 
     always @(posedge clk) begin
-        if (load)
+        if (load) begin
             q <= data;
-        else
+        end else begin
             q <= next_q;
+        end
     end
-
 endmodule

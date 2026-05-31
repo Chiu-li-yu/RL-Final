@@ -1,0 +1,107 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了實現該 Moore FSM，建議將開發過程分解為以下 4 個子目標：
+
+1. 定義狀態編碼（Parameters/Localparams）並宣告狀態暫存器（Current State）與下一個狀態變數（Next State）。
+2. 編寫非同步重置邏輯，並根據輸入條件（bump_left, bump_right, ground）實作下一狀態的組合邏輯（Next State Logic）。
+3. 根據目前狀態（Current State）的邏輯定義並實作輸出邏輯（Output Logic：walk_left, walk_right, aaah）。
+4. 撰寫時序邏輯區塊（Sequential Block），將狀態暫存器更新為下一個狀態，並確保重置時回到 Walk Left 狀態。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: R  mismatches=34
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 20 mismatches. First mismatch occurred at time 110.
+Hint: Output 'walk_right' has 14 mismatches. First mismatch occurred at time 160.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 34 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 34 in 441 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 2] ← compile_and_test: R  mismatches=34
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 20 mismatches. First mismatch occurred at time 110.
+Hint: Output 'walk_right' has 14 mismatches. First mismatch occurred at time 160.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 34 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 34 in 441 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 3] ← compile_and_test: R  mismatches=188
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 168 mismatches. First mismatch occurred at time 110.
+Hint: Output 'walk_right' has 174 mismatches. First mismatch occurred at time 160.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 188 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 188 in 441 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 4] ← compile_and_test: R  mismatches=34
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 20 mismatches. First mismatch occurred at time 110.
+Hint: Output 'walk_right' has 14 mismatches. First mismatch occurred at time 160.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 34 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 34 in 441 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 5] ← compile_and_test: R  mismatches=34
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 20 mismatches. First mismatch occurred at time 110.
+Hint: Output 'walk_right' has 14 mismatches. First mismatch occurred at time 160.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 34 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 34 in 441 samples

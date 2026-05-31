@@ -1,0 +1,85 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clock,
+    input a,
+    output p,
+    output q
+);
+[attempt 1] ← compile_and_test: R  mismatches=186
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob145_circuit8_test.sv:45: $finish called at 1200 (1ps)
+Hint: Output 'p' has 112 mismatches. First mismatch occurred at time 90.
+Hint: Output 'q' has 127 mismatches. First mismatch occurred at time 60.
+Hint: Total mismatched samples is 186 out of 240 samples
+
+Simulation finished at 1200 ps
+Mismatches: 186 in 240 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clock,
+    input a,
+    output p,
+    output q
+);
+[attempt 2] ← compile_and_test: R  mismatches=235
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob145_circuit8_test.sv:45: $finish called at 1200 (1ps)
+Hint: Output 'p' has 235 mismatches. First mismatch occurred at time 30.
+Hint: Output 'q' has 229 mismatches. First mismatch occurred at time 60.
+Hint: Total mismatched samples is 235 out of 240 samples
+
+Simulation finished at 1200 ps
+Mismatches: 235 in 240 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clock,
+    input a,
+    output p,
+    output q
+);
+[attempt 3] ← compile_and_test: R  mismatches=206
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob145_circuit8_test.sv:45: $finish called at 1200 (1ps)
+Hint: Output 'p' has 176 mismatches. First mismatch occurred at time 30.
+Hint: Output 'q' has 134 mismatches. First mismatch occurred at time 95.
+Hint: Total mismatched samples is 206 out of 240 samples
+
+Simulation finished at 1200 ps
+Mismatches: 206 in 240 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clock,
+    input a,
+    output p,
+    output q
+);
+[attempt 4] ← compile_and_test: R  mismatches=69
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob145_circuit8_test.sv:45: $finish called at 1200 (1ps)
+Hint: Output 'p' has 57 mismatches. First mismatch occurred at time 90.
+Hint: Output 'q' has 12 mismatches. First mismatch occurred at time 300.
+Hint: Total mismatched samples is 69 out of 240 samples
+
+Simulation finished at 1200 ps
+Mismatches: 69 in 240 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input clock,
+    input a,
+    output p,
+    output q
+);
+[attempt 5] ← compile_and_test: R  mismatches=108
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob145_circuit8_test.sv:45: $finish called at 1200 (1ps)
+Hint: Output 'p' has 57 mismatches. First mismatch occurred at time 90.
+Hint: Output 'q' has 55 mismatches. First mismatch occurred at time 90.
+Hint: Total mismatched samples is 108 out of 240 samples
+
+Simulation finished at 1200 ps
+Mismatches: 108 in 240 samples

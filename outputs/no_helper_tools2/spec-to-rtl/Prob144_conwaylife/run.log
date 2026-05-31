@@ -1,0 +1,64 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 1] ← compile_and_test: R  mismatches=5008
+VCD info: dumpfile wave.vcd opened for output.
+Hint: The first test case is a blinker (initial state = 256'h7). First mismatch occurred at cycle 2.
+Hint:
+Hint: Cycle 2:         Your game state       Reference game state
+Hint:   q[255:240]     0000000000000010      0000000000000010
+Hint:   q[239:224]     0000000000000000      0000000000000000
+Hint:   q[223:208]     0000000000000000      0000000000000000
+Hint:   q[207:192]     0000000000000000      0000000000000000
+Hint:   q[191:176]     0000000000000000      0000000000000000
+Hint:   q[175:160]     0000000000000000      0000000000000000
+Hint:   q[159:144]     0000000000000000      0000000000000000
+Hint:   q[143:128]     0000000000000000      0000000000000000
+Hint:   q[127:112]     0000000000000000      0000000000000000
+Hint:   q[111: 96]     0000000000000000      0000000000000000
+Hint:   q[ 95: 80]     0000000000000000      0000000000000000
+Hint:   q[ 79: 64]     0000000000000000      0000000000000000
+Hint:   q[ 63: 48]     0000000000000
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 2] ← compile_and_test: R  mismatches=778
+VCD info: dumpfile wave.vcd opened for output.
+Hint: The first test case is a blinker (initial state = 256'h7). First mismatch occurred at cycle 2.
+Hint:
+Hint: Cycle 2:         Your game state       Reference game state
+Hint:   q[255:240]     0000000000000010      0000000000000010
+Hint:   q[239:224]     0000000000000000      0000000000000000
+Hint:   q[223:208]     0000000000000000      0000000000000000
+Hint:   q[207:192]     0000000000000000      0000000000000000
+Hint:   q[191:176]     0000000000000000      0000000000000000
+Hint:   q[175:160]     0000000000000000      0000000000000000
+Hint:   q[159:144]     0000000000000000      0000000000000000
+Hint:   q[143:128]     0000000000000000      0000000000000000
+Hint:   q[127:112]     0000000000000000      0000000000000000
+Hint:   q[111: 96]     0000000000000000      0000000000000000
+Hint:   q[ 95: 80]     0000000000000000      0000000000000000
+Hint:   q[ 79: 64]     0000000000000000      0000000000000000
+Hint:   q[ 63: 48]     0000000000000
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

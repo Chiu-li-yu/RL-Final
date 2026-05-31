@@ -1,0 +1,32 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input in,
+    input [3:0] state,
+    output [3:0] next_state,
+    output out
+);
+[attempt 1] ← compile_and_test: w
+/tmp/tmp5uid1gr9.sv:22: error: next_state is not a valid l-value in tb.top_module1.
+/tmp/tmp5uid1gr9.sv:4:      : next_state is declared here as wire.
+/tmp/tmp5uid1gr9.sv:23: error: next_state is not a valid l-value in tb.top_module1.
+/tmp/tmp5uid1gr9.sv:4:      : next_state is declared here as wire.
+/tmp/tmp5uid1gr9.sv:24: error: next_state is not a valid l-value in tb.top_module1.
+/tmp/tmp5uid1gr9.sv:4:      : next_state is declared here as wire.
+/tmp/tmp5uid1gr9.sv:25: error: next_state is not a valid l-value in tb.top_module1.
+/tmp/tmp5uid1gr9.sv:4:      : next_state is declared here as wire.
+/tmp/tmp5uid1gr9.sv:26: error: next_state is not a valid l-value in tb.top_module1.
+/tmp/tmp5uid1gr9.sv:4:      : next_state is declared here as wire.
+5 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input in,
+    input [3:0] state,
+    output logic [3:0] next_state,
+    output logic out
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

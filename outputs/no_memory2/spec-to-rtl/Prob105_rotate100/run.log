@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是針對此 Verilog 題目分解的 5 個具體、可執行子目標：
+
+1. 定義模組介面並宣告 100-bit 的暫存器 `q` 以儲存當前數值。
+2. 建立同步重置/載入邏輯，確保當 `load` 為高電位時，`q` 被賦值為輸入 `data`。
+3. 實作向右旋轉邏輯（`ena == 2'b01`），將 `q[0]` 移至最高位，其餘位元右移。
+4. 實作向左旋轉邏輯（`ena == 2'b10`），將 `q[99]` 移至最低位，其餘位元左移。
+5. 設定非旋轉情況（`ena` 為 `00` 或 `11`）下的預設條件，並確保所有邏輯在 `clk` 上升緣觸發。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [1:0] ena,
+    input [99:0] data,
+    output logic [99:0] q
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

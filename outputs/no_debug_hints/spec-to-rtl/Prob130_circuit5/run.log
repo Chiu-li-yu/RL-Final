@@ -1,11 +1,11 @@
 
 [attempt 1] → compile_and_test
-module TopModule (
-    input logic [3:0] a,
-    input logic [3:0] b,
-    input logic [3:0] c,
-    input logic [3:0] d,
-    input logic [3:0] e,
+module TopModule(
+    input  [3:0] a,
+    input  [3:0] b,
+    input  [3:0] c,
+    input  [3:0] d,
+    input  [3:0] e,
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

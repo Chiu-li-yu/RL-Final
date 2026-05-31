@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob064_vector3",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob064_vector3_test.sv:44: $finish called at 630 (1ps)\nHint: Output 'w' has no mismatches.\nHint: Output 'x' has no mismatches.\nHint: Output 'y' has no mismatches.\nHint: Output 'z' has 1 mismatches. First mismatch occurred at time 5.\nHint: Total mismatched samples is 1 out of 126 samples\n\nSimulation finished at 630 ps\nMismatches: 1 in 126 samples",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R",
+    "R",
+    "R",
+    "R",
+    "R"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 0,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_helper_tools"
+}

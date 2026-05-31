@@ -1,0 +1,87 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+針對這個 Lemming FSM 的題目，建議將開發流程分解為以下 5 個具體子目標：
+
+1. **定義狀態編碼與參數**：使用 `parameter` 或 `typedef enum` 定義 7 種狀態，並宣告現態 (state) 與次態 (next_state) 暫存器。
+2. **實作狀態機切換邏輯 (Sequential logic)**：編寫 `always @(posedge clk or posedge areset)` 區塊，處理重置邏輯並將次態更新為現態。
+3. **編寫優先順序邏輯與狀態遷移 (Combinational logic)**：使用 `case` 敘述結合 `if-else`，根據 `ground`、`dig`、`bump` 輸入，並嚴格遵守 Fall > Dig > Bump 的優先權順序定義狀態轉換。
+4. **實作墜落計數器**：設計一個 5-bit (或足夠計數 20 以上) 的計數器，在 Fall 狀態下累加，若觸發 `ground=1` 且計數超過 20 則強制轉入 Splatter 狀態。
+5. **配置輸出邏輯**：根據當前狀態 (Current State) 對應表，指派 `walk_left`、`walk_right`、`digging` 及 `aaah` 等輸出訊號。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: R  mismatches=184
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 128 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 78 mismatches. First mismatch occurred at time 710.
+Hint: Output 'aaah' has 14 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 34 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 184 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 184 in 1003 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 2] ← compile_and_test: R  mismatches=160
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 88 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 70 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 14 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 34 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 160 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 160 in 1003 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 3] ← compile_and_test: R  mismatches=38
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 10 mismatches. First mismatch occurred at time 2820.
+Hint: Output 'walk_right' has 12 mismatches. First mismatch occurred at time 2890.
+Hint: Output 'aaah' has 4 mismatches. First mismatch occurred at time 2840.
+Hint: Output 'digging' has 12 mismatches. First mismatch occurred at time 2950.
+Hint: Total mismatched samples is 38 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 38 in 1003 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 4] ← compile_and_test: .
+
+[attempt 4] → synthesize
+[attempt 4] ← synthesize: Y

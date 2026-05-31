@@ -18,7 +18,7 @@
     null,
     "Y"
   ],
-  "decompose_spec_calls": 2,
+  "decompose_spec_calls": 1,
   "get_debug_hints_calls": 0,
   "task": "spec-to-rtl",
   "experiment": "no_debug_hints"

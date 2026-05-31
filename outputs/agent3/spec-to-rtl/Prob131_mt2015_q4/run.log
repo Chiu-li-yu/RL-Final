@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+將此 Verilog 題目分解為以下 5 個具體執行步驟：
+
+1. 定義 Module A，實作布林函數 `z = (x ^ y) & x`。
+2. 定義 Module B，實作布林函數 `z = ~(x ^ y)` (XNOR 閘)。
+3. 在 Top-level 模組中例項化兩個 A 模組 (A1, A2) 與兩個 B 模組 (B1, B2)，並依據規格連接輸入訊號 x 與 y。
+4. 實作中間邏輯運算：建立 `or_out = A1_z | B1_z` 以及 `and_out = A2_z & B2_z`。
+5. 執行最終輸出邏輯：將 `top_z = or_out ^ and_out` 指派給 Top-level 的輸出端。
+
+[attempt 1] → compile_and_test
+module SubA(input x, input y, output z);
+    assign z = (x ^ y) & x;
+endmodule
+
+module SubB(input x, input y, output z);
+    assign z = ~(x ^ y);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

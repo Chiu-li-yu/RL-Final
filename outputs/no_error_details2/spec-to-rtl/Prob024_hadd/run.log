@@ -1,0 +1,35 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input a,
+    input b,
+    output sum,
+    output cout
+);
+[attempt 1] ← compile_and_test: w
+/tmp/tmp1v7whshk.sv:9: error: sum is not a valid l-value in tb.top_module1.
+/tmp/tmp1v7whshk.sv:4:      : sum is declared here as wire.
+/tmp/tmp1v7whshk.sv:10: error: cout is not a valid l-value in tb.top_module1.
+/tmp/tmp1v7whshk.sv:5:      : cout is declared here as wire.
+/tmp/tmp1v7whshk.sv:8: warning: @* found no sensitivities so it will never trigger.
+2 error(s) during elaboration.
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input a,
+    input b,
+    output logic sum,
+    output logic cout
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

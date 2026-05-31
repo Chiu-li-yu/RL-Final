@@ -1,16 +1,19 @@
-module TopModule(
+module TopModule (
     input clk,
     input in,
     output out
 );
-    logic q;
 
-    // D flip-flop, the state is 'q', output is 'out'
-    // The XOR takes 'in' and 'out' (which is the output of the flip-flop)
-    // d = in ^ out
+    logic q;
+    
+    // The flip-flop is positive edge triggered by clk, no reset.
+    // The XOR takes as input 'in' along with the output 'out' (which is q).
+    // D = in ^ out (current state q)
+    
     always @(posedge clk) begin
         q <= in ^ q;
     end
 
     assign out = q;
+
 endmodule

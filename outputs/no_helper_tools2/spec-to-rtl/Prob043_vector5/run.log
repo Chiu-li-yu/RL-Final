@@ -1,0 +1,35 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input a,
+    input b,
+    input c,
+    input d,
+    input e,
+[attempt 1] ← compile_and_test: w
+/tmp/tmpwo5o0zxl.sv:21: error: out['sd24] is not a valid l-value in tb.top_module1.
+/tmp/tmpwo5o0zxl.sv:7:      : out['sd24] is declared here as wire.
+/tmp/tmpwo5o0zxl.sv:22: error: out['sd23] is not a valid l-value in tb.top_module1.
+/tmp/tmpwo5o0zxl.sv:7:      : out['sd23] is declared here as wire.
+/tmp/tmpwo5o0zxl.sv:23: error: out['sd22] is not a valid l-value in tb.top_module1.
+/tmp/tmpwo5o0zxl.sv:7:      : out['sd22] is declared here as wire.
+/tmp/tmpwo5o0zxl.sv:24: error: out['sd21] is not a valid l-value in tb.top_module1.
+/tmp/tmpwo5o0zxl.sv:7:      : out['sd21] is declared here as wire.
+/tmp/tmpwo5o0zxl.sv:25: error: out['sd20] is not a valid l-value in tb.top_module1.
+/tmp/tmpwo5o0zxl.sv:7:      : out['sd20] is declared here as wire.
+/tmp/tmpwo5o0zxl.sv:27: error: out['sd19] is not a valid l-value in tb.top_module1.
+/tmp/tmpwo5o0zxl.sv:7:      : out['sd19] is declared here as wire.
+/tmp/tmpwo5o0zxl.sv:28: error: out['sd18] is not a valid l-value in tb.top_module1.
+/tmp/tmpwo
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input a,
+    input b,
+    input c,
+    input d,
+    input e,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

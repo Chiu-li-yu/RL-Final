@@ -1,0 +1,197 @@
+
+============================================================
+  Experiment : no_error_details
+  Task       : spec-to-rtl
+  Model      : gemini-3.1-flash-lite
+  Problems   : 156
+  Workers    : 1
+  Rate limit : 15 RPM  (4.0s/call)
+  Resume     : True
+  Dry run    : False
+============================================================
+
+讀取題目描述 ... 156 題已載入
+[no_error_details/spec-to-rtl]   1/156 (  0.6%) ✓1 ✗0 avg_attempts=1.0 skip=0 err=0  ETA   907s  [pass 1]  Prob001_zero
+[no_error_details/spec-to-rtl]   2/156 (  1.3%) ✓2 ✗0 avg_attempts=1.0 skip=0 err=0  ETA  1002s  [pass 1]  Prob002_m2014_q4i
+[no_error_details/spec-to-rtl]   3/156 (  1.9%) ✓3 ✗0 avg_attempts=1.3 skip=0 err=0  ETA  1485s  [pass 2]  d=0 h=1  Prob003_step_one
+[no_error_details/spec-to-rtl]   4/156 (  2.6%) ✓4 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1577s  [pass 1]  Prob004_vector2
+[no_error_details/spec-to-rtl]   5/156 (  3.2%) ✓5 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1619s  [pass 1]  Prob005_notgate
+[no_error_details/spec-to-rtl]   6/156 (  3.8%) ✓6 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1473s  [pass 1]  Prob006_vectorr
+[no_error_details/spec-to-rtl]   7/156 (  4.5%) ✓7 ✗0 avg_attempts=1.1 skip=0 err=0  ETA  1419s  [pass 1]  Prob007_wire
+[no_error_details/spec-to-rtl]   8/156 (  5.1%) ✓8 ✗0 avg_attempts=1.1 skip=0 err=0  ETA  1376s  [pass 1]  Prob008_m2014_q4h
+[no_error_details/spec-to-rtl]   9/156 (  5.8%) ✓9 ✗0 avg_attempts=1.1 skip=0 err=0  ETA  1355s  [pass 1]  Prob009_popcount3
+[no_error_details/spec-to-rtl]  10/156 (  6.4%) ✓10 ✗0 avg_attempts=1.1 skip=0 err=0  ETA  1323s  [pass 1]  Prob010_mt2015_q4a
+[no_error_details/spec-to-rtl]  11/156 (  7.1%) ✓11 ✗0 avg_attempts=1.1 skip=0 err=0  ETA  1298s  [pass 1]  Prob011_norgate
+[no_error_details/spec-to-rtl]  12/156 (  7.7%) ✓12 ✗0 avg_attempts=1.1 skip=0 err=0  ETA  1283s  [pass 1]  Prob012_xnorgate
+[no_error_details/spec-to-rtl]  13/156 (  8.3%) ✓13 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1366s  [pass 2]  d=0 h=1  Prob013_m2014_q4e
+[no_error_details/spec-to-rtl]  14/156 (  9.0%) ✓14 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1413s  [pass 2]  d=0 h=1  Prob014_andgate
+[no_error_details/spec-to-rtl]  15/156 (  9.6%) ✓15 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1381s  [pass 1]  Prob015_vector1
+[no_error_details/spec-to-rtl]  16/156 ( 10.3%) ✓16 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1368s  [pass 1]  Prob016_m2014_q4j
+[no_error_details/spec-to-rtl]  17/156 ( 10.9%) ✓17 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1339s  [pass 1]  Prob017_mux2to1v
+[no_error_details/spec-to-rtl]  18/156 ( 11.5%) ✓18 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1314s  [pass 1]  Prob018_mux256to1
+[no_error_details/spec-to-rtl]  19/156 ( 12.2%) ✓19 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1292s  [pass 1]  Prob019_m2014_q4f
+[no_error_details/spec-to-rtl]  20/156 ( 12.8%) ✓20 ✗0 avg_attempts=1.1 skip=0 err=0  ETA  1305s  [pass 1]  Prob020_mt2015_eq2
+[no_error_details/spec-to-rtl]  21/156 ( 13.5%) ✓21 ✗0 avg_attempts=1.1 skip=0 err=0  ETA  1287s  [pass 1]  Prob021_mux256to1v
+[no_error_details/spec-to-rtl]  22/156 ( 14.1%) ✓22 ✗0 avg_attempts=1.1 skip=0 err=0  ETA  1265s  [pass 1]  Prob022_mux2to1
+[no_error_details/spec-to-rtl]  23/156 ( 14.7%) ✓23 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1292s  [pass 2]  d=0 h=1  Prob023_vector100r
+[no_error_details/spec-to-rtl]  24/156 ( 15.4%) ✓24 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1334s  [pass 2]  d=0 h=1  Prob024_hadd
+[no_error_details/spec-to-rtl]  25/156 ( 16.0%) ✓25 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1312s  [pass 1]  Prob025_reduction
+[no_error_details/spec-to-rtl]  26/156 ( 16.7%) ✓26 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1363s  [pass 1]  Prob026_alwaysblock1
+[no_error_details/spec-to-rtl]  27/156 ( 17.3%) ✓27 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1328s  [pass 1]  Prob027_fadd
+[no_error_details/spec-to-rtl]  28/156 ( 17.9%) ✓28 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1313s  [pass 1]  Prob028_m2014_q4a
+[no_error_details/spec-to-rtl]  29/156 ( 18.6%) ✓29 ✗0 avg_attempts=1.3 skip=0 err=0  ETA  1381s  [pass 4]  d=0 h=1  Prob029_m2014_q4g
+[no_error_details/spec-to-rtl]  30/156 ( 19.2%) ✓30 ✗0 avg_attempts=1.3 skip=0 err=0  ETA  1397s  [pass 1]  Prob030_popcount255
+[no_error_details/spec-to-rtl]  31/156 ( 19.9%) ✓31 ✗0 avg_attempts=1.3 skip=0 err=0  ETA  1366s  [pass 1]  Prob031_dff
+[no_error_details/spec-to-rtl]  32/156 ( 20.5%) ✓32 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1361s  [pass 1]  Prob032_vector0
+[no_error_details/spec-to-rtl]  33/156 ( 21.2%) ✓33 ✗0 avg_attempts=1.2 skip=0 err=0  ETA  1329s  [pass 1]  Prob033_ece241_2014_q1c
+[no_error_details/spec-to-rtl]  34/156 ( 21.8%) ✓33 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1368s  [FAIL[R]]  d=0 h=1  Prob034_dff8
+[no_error_details/spec-to-rtl]  35/156 ( 22.4%) ✓34 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1347s  [pass 1]  Prob035_count1to10
+[no_error_details/spec-to-rtl]  36/156 ( 23.1%) ✓35 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1326s  [pass 1]  Prob036_ringer
+[no_error_details/spec-to-rtl]  37/156 ( 23.7%) ✓36 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1303s  [pass 1]  Prob037_review2015_count1k
+[no_error_details/spec-to-rtl]  38/156 ( 24.4%) ✓37 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1283s  [pass 1]  Prob038_count15
+[no_error_details/spec-to-rtl]  39/156 ( 25.0%) ✓38 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1268s  [pass 1]  Prob039_always_if
+[no_error_details/spec-to-rtl]  40/156 ( 25.6%) ✓39 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1252s  [pass 1]  Prob040_count10
+[no_error_details/spec-to-rtl]  41/156 ( 26.3%) ✓40 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1226s  [pass 1]  Prob041_dff8r
+[no_error_details/spec-to-rtl]  42/156 ( 26.9%) ✓41 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1242s  [pass 1]  Prob042_vector4
+[no_error_details/spec-to-rtl]  43/156 ( 27.6%) ✓42 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1219s  [pass 1]  Prob043_vector5
+[no_error_details/spec-to-rtl]  44/156 ( 28.2%) ✓43 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1199s  [pass 1]  Prob044_vectorgates
+[no_error_details/spec-to-rtl]  45/156 ( 28.8%) ✓44 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1200s  [pass 2]  d=0 h=1  Prob045_edgedetect2
+[no_error_details/spec-to-rtl]  46/156 ( 29.5%) ✓45 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1183s  [pass 1]  Prob046_dff8p
+[no_error_details/spec-to-rtl]  47/156 ( 30.1%) ✓46 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1165s  [pass 1]  Prob047_dff8ar
+[no_error_details/spec-to-rtl]  48/156 ( 30.8%) ✓47 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1149s  [pass 1]  Prob048_m2014_q4c
+[no_error_details/spec-to-rtl]  49/156 ( 31.4%) ✓48 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1133s  [pass 1]  Prob049_m2014_q4b
+[no_error_details/spec-to-rtl]  50/156 ( 32.1%) ✓49 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1187s  [pass 3]  d=0 h=1  Prob050_kmap1
+[no_error_details/spec-to-rtl]  51/156 ( 32.7%) ✓50 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1187s  [pass 2]  d=0 h=1  Prob051_gates4
+[no_error_details/spec-to-rtl]  52/156 ( 33.3%) ✓51 ✗1 avg_attempts=1.2 skip=0 err=0  ETA  1167s  [pass 1]  Prob052_gates100
+[no_error_details/spec-to-rtl]  53/156 ( 34.0%) ✓52 ✗1 avg_attempts=1.3 skip=0 err=0  ETA  1206s  [pass 3]  d=0 h=1  Prob053_m2014_q4d
+[no_error_details/spec-to-rtl]  54/156 ( 34.6%) ✓53 ✗1 avg_attempts=1.3 skip=0 err=0  ETA  1256s  [pass 5]  d=0 h=3  Prob054_edgedetect
+[no_error_details/spec-to-rtl]  55/156 ( 35.3%) ✓54 ✗1 avg_attempts=1.3 skip=0 err=0  ETA  1236s  [pass 1]  Prob055_conditional
+[no_error_details/spec-to-rtl]  56/156 ( 35.9%) ✓55 ✗1 avg_attempts=1.3 skip=0 err=0  ETA  1216s  [pass 1]  Prob056_ece241_2013_q7
+[no_error_details/spec-to-rtl]  57/156 ( 36.5%) ✓56 ✗1 avg_attempts=1.3 skip=0 err=0  ETA  1209s  [pass 1]  Prob057_kmap2
+[no_error_details/spec-to-rtl]  58/156 ( 37.2%) ✓57 ✗1 avg_attempts=1.3 skip=0 err=0  ETA  1239s  [pass 2]  d=0 h=1  Prob058_alwaysblock2
+[no_error_details/spec-to-rtl]  59/156 ( 37.8%) ✓58 ✗1 avg_attempts=1.3 skip=0 err=0  ETA  1215s  [pass 1]  Prob059_wire4
+[no_error_details/spec-to-rtl]  60/156 ( 38.5%) ✓59 ✗1 avg_attempts=1.3 skip=0 err=0  ETA  1198s  [pass 1]  Prob060_m2014_q4k
+[no_error_details/spec-to-rtl]  61/156 ( 39.1%) ✓60 ✗1 avg_attempts=1.3 skip=0 err=0  ETA  1189s  [pass 1]  d=1 h=0  Prob061_2014_q4a
+[no_error_details/spec-to-rtl]  62/156 ( 39.7%) ✓60 ✗2 avg_attempts=1.3 skip=0 err=0  ETA  1196s  [FAIL[R]]  d=0 h=1  Prob062_bugs_mux2
+[no_error_details/spec-to-rtl]  63/156 ( 40.4%) ✓61 ✗2 avg_attempts=1.3 skip=0 err=0  ETA  1174s  [pass 1]  Prob063_review2015_shiftcount
+[no_error_details/spec-to-rtl]  64/156 ( 41.0%) ✓62 ✗2 avg_attempts=1.4 skip=0 err=0  ETA  1181s  [pass 5]  d=0 h=1  Prob064_vector3
+[no_error_details/spec-to-rtl]  65/156 ( 41.7%) ✓63 ✗2 avg_attempts=1.4 skip=0 err=0  ETA  1163s  [pass 1]  Prob065_7420
+[no_error_details/spec-to-rtl]  66/156 ( 42.3%) ✓64 ✗2 avg_attempts=1.4 skip=0 err=0  ETA  1154s  [pass 2]  d=0 h=1  Prob066_edgecapture
+[no_error_details/spec-to-rtl]  67/156 ( 42.9%) ✓65 ✗2 avg_attempts=1.4 skip=0 err=0  ETA  1134s  [pass 1]  Prob067_countslow
+[no_error_details/spec-to-rtl]  68/156 ( 43.6%) ✓66 ✗2 avg_attempts=1.4 skip=0 err=0  ETA  1126s  [pass 1]  d=1 h=0  Prob068_countbcd
+[no_error_details/spec-to-rtl]  69/156 ( 44.2%) ✓67 ✗2 avg_attempts=1.4 skip=0 err=0  ETA  1107s  [pass 1]  Prob069_truthtable1
+[no_error_details/spec-to-rtl]  70/156 ( 44.9%) ✓67 ✗3 avg_attempts=1.4 skip=0 err=0  ETA  1133s  [FAIL[R]]  d=1 h=1  Prob070_ece241_2013_q2
+[no_error_details/spec-to-rtl]  71/156 ( 45.5%) ✓68 ✗3 avg_attempts=1.4 skip=0 err=0  ETA  1118s  [pass 1]  Prob071_always_casez
+[no_error_details/spec-to-rtl]  72/156 ( 46.2%) ✓69 ✗3 avg_attempts=1.3 skip=0 err=0  ETA  1096s  [pass 1]  Prob072_thermostat
+[no_error_details/spec-to-rtl]  73/156 ( 46.8%) ✓70 ✗3 avg_attempts=1.3 skip=0 err=0  ETA  1078s  [pass 1]  Prob073_dff16e
+[no_error_details/spec-to-rtl]  74/156 ( 47.4%) ✓71 ✗3 avg_attempts=1.4 skip=0 err=0  ETA  1068s  [pass 2]  d=0 h=1  Prob074_ece241_2014_q4
+[no_error_details/spec-to-rtl]  75/156 ( 48.1%) ✓72 ✗3 avg_attempts=1.3 skip=0 err=0  ETA  1050s  [pass 1]  Prob075_counter_2bc
+[no_error_details/spec-to-rtl]  76/156 ( 48.7%) ✓73 ✗3 avg_attempts=1.3 skip=0 err=0  ETA  1031s  [pass 1]  Prob076_always_case
+[no_error_details/spec-to-rtl]  77/156 ( 49.4%) ✓74 ✗3 avg_attempts=1.3 skip=0 err=0  ETA  1013s  [pass 1]  Prob077_wire_decl
+[no_error_details/spec-to-rtl]  78/156 ( 50.0%) ✓75 ✗3 avg_attempts=1.4 skip=0 err=0  ETA  1011s  [pass 4]  d=0 h=1  Prob078_dualedge
+[no_error_details/spec-to-rtl]  79/156 ( 50.6%) ✓76 ✗3 avg_attempts=1.4 skip=0 err=0  ETA   995s  [pass 1]  Prob079_fsm3onehot
+[no_error_details/spec-to-rtl]  80/156 ( 51.3%) ✓77 ✗3 avg_attempts=1.4 skip=0 err=0  ETA   976s  [pass 1]  Prob080_timer
+[no_error_details/spec-to-rtl]  81/156 ( 51.9%) ✓78 ✗3 avg_attempts=1.4 skip=0 err=0  ETA   959s  [pass 1]  Prob081_7458
+[no_error_details/spec-to-rtl]  82/156 ( 52.6%) ✓79 ✗3 avg_attempts=1.4 skip=0 err=0  ETA   942s  [pass 1]  Prob082_lfsr32
+[no_error_details/spec-to-rtl]  83/156 ( 53.2%) ✓80 ✗3 avg_attempts=1.4 skip=0 err=0  ETA   925s  [pass 1]  Prob083_mt2015_q4b
+[no_error_details/spec-to-rtl]  84/156 ( 53.8%) ✓81 ✗3 avg_attempts=1.3 skip=0 err=0  ETA   908s  [pass 1]  Prob084_ece241_2013_q12
+[no_error_details/spec-to-rtl]  85/156 ( 54.5%) ✓82 ✗3 avg_attempts=1.3 skip=0 err=0  ETA   894s  [pass 1]  Prob085_shift4
+[no_error_details/spec-to-rtl]  86/156 ( 55.1%) ✓83 ✗3 avg_attempts=1.3 skip=0 err=0  ETA   876s  [pass 1]  Prob086_lfsr5
+[no_error_details/spec-to-rtl]  87/156 ( 55.8%) ✓84 ✗3 avg_attempts=1.3 skip=0 err=0  ETA   860s  [pass 1]  Prob087_gates
+[no_error_details/spec-to-rtl]  88/156 ( 56.4%) ✓85 ✗3 avg_attempts=1.3 skip=0 err=0  ETA   844s  [pass 1]  Prob088_ece241_2014_q5b
+[no_error_details/spec-to-rtl]  89/156 ( 57.1%) ✓86 ✗3 avg_attempts=1.3 skip=0 err=0  ETA   834s  [pass 1]  d=1 h=0  Prob089_ece241_2014_q5a
+[no_error_details/spec-to-rtl]  90/156 ( 57.7%) ✓87 ✗3 avg_attempts=1.3 skip=0 err=0  ETA   822s  [pass 1]  Prob090_circuit1
+[no_error_details/spec-to-rtl]  91/156 ( 58.3%) ✓88 ✗3 avg_attempts=1.3 skip=0 err=0  ETA   810s  [pass 1]  Prob091_2012_q2b
+[no_error_details/spec-to-rtl]  92/156 ( 59.0%) ✓89 ✗3 avg_attempts=1.3 skip=0 err=0  ETA   793s  [pass 1]  Prob092_gatesv100
+[no_error_details/spec-to-rtl]  93/156 ( 59.6%) ✓89 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   807s  [FAIL[R]]  d=1 h=1  Prob093_ece241_2014_q3
+[no_error_details/spec-to-rtl]  94/156 ( 60.3%) ✓90 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   792s  [pass 1]  Prob094_gatesv
+[no_error_details/spec-to-rtl]  95/156 ( 60.9%) ✓91 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   780s  [pass 1]  d=1 h=0  Prob095_review2015_fsmshift
+[no_error_details/spec-to-rtl]  96/156 ( 61.5%) ✓92 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   769s  [pass 1]  d=1 h=0  Prob096_review2015_fsmseq
+[no_error_details/spec-to-rtl]  97/156 ( 62.2%) ✓93 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   754s  [pass 1]  Prob097_mux9to1v
+[no_error_details/spec-to-rtl]  98/156 ( 62.8%) ✓94 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   743s  [pass 1]  d=1 h=0  Prob098_circuit7
+[no_error_details/spec-to-rtl]  99/156 ( 63.5%) ✓95 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   727s  [pass 1]  Prob099_m2014_q6c
+[no_error_details/spec-to-rtl] 100/156 ( 64.1%) ✓96 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   717s  [pass 1]  Prob100_fsm3comb
+[no_error_details/spec-to-rtl] 101/156 ( 64.7%) ✓97 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   708s  [pass 2]  d=0 h=1  Prob101_circuit4
+[no_error_details/spec-to-rtl] 102/156 ( 65.4%) ✓98 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   698s  [pass 1]  Prob102_circuit3
+[no_error_details/spec-to-rtl] 103/156 ( 66.0%) ✓99 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   685s  [pass 1]  d=1 h=0  Prob103_circuit2
+[no_error_details/spec-to-rtl] 104/156 ( 66.7%) ✓100 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   685s  [pass 3]  d=2 h=1  Prob104_mt2015_muxdff
+[no_error_details/spec-to-rtl] 105/156 ( 67.3%) ✓101 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   672s  [pass 1]  Prob105_rotate100
+[no_error_details/spec-to-rtl] 106/156 ( 67.9%) ✓102 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   656s  [pass 1]  Prob106_always_nolatches
+[no_error_details/spec-to-rtl] 107/156 ( 68.6%) ✓103 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   642s  [pass 1]  Prob107_fsm1s
+[no_error_details/spec-to-rtl] 108/156 ( 69.2%) ✓104 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   626s  [pass 1]  Prob108_rule90
+[no_error_details/spec-to-rtl] 109/156 ( 69.9%) ✓105 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   616s  [pass 1]  d=1 h=0  Prob109_fsm1
+[no_error_details/spec-to-rtl] 110/156 ( 70.5%) ✓106 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   600s  [pass 1]  Prob110_fsm2
+[no_error_details/spec-to-rtl] 111/156 ( 71.2%) ✓107 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   585s  [pass 1]  Prob111_fsm2s
+[no_error_details/spec-to-rtl] 112/156 ( 71.8%) ✓108 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   577s  [pass 5]  d=0 h=1  Prob112_always_case2
+[no_error_details/spec-to-rtl] 113/156 ( 72.4%) ✓109 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   565s  [pass 2]  d=0 h=1  Prob113_2012_q1g
+[no_error_details/spec-to-rtl] 114/156 ( 73.1%) ✓110 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   553s  [pass 1]  Prob114_bugs_case
+[no_error_details/spec-to-rtl] 115/156 ( 73.7%) ✓111 ✗4 avg_attempts=1.3 skip=0 err=0  ETA   537s  [pass 1]  Prob115_shift18
+[no_error_details/spec-to-rtl] 116/156 ( 74.4%) ✓111 ✗5 avg_attempts=1.3 skip=0 err=0  ETA   531s  [FAIL[R]]  d=1 h=1  Prob116_m2014_q3
+[no_error_details/spec-to-rtl] 117/156 ( 75.0%) ✓112 ✗5 avg_attempts=1.3 skip=0 err=0  ETA   515s  [pass 1]  Prob117_circuit9
+[no_error_details/spec-to-rtl] 118/156 ( 75.6%) ✓113 ✗5 avg_attempts=1.3 skip=0 err=0  ETA   505s  [pass 1]  d=1 h=0  Prob118_history_shift
+[no_error_details/spec-to-rtl] 119/156 ( 76.3%) ✓114 ✗5 avg_attempts=1.3 skip=0 err=0  ETA   493s  [pass 2]  d=0 h=1  Prob119_fsm3
+[no_error_details/spec-to-rtl] 120/156 ( 76.9%) ✓115 ✗5 avg_attempts=1.3 skip=0 err=0  ETA   480s  [pass 1]  d=1 h=0  Prob120_fsm3s
+[no_error_details/spec-to-rtl] 121/156 ( 77.6%) ✓116 ✗5 avg_attempts=1.3 skip=0 err=0  ETA   465s  [pass 1]  Prob121_2014_q3bfsm
+[no_error_details/spec-to-rtl] 122/156 ( 78.2%) ✓117 ✗5 avg_attempts=1.3 skip=0 err=0  ETA   459s  [pass 3]  d=1 h=1  Prob122_kmap4
+[no_error_details/spec-to-rtl] 123/156 ( 78.8%) ✓118 ✗5 avg_attempts=1.3 skip=0 err=0  ETA   444s  [pass 1]  Prob123_bugs_addsubz
+[no_error_details/spec-to-rtl] 124/156 ( 79.5%) ✓119 ✗5 avg_attempts=1.3 skip=0 err=0  ETA   430s  [pass 1]  Prob124_rule110
+[no_error_details/spec-to-rtl] 125/156 ( 80.1%) ✓119 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   422s  [FAIL[R]]  d=1 h=1  Prob125_kmap3
+[no_error_details/spec-to-rtl] 126/156 ( 80.8%) ✓120 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   406s  [pass 1]  Prob126_circuit6
+[no_error_details/spec-to-rtl] 127/156 ( 81.4%) ✓121 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   394s  [pass 1]  d=1 h=0  Prob127_lemmings1
+[no_error_details/spec-to-rtl] 128/156 ( 82.1%) ✓122 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   381s  [pass 1]  d=1 h=0  Prob128_fsm_ps2
+[no_error_details/spec-to-rtl] 129/156 ( 82.7%) ✓123 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   366s  [pass 1]  Prob129_ece241_2013_q8
+[no_error_details/spec-to-rtl] 130/156 ( 83.3%) ✓124 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   353s  [pass 1]  d=1 h=0  Prob130_circuit5
+[no_error_details/spec-to-rtl] 131/156 ( 84.0%) ✓125 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   342s  [pass 1]  d=1 h=0  Prob131_mt2015_q4
+[no_error_details/spec-to-rtl] 132/156 ( 84.6%) ✓126 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   329s  [pass 1]  Prob132_always_if2
+[no_error_details/spec-to-rtl] 133/156 ( 85.3%) ✓127 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   319s  [pass 3]  d=1 h=1  Prob133_2014_q3fsm
+[no_error_details/spec-to-rtl] 134/156 ( 85.9%) ✓128 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   305s  [pass 1]  d=1 h=0  Prob134_2014_q3c
+[no_error_details/spec-to-rtl] 135/156 ( 86.5%) ✓129 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   292s  [pass 2]  d=0 h=1  Prob135_m2014_q6b
+[no_error_details/spec-to-rtl] 136/156 ( 87.2%) ✓130 ✗6 avg_attempts=1.3 skip=0 err=0  ETA   281s  [pass 2]  d=0 h=1  Prob136_m2014_q6
+[no_error_details/spec-to-rtl] 137/156 ( 87.8%) ✓130 ✗7 avg_attempts=1.3 skip=0 err=0  ETA   270s  [FAIL[R]]  d=1 h=1  Prob137_fsm_serial
+[no_error_details/spec-to-rtl] 138/156 ( 88.5%) ✓131 ✗7 avg_attempts=1.3 skip=0 err=0  ETA   256s  [pass 2]  d=0 h=1  Prob138_2012_q2fsm
+[no_error_details/spec-to-rtl] 139/156 ( 89.1%) ✓132 ✗7 avg_attempts=1.3 skip=0 err=0  ETA   242s  [pass 1]  d=1 h=0  Prob139_2013_q2bfsm
+[no_error_details/spec-to-rtl] 140/156 ( 89.7%) ✓132 ✗8 avg_attempts=1.3 skip=0 err=0  ETA   230s  [FAIL[R]]  d=1 h=1  Prob140_fsm_hdlc
+[no_error_details/spec-to-rtl] 141/156 ( 90.4%) ✓133 ✗8 avg_attempts=1.3 skip=0 err=0  ETA   216s  [pass 1]  d=1 h=0  Prob141_count_clock
+[no_error_details/spec-to-rtl] 142/156 ( 91.0%) ✓134 ✗8 avg_attempts=1.3 skip=0 err=0  ETA   202s  [pass 1]  d=1 h=0  Prob142_lemmings2
+[no_error_details/spec-to-rtl] 143/156 ( 91.7%) ✓135 ✗8 avg_attempts=1.3 skip=0 err=0  ETA   187s  [pass 1]  d=1 h=0  Prob143_fsm_onehot
+[no_error_details/spec-to-rtl] 144/156 ( 92.3%) ✓136 ✗8 avg_attempts=1.3 skip=0 err=0  ETA   175s  [pass 2]  d=1 h=1  Prob144_conwaylife
+[no_error_details/spec-to-rtl] 145/156 ( 92.9%) ✓136 ✗9 avg_attempts=1.3 skip=144 err=0  ETA     2s  [FAIL[R]]  d=1 h=1  Prob145_circuit8
+[no_error_details/spec-to-rtl] 146/156 ( 93.6%) ✓136 ✗10 avg_attempts=1.3 skip=144 err=0  ETA     4s  [FAIL[R]]  d=1 h=1  Prob146_fsm_serialdata
+[no_error_details/spec-to-rtl] 147/156 ( 94.2%) ✓136 ✗11 avg_attempts=1.3 skip=144 err=0  ETA     7s  [FAIL[C]]  d=1 h=1  Prob147_circuit10
+[no_error_details/spec-to-rtl] 148/156 ( 94.9%) ✓137 ✗11 avg_attempts=1.3 skip=144 err=0  ETA     7s  [pass 1]  d=1 h=0  Prob148_2013_q2afsm
+[no_error_details/spec-to-rtl] 149/156 ( 95.5%) ✓137 ✗12 avg_attempts=1.3 skip=144 err=0  ETA     8s  [FAIL[R]]  d=1 h=1  Prob149_ece241_2013_q4
+[no_error_details/spec-to-rtl] 150/156 ( 96.2%) ✓138 ✗12 avg_attempts=1.3 skip=144 err=0  ETA     7s  [pass 1]  Prob150_review2015_fsmonehot
+[no_error_details/spec-to-rtl] 151/156 ( 96.8%) ✓138 ✗13 avg_attempts=1.3 skip=144 err=0  ETA     7s  [FAIL[e]]  d=1 h=1  Prob151_review2015_fsm
+[no_error_details/spec-to-rtl] 152/156 ( 97.4%) ✓139 ✗13 avg_attempts=1.3 skip=144 err=0  ETA     6s  [pass 4]  d=1 h=1  Prob152_lemmings3
+[no_error_details/spec-to-rtl] 153/156 ( 98.1%) ✓139 ✗14 avg_attempts=1.3 skip=144 err=0  ETA     5s  [FAIL[R]]  d=1 h=2  Prob153_gshare
+[no_error_details/spec-to-rtl] 154/156 ( 98.7%) ✓140 ✗14 avg_attempts=1.4 skip=144 err=0  ETA     4s  [pass 2]  d=1 h=1  Prob154_fsm_ps2data
+[no_error_details/spec-to-rtl] 155/156 ( 99.4%) ✓140 ✗15 avg_attempts=1.4 skip=144 err=0  ETA     2s  [FAIL[R]]  d=1 h=1  Prob155_lemmings4
+[no_error_details/spec-to-rtl] 156/156 (100.0%) ✓140 ✗16 avg_attempts=1.4 skip=144 err=0  ETA     0s  [FAIL[R]]  d=1 h=1  Prob156_review2015_fancytimer
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  no_error_details  ×  spec-to-rtl
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Total   : 156
+  Passed  : 140  (89.7%)
+  Failed  : 16
+  Skipped : 144  (--resume)
+  Time    : 388s
+
+  Pass by attempt:
+    attempt 1: 111  ███████████████
+    attempt 2:  18  ██
+    attempt 3:   5  
+    attempt 4:   3  
+    attempt 5:   3  
+
+  Error Distribution:
+    R: 103 times
+    w:  14 times
+    e:  10 times
+    Ys:   1 times
+    C:   1 times
+
+  Tool Calls (total / avg per problem):
+    decompose_spec  :   41  (0.26 avg)
+    get_debug_hints :   48  (0.31 avg)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

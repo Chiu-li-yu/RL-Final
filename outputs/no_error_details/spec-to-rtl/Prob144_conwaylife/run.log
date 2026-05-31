@@ -1,0 +1,118 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成 16x16 康威生命遊戲（Game of Life）的 Verilog 實作，你可以依照以下五個階段進行開發：
+
+1. 建立 16x16 的暫存器陣列或 256 位元寬的暫存器 `q`，並實作 `load` 信號控制的同步載入邏輯。
+2. 設計一個組合邏輯函數，輸入為當前儲存格及其周圍 8 個鄰居的狀態，並根據題目規則輸出下一時刻的狀態。
+3. 實作 Toroid（環狀）鄰居尋址邏輯，利用模運算（Modulo）或邊界條件判斷，將 `q` 的索引映射至對應的上下左右與斜向鄰居。
+4. 在 `always @(posedge clk)` 區塊中，整合上述邏輯，計算全域 256 個儲存格的下一狀態並更新至 `q`。
+5. 撰寫 Testbench 進行驗證，包括載入初始圖樣（如 Glider 或 Blinker）並觀察其在 16x16 環狀邊界下的演化情形。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 1] ← compile_and_test: C
+/tmp/tmplshup1kt.sv:25: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmplshup1kt.sv:25: error: Array index expressions must be constant here.
+/tmp/tmplshup1kt.sv:26: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmplshup1kt.sv:26: error: Array index expressions must be constant here.
+/tmp/tmplshup1kt.sv:27: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmplshup1kt.sv:27: error: Array index expressions must be constant here.
+/tmp/tmplshup1kt.sv:28: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmplshup1kt.sv:28: error: Array index expressions must be constant here.
+/tmp/tmplshup1kt.sv:29: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmplshup1kt.sv:29: error: Array index expressions must be constant here.
+/tmp/tmplshup1kt.sv:30: error: A reference to a wire or reg (`r') is not al
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 2] ← compile_and_test: C
+/tmp/tmpvosdd9l6.sv:24: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpvosdd9l6.sv:24: error: Array index expressions must be constant here.
+/tmp/tmpvosdd9l6.sv:25: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpvosdd9l6.sv:25: error: Array index expressions must be constant here.
+/tmp/tmpvosdd9l6.sv:26: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpvosdd9l6.sv:26: error: Array index expressions must be constant here.
+/tmp/tmpvosdd9l6.sv:27: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpvosdd9l6.sv:27: error: Array index expressions must be constant here.
+/tmp/tmpvosdd9l6.sv:28: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpvosdd9l6.sv:28: error: Array index expressions must be constant here.
+/tmp/tmpvosdd9l6.sv:29: error: A reference to a wire or reg (`r') is not al
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 3] ← compile_and_test: C
+/tmp/tmpe3abki1p.sv:25: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpe3abki1p.sv:25: error: Array index expressions must be constant here.
+/tmp/tmpe3abki1p.sv:26: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpe3abki1p.sv:26: error: Array index expressions must be constant here.
+/tmp/tmpe3abki1p.sv:27: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpe3abki1p.sv:27: error: Array index expressions must be constant here.
+/tmp/tmpe3abki1p.sv:28: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpe3abki1p.sv:28: error: Array index expressions must be constant here.
+/tmp/tmpe3abki1p.sv:29: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpe3abki1p.sv:29: error: Array index expressions must be constant here.
+/tmp/tmpe3abki1p.sv:30: error: A reference to a wire or reg (`r') is not al
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 4] ← compile_and_test: C
+/tmp/tmpkqp3c_kb.sv:30: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpkqp3c_kb.sv:30: error: Array index expressions must be constant here.
+/tmp/tmpkqp3c_kb.sv:31: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpkqp3c_kb.sv:31: error: Array index expressions must be constant here.
+/tmp/tmpkqp3c_kb.sv:32: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpkqp3c_kb.sv:32: error: Array index expressions must be constant here.
+/tmp/tmpkqp3c_kb.sv:33: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpkqp3c_kb.sv:33: error: Array index expressions must be constant here.
+/tmp/tmpkqp3c_kb.sv:34: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpkqp3c_kb.sv:34: error: Array index expressions must be constant here.
+/tmp/tmpkqp3c_kb.sv:35: error: A reference to a wire or reg (`r') is not al
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 5] ← compile_and_test: C
+/tmp/tmpl8s3d74a.sv:17: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpl8s3d74a.sv:17: error: Array index expressions must be constant here.
+/tmp/tmpl8s3d74a.sv:25: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpl8s3d74a.sv:25: error: Array index expressions must be constant here.
+/tmp/tmpl8s3d74a.sv:26: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpl8s3d74a.sv:26: error: Array index expressions must be constant here.
+/tmp/tmpl8s3d74a.sv:27: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpl8s3d74a.sv:27: error: Array index expressions must be constant here.
+/tmp/tmpl8s3d74a.sv:28: error: A reference to a wire or reg (`r') is not allowed in a constant expression.
+/tmp/tmpl8s3d74a.sv:28: error: Array index expressions must be constant here.
+/tmp/tmpl8s3d74a.sv:29: error: A reference to a wire or reg (`r') is not al

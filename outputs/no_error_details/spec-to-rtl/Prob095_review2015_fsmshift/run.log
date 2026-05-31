@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+根據您的需求，將該 Verilog 題目分解為以下 4 個具體且可執行的子目標：
+
+1. 定義 `TopModule` 模組介面，宣告 `clk`、`reset` 輸入埠與 `shift_ena` 輸出埠。
+2. 設計一個 3-bit 的計數器（Counter）來記錄 `shift_ena` 被致能的週期數，並處理同步重置邏輯。
+3. 實作有限狀態機（FSM）或邏輯判斷，當 `reset` 為高電位時啟動計數，並在計數達到 4 之前將 `shift_ena` 設為 1。
+4. 設定終止條件，確保計數滿 4 個週期後將 `shift_ena` 鎖定為 0，直到下一次重置觸發為止。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    output logic shift_ena
+);
+
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

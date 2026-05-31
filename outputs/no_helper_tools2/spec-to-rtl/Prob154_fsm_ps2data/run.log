@@ -1,0 +1,85 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 1] ← compile_and_test: R  mismatches=434
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 434 mismatches. First mismatch occurred at time 240.
+Hint: Output 'done' has no mismatches.
+Hint: Total mismatched samples is 434 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 434 in 1619 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 2] ← compile_and_test: R  mismatches=434
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 434 mismatches. First mismatch occurred at time 240.
+Hint: Output 'done' has no mismatches.
+Hint: Total mismatched samples is 434 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 434 in 1619 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 3] ← compile_and_test: R  mismatches=578
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 282 mismatches. First mismatch occurred at time 240.
+Hint: Output 'done' has 488 mismatches. First mismatch occurred at time 230.
+Hint: Total mismatched samples is 578 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 578 in 1619 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 4] ← compile_and_test: R  mismatches=434
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 434 mismatches. First mismatch occurred at time 240.
+Hint: Output 'done' has no mismatches.
+Hint: Total mismatched samples is 434 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 434 in 1619 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 5] ← compile_and_test: R  mismatches=434
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 434 mismatches. First mismatch occurred at time 240.
+Hint: Output 'done' has no mismatches.
+Hint: Total mismatched samples is 434 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 434 in 1619 samples

@@ -1,0 +1,46 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input a,
+    input b,
+    output q,
+    output state
+[attempt 1] ← compile_and_test: R  mismatches=229
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob147_circuit10_test.sv:50: $finish called at 1160 (1ps)
+Hint: Output 'q' has 229 mismatches. First mismatch occurred at time 20.
+Hint: Output 'state' has 229 mismatches. First mismatch occurred at time 20.
+Hint: Total mismatched samples is 229 out of 232 samples
+
+Simulation finished at 1160 ps
+Mismatches: 229 in 232 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input a,
+    input b,
+    output q,
+    output state
+[attempt 2] ← compile_and_test: R  mismatches=14
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob147_circuit10_test.sv:50: $finish called at 1160 (1ps)
+Hint: Output 'q' has 14 mismatches. First mismatch occurred at time 60.
+Hint: Output 'state' has 14 mismatches. First mismatch occurred at time 60.
+Hint: Total mismatched samples is 14 out of 232 samples
+
+Simulation finished at 1160 ps
+Mismatches: 14 in 232 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input a,
+    input b,
+    output q,
+    output state
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

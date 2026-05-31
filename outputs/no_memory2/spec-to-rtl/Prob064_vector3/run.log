@@ -1,0 +1,19 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input  logic [4:0] a,
+    input  logic [4:0] b,
+    input  logic [4:0] c,
+    input  logic [4:0] d,
+    input  logic [4:0] e,
+[attempt 1] ← compile_and_test: R  mismatches=1
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob064_vector3_test.sv:44: $finish called at 630 (1ps)
+Hint: Output 'w' has no mismatches.
+Hint: Output 'x' has no mismatches.
+Hint: Output 'y' has no mismatches.
+Hint: Output 'z' has 1 mismatches. First mismatch occurred at time 5.
+Hint: Total mismatched samples is 1 out of 126 samples
+
+Simulation finished at 630 ps
+Mismatches: 1 in 126 samples

@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是針對該 FSM 設計任務分解的 4 個具體子目標：
+
+1. 設計一個狀態機來偵測連續序列「1101」，偵測完成後轉移至下一階段。
+2. 實作一個計數器或狀態循環，在偵測到序列後將 `shift_ena` 訊號維持高準位恰好 4 個時鐘週期。
+3. 實作等待邏輯，將 `counting` 訊號設為高準位，並持續監測 `done_counting` 直到其變為高準位。
+4. 實作結束通知邏輯，將 `done` 訊號設為高準位，並等待 `ack` 訊號以重置狀態機回到初始搜尋狀態。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    input done_counting,
+    input ack,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

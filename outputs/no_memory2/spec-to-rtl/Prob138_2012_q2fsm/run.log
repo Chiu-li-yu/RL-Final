@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該 Verilog 題目分解成的 5 個具體執行目標：
+
+1. 定義狀態編碼（Parameters）並宣告狀態暫存器（current_state, next_state）。
+2. 編寫同步重置邏輯與時序電路（Always block），負責在時脈上升緣更新 current_state。
+3. 編寫組合邏輯電路（Always block），根據 current_state 與輸入 w 定義狀態轉移邏輯（next_state）。
+4. 編寫組合邏輯電路（Assign 或 Always block），根據 current_state 定義輸出 z 的邏輯規則。
+5. 整合所有模組並進行語法檢查，確保符合同步重置與分層邏輯架構之要求。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input w,
+    output logic z
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

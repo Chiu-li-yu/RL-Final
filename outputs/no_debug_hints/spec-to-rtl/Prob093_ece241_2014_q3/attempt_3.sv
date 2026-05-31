@@ -1,34 +1,25 @@
-module MUX2to1(
-    input sel,
-    input in0,
-    input in1,
-    output out
-);
-    assign out = (sel) ? in1 : in0;
-endmodule
-
-module TopModule(
+module TopModule (
     input c,
     input d,
-    output [3:0] mux_in
+    output logic [3:0] mux_in
 );
-    // OR(c, d)
-    wire or_out;
-    MUX2to1 m1(c, d, 1'b1, or_out);
+    // Let's re-examine the K-map values very carefully:
+    // Rows (cd): 00, 01, 11, 10
+    // Cols (ab): 00, 01, 11, 10
+    
+    // Column 00 (ab=00): Rows 00=0, 01=1, 11=1, 10=1. f = c|d.
+    // Column 01 (ab=01): Rows 00=0, 01=0, 11=0, 10=0. f = 0.
+    // Column 11 (ab=11): Rows 00=0, 01=0, 11=1, 10=0. f = c&d.
+    // Column 10 (ab=10): Rows 00=1, 01=0, 11=0, 10=1. f = ~(c^d).
 
-    // AND(c, d)
-    wire and_out;
-    MUX2to1 m2(c, 1'b0, d, and_out);
-
-    // XNOR(c, d)
-    wire not_d;
-    MUX2to1 m3(d, 1'b1, 1'b0, not_d);
-    wire xnor_out;
-    MUX2to1 m4(c, d, not_d, xnor_out);
-
-    // Re-mapping based on: ab 00, 01, 11, 10 -> index 0, 1, 2, 3
-    assign mux_in[0] = or_out;    // ab=00 -> c|d
-    assign mux_in[1] = 1'b0;      // ab=01 -> 0
-    assign mux_in[2] = and_out;   // ab=11 -> c&d
-    assign mux_in[3] = xnor_out;  // ab=10 -> ~(c^d)
+    // Mapping to mux_in[0..3] where index corresponds to ab value:
+    // index 0 (ab=00): c | d
+    // index 1 (ab=01): 0
+    // index 2 (ab=10): ~(c ^ d)
+    // index 3 (ab=11): c & d
+    
+    assign mux_in[0] = c | d;
+    assign mux_in[1] = 1'b0;
+    assign mux_in[2] = ~(c ^ d);
+    assign mux_in[3] = c & d;
 endmodule

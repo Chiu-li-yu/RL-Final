@@ -1,0 +1,86 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input in,
+    output logic disc,
+    output logic flag,
+[attempt 1] ← compile_and_test: e
+/tmp/tmp18isr6ii.sv:24: error: This assignment requires an explicit cast.
+/tmp/tmp18isr6ii.sv:25: error: This assignment requires an explicit cast.
+/tmp/tmp18isr6ii.sv:26: error: This assignment requires an explicit cast.
+/tmp/tmp18isr6ii.sv:27: error: This assignment requires an explicit cast.
+/tmp/tmp18isr6ii.sv:28: error: This assignment requires an explicit cast.
+/tmp/tmp18isr6ii.sv:29: error: This assignment requires an explicit cast.
+/tmp/tmp18isr6ii.sv:30: error: This assignment requires an explicit cast.
+/tmp/tmp18isr6ii.sv:31: error: This assignment requires an explicit cast.
+/tmp/tmp18isr6ii.sv:32: error: This assignment requires an explicit cast.
+9 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input in,
+    output logic disc,
+    output logic flag,
+[attempt 2] ← compile_and_test: e
+/tmp/tmp9hupmfvx.sv:24: error: This assignment requires an explicit cast.
+/tmp/tmp9hupmfvx.sv:25: error: This assignment requires an explicit cast.
+/tmp/tmp9hupmfvx.sv:26: error: This assignment requires an explicit cast.
+/tmp/tmp9hupmfvx.sv:27: error: This assignment requires an explicit cast.
+/tmp/tmp9hupmfvx.sv:28: error: This assignment requires an explicit cast.
+/tmp/tmp9hupmfvx.sv:29: error: This assignment requires an explicit cast.
+/tmp/tmp9hupmfvx.sv:30: error: This assignment requires an explicit cast.
+/tmp/tmp9hupmfvx.sv:31: error: This assignment requires an explicit cast.
+/tmp/tmp9hupmfvx.sv:32: error: This assignment requires an explicit cast.
+9 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input in,
+    output logic disc,
+    output logic flag,
+[attempt 3] ← compile_and_test: R  mismatches=52
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob140_fsm_hdlc_test.sv:20: $finish called at 4006 (1ps)
+Hint: Output 'disc' has no mismatches.
+Hint: Output 'flag' has 52 mismatches. First mismatch occurred at time 70.
+Hint: Output 'err' has no mismatches.
+Hint: Total mismatched samples is 52 out of 801 samples
+
+Simulation finished at 4006 ps
+Mismatches: 52 in 801 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input in,
+    output logic disc,
+    output logic flag,
+[attempt 4] ← compile_and_test: R  mismatches=800
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob140_fsm_hdlc_test.sv:20: $finish called at 4006 (1ps)
+Hint: Output 'disc' has 800 mismatches. First mismatch occurred at time 10.
+Hint: Output 'flag' has 800 mismatches. First mismatch occurred at time 10.
+Hint: Output 'err' has 800 mismatches. First mismatch occurred at time 10.
+Hint: Total mismatched samples is 800 out of 801 samples
+
+Simulation finished at 4006 ps
+Mismatches: 800 in 801 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input in,
+    output logic disc,
+    output logic flag,
+[attempt 5] ← compile_and_test: .
+
+[attempt 5] → synthesize (auto, last attempt)
+[attempt 5] ← synthesize: Y

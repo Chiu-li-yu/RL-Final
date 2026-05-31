@@ -1,0 +1,61 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是針對該 PS/2 滑鼠協議解析題目的 4 個具體執行步驟：
+
+1. 定義有限狀態機（FSM）的三個狀態（例如：SEARCH, BYTE2, BYTE3）並實作狀態轉換邏輯。
+2. 在 SEARCH 狀態中加入判斷邏輯，當接收到符合 `in[3] == 1` 的輸入時，轉換至 BYTE2 狀態。
+3. 實作 BYTE2 到 BYTE3 的狀態依序轉換，並確保在進入 BYTE3 狀態後，下一個輸入週期能正確轉換回 SEARCH 狀態。
+4. 在接收到第三個 byte 的週期後，輸出 `done = 1` 信號，並確保該信號僅維持一個時脈週期。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic [7:0] in,
+    output logic done
+);
+[attempt 1] ← compile_and_test: R  mismatches=182
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 182 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 182 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 182 in 400 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic [7:0] in,
+    output logic done
+);
+[attempt 2] ← compile_and_test: R  mismatches=90
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 90 mismatches. First mismatch occurred at time 210.
+Hint: Total mismatched samples is 90 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 90 in 400 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic [7:0] in,
+    output logic done
+);
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

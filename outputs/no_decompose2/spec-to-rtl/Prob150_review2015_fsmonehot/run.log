@@ -1,0 +1,43 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input d,
+    input done_counting,
+    input ack,
+    input [9:0] state,
+    output B3_next,
+[attempt 1] ← compile_and_test: R  mismatches=17
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob150_review2015_fsmonehot_test.sv:22: $finish called at 1501 (1ps)
+Hint: Output 'B3_next' has no mismatches.
+Hint: Output 'S_next' has no mismatches.
+Hint: Output 'S1_next' has 17 mismatches. First mismatch occurred at time 100.
+Hint: Output 'Count_next' has no mismatches.
+Hint: Output 'Wait_next' has no mismatches.
+Hint: Output 'done' has no mismatches.
+Hint: Output 'counting' has no mismatches.
+Hint: Output 'shift_ena' has no mismatches.
+Hint: Total mismatched samples is 17 out of 300 samples
+
+Simulation finished at 1501 ps
+Mismatches: 17 in 300 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input d,
+    input done_counting,
+    input ack,
+    input [9:0] state,
+    output B3_next,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

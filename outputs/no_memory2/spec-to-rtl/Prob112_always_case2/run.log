@@ -1,0 +1,16 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic [3:0] in,
+    output logic [1:0] pos
+);
+    always @(*) begin
+        if (in[3])
+[attempt 1] ← compile_and_test: R  mismatches=61
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob112_always_case2_test.sv:38: $finish called at 470 (1ps)
+Hint: Output 'pos' has 61 mismatches. First mismatch occurred at time 90.
+Hint: Total mismatched samples is 61 out of 94 samples
+
+Simulation finished at 470 ps
+Mismatches: 61 in 94 samples

@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob147_circuit10",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "C",
+  "sim_error_log": "/tmp/tmpubyl7bmc.sv:118: error: Unresolved net/uwire q cannot have multiple drivers.\n1 error(s) during elaboration.",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R",
+    "R",
+    "R",
+    "R",
+    "C"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 1,
+  "task": "spec-to-rtl",
+  "experiment": "no_error_details"
+}

@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+根據題目要求，以下是分解後的 3-5 個具體執行子目標：
+
+1. 定義模組介面，包含輸入訊號 `ring` 與 `vibrate_mode`，以及輸出訊號 `ringer` 與 `motor`。
+2. 建立判斷邏輯，確認當 `ring` 為高電位（1）時，根據 `vibrate_mode` 的狀態決定啟用哪個輸出。
+3. 實作條件判斷（若 `vibrate_mode == 1` 則啟動 `motor`，否則啟動 `ringer`）。
+4. 加入防護機制，確保在任何情況下 `ringer` 與 `motor` 不會同時為高電位（1）。
+5. 確保在 `ring` 為低電位（0）時，兩個輸出皆保持為關閉狀態（0）。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic ring,
+    input logic vibrate_mode,
+    output logic ringer,
+    output logic motor
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

@@ -7,19 +7,19 @@ module TopModule (
     output [99:0] out_different
 );
 [attempt 1] ← compile_and_test: w
-/tmp/tmpm0vbmwse.sv:12: error: out_both['sd99] is not a valid l-value in tb.top_module1.
-/tmp/tmpm0vbmwse.sv:3:      : out_both['sd99] is declared here as wire.
-/tmp/tmpm0vbmwse.sv:14: error: out_both[i] is not a valid l-value in tb.top_module1.
-/tmp/tmpm0vbmwse.sv:3:      : out_both[i] is declared here as wire.
-/tmp/tmpm0vbmwse.sv:18: error: out_any['sd0] is not a valid l-value in tb.top_module1.
-/tmp/tmpm0vbmwse.sv:4:      : out_any['sd0] is declared here as wire.
-/tmp/tmpm0vbmwse.sv:20: error: out_any[i] is not a valid l-value in tb.top_module1.
-/tmp/tmpm0vbmwse.sv:4:      : out_any[i] is declared here as wire.
-/tmp/tmpm0vbmwse.sv:25: error: out_different[i] is not a valid l-value in tb.top_module1.
-/tmp/tmpm0vbmwse.sv:5:      : out_different[i] is declared here as wire.
-/tmp/tmpm0vbmwse.sv:27: error: out_different['sd99] is not a valid l-value in tb.top_module1.
-/tmp/tmpm0vbmwse.sv:5:      : out_different['sd99] is declared here as wire.
-/tmp/tmpm0vbmwse.sv:10: warning: @* found no
+/tmp/tmp9pzunr0c.sv:13: error: out_both[i] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:3:      : out_both[i] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:15: error: out_both['sd99] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:3:      : out_both['sd99] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:19: error: out_any[i] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:4:      : out_any[i] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:21: error: out_any['sd0] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:4:      : out_any['sd0] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:27: error: out_different[i] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:5:      : out_different[i] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:29: error: out_different['sd99] is not a valid l-value in tb.top_module1.
+/tmp/tmp9pzunr0c.sv:5:      : out_different['sd99] is declared here as wire.
+/tmp/tmp9pzunr0c.sv:10: warning: @* found no
 
 [attempt 2] → compile_and_test
 module TopModule (

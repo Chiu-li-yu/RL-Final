@@ -3,15 +3,19 @@
   "passed": true,
   "sim_passed": true,
   "synth_passed": true,
-  "attempts": 1,
+  "attempts": 3,
   "sim_error_type": ".",
   "sim_error_log": "",
   "synth_error_type": "Y",
   "synth_error_log": "",
   "sim_error_sequence": [
+    "e",
+    "e",
     "."
   ],
   "synth_error_sequence": [
+    null,
+    null,
     "Y"
   ],
   "decompose_spec_calls": 0,

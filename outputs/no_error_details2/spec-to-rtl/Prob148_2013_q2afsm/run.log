@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是針對該 3-bit arbiter FSM 的執行步驟：
+
+1. 定義狀態編碼（A, B, C, D）並宣告時序邏輯區塊（Sequential Block）以處理 Clock 與 Active-low Reset。
+2. 設計狀態轉移邏輯（Next State Logic），根據當前狀態與輸入 r[0:2] 決定下一個狀態。
+3. 設計輸出邏輯（Output Logic），根據當前狀態產生對應的 Grant 訊號 g[0:2]。
+4. 編寫 Testbench 驗證各優先級請求及狀態跳轉邏輯是否符合規格要求。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input resetn,
+    input [2:0] r,
+    output [2:0] g
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

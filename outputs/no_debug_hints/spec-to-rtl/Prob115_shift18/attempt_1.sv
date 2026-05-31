@@ -4,10 +4,10 @@ module TopModule (
     input ena,
     input [1:0] amount,
     input [63:0] data,
-    output reg [63:0] q
+    output logic [63:0] q
 );
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (load) begin
             q <= data;
         end else if (ena) begin

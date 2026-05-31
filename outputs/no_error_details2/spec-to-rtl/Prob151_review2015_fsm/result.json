@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob151_review2015_fsm",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "e",
+  "sim_error_log": "/tmp/tmprsxz39o7.sv:38: error: This assignment requires an explicit cast.\n/tmp/tmprsxz39o7.sv:39: error: This assignment requires an explicit cast.\n/tmp/tmprsxz39o7.sv:40: error: This assignment requires an explicit cast.\n/tmp/tmprsxz39o7.sv:41: error: This assignment requires an explicit cast.\n4 error(s) during elaboration.",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R",
+    "e",
+    "R",
+    "e",
+    "e"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 1,
+  "task": "spec-to-rtl",
+  "experiment": "no_error_details"
+}

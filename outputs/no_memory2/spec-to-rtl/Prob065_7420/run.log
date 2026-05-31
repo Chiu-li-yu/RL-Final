@@ -1,0 +1,15 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input  p1a,
+    input  p1b,
+    input  p1c,
+    input  p1d,
+    input  p2a,
+[attempt 1] ← compile_and_test: w
+/tmp/tmpmt7ae1e0.sv:15: error: p1y is not a valid l-value in tb.top_module1.
+/tmp/tmpmt7ae1e0.sv:10:      : p1y is declared here as wire.
+/tmp/tmpmt7ae1e0.sv:16: error: p2y is not a valid l-value in tb.top_module1.
+/tmp/tmpmt7ae1e0.sv:11:      : p2y is declared here as wire.
+/tmp/tmpmt7ae1e0.sv:14: warning: @* found no sensitivities so it will never trigger.
+2 error(s) during elaboration.

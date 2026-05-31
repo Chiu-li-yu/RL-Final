@@ -1,0 +1,30 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成此 Verilog 專案，建議將開發流程分解為以下 5 個具體子目標：
+
+1. 定義狀態機（FSM）的狀態編碼，以表示四種水位區間及紀錄「前一次水位變動方向」所需的歷史資訊。
+2. 實作組合邏輯來根據當前 sensor 輸入值（s[2:0]）與歷史狀態，決定 Nominal Flow Rate 輸出（fr0, fr1, fr2）。
+3. 實作邏輯判斷（若當前水位低於前一次狀態），控制 Supplemental Flow Valve（dfr）的輸出。
+4. 編寫同步重置邏輯，確保在 reset 為高電位時，系統進入「水位最低」（無 sensor 被觸發且所有輸出為 1）的初始狀態。
+5. 編寫測試平台（Testbench）以模擬所有水位區間的變動情形，驗證輸出訊號是否符合題目要求的邏輯真值表。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [2:0] s,
+    output fr2,
+    output fr1,
+[attempt 1] ← compile_and_test: R  mismatches=873
+VCD info: dumpfile wave.vcd opened for output.
+Hint: Your reset doesn't seem to be working.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob149_ece241_2013_q4_test.sv:84: $finish called at 10200 (1ps)
+Hint: Output 'fr2' has 312 mismatches. First mismatch occurred at time 10.
+Hint: Output 'fr1' has 288 mismatches. First mismatch occurred at time 120.
+Hint: Output 'fr0' has 273 mismatches. First mismatch occurred at time 130.
+Hint: Output 'dfr' has 492 mismatches. First mismatch occurred at time 10.
+Hint: Total mismatched samples is 873 out of 2040 samples
+
+Simulation finished at 10200 ps
+Mismatches: 873 in 2040 samples

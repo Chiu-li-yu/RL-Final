@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是該 Verilog 題目的執行子目標分解：
+
+1. 定義模組介面並宣告 10-bit 的邏輯變數作為內部計數器。
+2. 使用 `always_ff @(posedge clk)` 區塊建立同步邏輯。
+3. 實作負載邏輯：當 `load` 為 1 時將輸入的 `data` 寫入計數器。
+4. 實作計數邏輯：當 `load` 為 0 且計數器大於 0 時，執行減 1 操作。
+5. 實作輸出邏輯：透過連續賦值語句（assign）判斷計數器是否為 0 來決定 `tc` 的值。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic load,
+    input logic [9:0] data,
+    output logic tc
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

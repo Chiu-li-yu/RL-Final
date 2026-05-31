@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了實現此 shift register 單元，你可以將開發過程分解為以下 5 個子目標：
+
+1. 定義包含所有輸入埠 (clk, w, R, E, L) 與輸出埠 (Q) 的 Verilog 模組介面 (module declaration)。
+2. 在模組內部宣告 `Q` 的暫存器型態 (reg)，並設定正緣觸發的 `always` 區塊以偵測 `clk` 的上升緣。
+3. 在 `always` 區塊內撰寫優先權邏輯，使用 `if-else` 語句處理 `L` (load) 的優先判斷，確保載入功能優先於位移功能。
+4. 在 `if-else` 結構中加入針對 `E` (enable) 的判斷式，當 `L` 為低電位且 `E` 為高電位時，將 `Q` 更新為 `w`。
+5. 確保邏輯中包含隱含的「維持不變」狀態（即 `else` 分支下保持原值），並完成模組封裝與語法檢查。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input w,
+    input R,
+    input E,
+    input L,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

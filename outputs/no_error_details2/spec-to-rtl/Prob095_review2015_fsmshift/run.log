@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了達成題目要求，建議將實作分解為以下 4 個子目標：
+
+1. 定義一個 3 位元的計數器（Counter）來追蹤已輸出的週期次數（0 到 4）。
+2. 設計一個狀態控制邏輯，在重置訊號（reset）有效時將計數器歸零，並在時脈上升緣觸發時開始累加。
+3. 實作組合邏輯以產生 `shift_ena` 訊號：當計數器小於 4 時輸出高電位，否則保持低電位。
+4. 確保在計數器達到 4 後停止累加，並維持 `shift_ena` 為 0 直到下一次重置。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    output logic shift_ena
+);
+    logic [2:0] count;
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

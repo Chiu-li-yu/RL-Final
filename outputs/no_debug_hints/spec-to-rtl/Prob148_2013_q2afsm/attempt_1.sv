@@ -1,19 +1,15 @@
-module TopModule(
+module TopModule (
     input clk,
     input resetn,
     input [2:0] r,
     output [2:0] g
 );
-    localparam A = 2'b00, B = 2'b01, C = 2'b10, D = 2'b11;
+
+    parameter A = 2'b00, B = 2'b01, C = 2'b10, D = 2'b11;
+
     logic [1:0] state, next_state;
 
-    always_ff @(posedge clk) begin
-        if (!resetn) state <= A;
-        else state <= next_state;
-    end
-
-    always_comb begin
-        next_state = state;
+    always @(*) begin
         case (state)
             A: begin
                 if (r[0]) next_state = B;
@@ -37,13 +33,15 @@ module TopModule(
         endcase
     end
 
-    always_comb begin
-        g = 3'b000;
-        case (state)
-            B: g = 3'b001;
-            C: g = 3'b010;
-            D: g = 3'b100;
-            default: g = 3'b000;
-        endcase
+    always @(posedge clk) begin
+        if (!resetn)
+            state <= A;
+        else
+            state <= next_state;
     end
+
+    assign g[0] = (state == B);
+    assign g[1] = (state == C);
+    assign g[2] = (state == D);
+
 endmodule

@@ -7,45 +7,54 @@ module TopModule (
 );
 
     typedef enum logic [1:0] {
-        S0 = 2'b00, // Searching for start
-        S1 = 2'b01, // Received byte 1
-        S2 = 2'b10, // Received byte 2
-        S3 = 2'b11  // Received byte 3 (done)
+        STATE_WAIT_BYTE1 = 2'd0,
+        STATE_WAIT_BYTE2 = 2'd1,
+        STATE_WAIT_BYTE3 = 2'd2,
+        STATE_DONE       = 2'd3
     } state_t;
 
     state_t state, next_state;
-    logic [7:0] b1, b2, b3;
+    logic [7:0] byte1, byte2, byte3;
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            state <= S0;
-            b1 <= 8'b0;
-            b2 <= 8'b0;
-            b3 <= 8'b0;
-            out_bytes <= 24'b0;
-            done <= 1'b0;
+            state <= STATE_WAIT_BYTE1;
+            byte1 <= 8'd0;
+            byte2 <= 8'd0;
+            byte3 <= 8'd0;
         end else begin
             state <= next_state;
-            if (state == S0 && in[3]) begin
-                b1 <= in;
-            end else if (state == S1) begin
-                b2 <= in;
-            end else if (state == S2) begin
-                b3 <= in;
-                out_bytes <= {b1, b2, in};
+            if (state == STATE_WAIT_BYTE1 && in[3]) begin
+                byte1 <= in;
+            end else if (state == STATE_WAIT_BYTE2) begin
+                byte2 <= in;
+            end else if (state == STATE_WAIT_BYTE3) begin
+                byte3 <= in;
             end
-            
-            done <= (next_state == S3);
         end
     end
 
     always @(*) begin
+        next_state = state;
+        done = 1'b0;
+        out_bytes = 24'd0;
+
         case (state)
-            S0: next_state = (in[3]) ? S1 : S0;
-            S1: next_state = S2;
-            S2: next_state = S3;
-            S3: next_state = (in[3]) ? S1 : S0;
-            default: next_state = S0;
+            STATE_WAIT_BYTE1: begin
+                if (in[3]) next_state = STATE_WAIT_BYTE2;
+            end
+            STATE_WAIT_BYTE2: begin
+                next_state = STATE_WAIT_BYTE3;
+            end
+            STATE_WAIT_BYTE3: begin
+                next_state = STATE_DONE;
+            end
+            STATE_DONE: begin
+                done = 1'b1;
+                out_bytes = {byte1, byte2, byte3};
+                if (in[3]) next_state = STATE_WAIT_BYTE2;
+                else next_state = STATE_WAIT_BYTE1;
+            end
         endcase
     end
 endmodule

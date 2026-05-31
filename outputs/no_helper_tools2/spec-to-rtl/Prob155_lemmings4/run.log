@@ -1,0 +1,87 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: R  mismatches=82
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 18 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 32 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 10 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 22 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 82 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 82 in 1003 samples
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 2] ← compile_and_test: R  mismatches=118
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 30 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 40 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 14 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 34 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 118 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 118 in 1003 samples
+
+[attempt 3] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 3] ← compile_and_test: R  mismatches=82
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 18 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 32 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 10 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 22 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 82 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 82 in 1003 samples
+
+[attempt 4] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 4] ← compile_and_test: e
+/tmp/tmp7li8s1l6.sv:47: error: This assignment requires an explicit cast.
+1 error(s) during elaboration.
+
+[attempt 5] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 5] ← compile_and_test: R  mismatches=158
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 48 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 52 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 20 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 38 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 158 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 158 in 1003 samples

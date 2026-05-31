@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成此 Verilog 題目，建議將開發流程分解為以下 4 個具體子目標：
+
+1. 定義狀態機的狀態編碼（如 IDLE, S1, S11, S110, FOUND），並宣告與初始化相關的狀態暫存器。
+2. 實作組合邏輯部分，根據當前狀態與輸入 `data`，判斷下一個狀態的轉移邏輯（State Transition）。
+3. 實作輸出邏輯，當狀態進入代表「已偵測到 1101」的最終狀態時，將 `start_shifting` 設為 1 並保持鎖定。
+4. 撰寫時序邏輯區塊（Always block），使用正緣觸發（posedge clk）並處理同步高態有效（Synchronous High-Active）的 `reset` 信號。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

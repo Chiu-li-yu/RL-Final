@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了順利完成此有限狀態機 (FSM) 的設計，建議將任務分解為以下 5 個子目標：
+
+1. 定義狀態機 (FSM) 的狀態（如：IDLE, DETECT_SEQ, SHIFT, COUNTING, DONE），並編寫偵測 "1101" 序列的邏輯。
+2. 實作當序列偵測成功後，啟動一個計數器以維持 `shift_ena` 訊號為高準位，並持續 4 個時脈週期。
+3. 實作 `counting` 狀態邏輯，使其在 `shift_ena` 結束後被觸發，並等待外部輸入 `done_counting` 訊號。
+4. 實作 `done` 訊號的觸發邏輯，並加入等待 `ack` 訊號恢復為初始狀態的機制。
+5. 整合所有邏輯，確保具備同步高準位重置 (Synchronous active-high reset) 功能，並驗證所有輸出訊號與狀態轉換的時序正確性。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input data,
+    input done_counting,
+    input ack,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

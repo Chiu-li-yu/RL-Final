@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了順利完成 16x16 生命遊戲（Game of Life）的 Verilog 實作，建議將任務分解為以下五個子目標：
+
+1. **定義儲存單元與輸入介面**：使用 256-bit 暫存器陣列儲存當前網格狀態，並建立同步載入（Synchronous Load）機制將輸入數據寫入該暫存器。
+2. **實現循環網格（Toroid）索引邏輯**：撰寫一個函式或組合邏輯，根據 (r, c) 座標計算其 8 個鄰居的索引，並正確處理邊界條件以實現循環（wrap-around）效果。
+3. **編寫鄰居計數與演算法模組**：針對每個細胞實作組合邏輯，計算其 8 個鄰居的總和，並依據規則（0-1 死亡、2 維持、3 存活、4+ 死亡）產生該細胞的下一狀態。
+4. **設計主狀態更新邏輯**：建立一個迭代 256 個細胞的組合邏輯陣列，將全域網格的下一狀態計算完畢後，連接至暫存器的輸入端。
+5. **整合時序控制與測試**：實作正緣觸發（Positive Edge）的更新機制，並編寫 Testbench 驗證特定圖形（如 Glider 或 Blinker）在循環網格中的演化行為。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

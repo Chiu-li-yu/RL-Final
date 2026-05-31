@@ -1,0 +1,85 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input resetn,
+    input x,
+    input y,
+    output logic f,
+[attempt 1] ← compile_and_test: R  mismatches=210
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob139_2013_q2bfsm_test.sv:24: $finish called at 5011 (1ps)
+Hint: Output 'f' has no mismatches.
+Hint: Output 'g' has 210 mismatches. First mismatch occurred at time 1970.
+Hint: Total mismatched samples is 210 out of 1002 samples
+
+Simulation finished at 5011 ps
+Mismatches: 210 in 1002 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input resetn,
+    input x,
+    input y,
+    output logic f,
+[attempt 2] ← compile_and_test: R  mismatches=210
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob139_2013_q2bfsm_test.sv:24: $finish called at 5011 (1ps)
+Hint: Output 'f' has no mismatches.
+Hint: Output 'g' has 210 mismatches. First mismatch occurred at time 1970.
+Hint: Total mismatched samples is 210 out of 1002 samples
+
+Simulation finished at 5011 ps
+Mismatches: 210 in 1002 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input resetn,
+    input x,
+    input y,
+    output logic f,
+[attempt 3] ← compile_and_test: R  mismatches=1001
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob139_2013_q2bfsm_test.sv:24: $finish called at 5011 (1ps)
+Hint: Output 'f' has 1001 mismatches. First mismatch occurred at time 10.
+Hint: Output 'g' has 1001 mismatches. First mismatch occurred at time 10.
+Hint: Total mismatched samples is 1001 out of 1002 samples
+
+Simulation finished at 5011 ps
+Mismatches: 1001 in 1002 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input resetn,
+    input x,
+    input y,
+    output logic f,
+[attempt 4] ← compile_and_test: R  mismatches=210
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob139_2013_q2bfsm_test.sv:24: $finish called at 5011 (1ps)
+Hint: Output 'f' has no mismatches.
+Hint: Output 'g' has 210 mismatches. First mismatch occurred at time 1970.
+Hint: Total mismatched samples is 210 out of 1002 samples
+
+Simulation finished at 5011 ps
+Mismatches: 210 in 1002 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input clk,
+    input resetn,
+    input x,
+    input y,
+    output logic f,
+[attempt 5] ← compile_and_test: R  mismatches=518
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob139_2013_q2bfsm_test.sv:24: $finish called at 5011 (1ps)
+Hint: Output 'f' has no mismatches.
+Hint: Output 'g' has 518 mismatches. First mismatch occurred at time 270.
+Hint: Total mismatched samples is 518 out of 1002 samples
+
+Simulation finished at 5011 ps
+Mismatches: 518 in 1002 samples

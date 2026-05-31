@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+針對該 64-bit 算術移位暫存器的設計，建議分解為以下 5 個具體子目標：
+
+1. 定義模組介面，宣告 `clk`、`load`、`ena`、`amount` (2-bit) 與 `data` (64-bit) 輸入，以及 `q` (64-bit) 輸出。
+2. 建立同步重置/載入機制，於 `posedge clk` 時，若 `load` 為高電位，將 `q` 更新為輸入的 `data`。
+3. 實作移位邏輯控制，若 `load` 為低電位且 `ena` 為高電位時，根據 `amount` 的四種狀態選擇對應的位移操作。
+4. 實作左移邏輯（00 與 01），將 `q` 分別左移 1 位及 8 位，並在右側補 0。
+5. 實作算術右移邏輯（10 與 11），將 `q` 分別右移 1 位及 8 位，並在左側填充符號位元 `q[63]` 以維持正負號。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input ena,
+    input [1:0] amount,
+    input [63:0] data,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

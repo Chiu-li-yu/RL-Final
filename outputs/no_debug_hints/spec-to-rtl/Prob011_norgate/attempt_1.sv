@@ -3,5 +3,9 @@ module TopModule (
     input b,
     output out
 );
-    assign out = ~(a | b);
+
+    always @(*) begin
+        out = ~(a | b);
+    end
+
 endmodule

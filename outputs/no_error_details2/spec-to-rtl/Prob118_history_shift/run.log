@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該 Verilog 設計任務分解成的 5 個具體子目標：
+
+1. 定義 `TopModule` 模組介面，宣告 32-bit 的暫存器 `history_reg` 用於儲存全域分支歷史。
+2. 實作 `areset` 的非同步重置邏輯，確保在 `areset` 為高電位時將 `history_reg` 清零。
+3. 實作 `train_mispredicted` 的優先控制邏輯，當其為 1 時，將 `history_reg` 更新為 `{train_history[30:0], train_taken}`。
+4. 在 `train_mispredicted` 為 0 的前提下，實作 `predict_valid` 的更新邏輯，當其為 1 時，將 `history_reg` 左移並把 `predict_taken` 寫入 LSB。
+5. 將 `history_reg` 的當前值持續指派給輸出埠 `predict_history`，並完成所有時序邏輯的封裝。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic areset,
+    input logic predict_valid,
+    input logic predict_taken,
+    input logic train_mispredicted,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

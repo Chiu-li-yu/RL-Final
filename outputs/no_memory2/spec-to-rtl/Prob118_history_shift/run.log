@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+根據您的需求，以下是該 Verilog 模組的執行子目標分解：
+
+1. 定義模組介面並宣告 32-bit 的 `predict_history`暫存器與同步重置邏輯。
+2. 實作非同步重置 (`areset`) 邏輯，在重置信號觸發時將 `predict_history` 清零。
+3. 實作優先權最高的 `train_mispredicted` 邏輯，並根據 `train_history` 與 `train_taken` 執行覆寫更新。
+4. 實作一般的 `predict_valid` 預測更新邏輯，執行向左位移操作 `{predict_history[30:0], predict_taken}`。
+5. 確保在上述條件皆未發生時，維持 `predict_history` 的當前值並完成時序邏輯封裝。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic areset,
+    input logic predict_valid,
+    input logic predict_taken,
+    input logic train_mispredicted,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

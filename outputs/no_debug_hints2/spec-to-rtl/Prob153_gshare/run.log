@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將 gshare 分支預測器分解後的 5 個執行子目標：
+
+1. 定義 128 個 2-bit 飽和計數器陣列（PHT）並實作讀取邏輯（計算 `PC ^ GHR` 並輸出預測結果）。
+2. 實作 GHR（Global History Register）暫存器與其更新邏輯，確保在正緣觸發時正確執行移位與補入。
+3. 實作訓練邏輯模組，根據 `train_taken` 訊號對對應的 PHT 計數器執行遞增或遞減操作。
+4. 實作 GHR 恢復機制與優先級邏輯，確保在發生預測錯誤時能正確還原 GHR。
+5. 整合所有模組並加入非同步高電位重置（Asynchronous Active-High Reset），確保在衝突發生時訓練更新具備最高優先權。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input predict_valid,
+    input [6:0] predict_pc,
+    output predict_taken,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

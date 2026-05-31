@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+根據您的需求，將此 FSM 設計任務分解為以下 5 個具體子目標：
+
+1. 定義狀態機 (FSM) 的狀態編碼，包含初始狀態、計數狀態（需涵蓋 4 個週期）及完成狀態。
+2. 實作一個 2-bit 的計數器，用於追蹤已輸出的週期數，並在每個 `posedge clk` 進行更新。
+3. 根據題目要求，設定重置邏輯，確保 `reset` 為高電位時 FSM 回到初始狀態且計數器歸零。
+4. 撰寫組合邏輯或輸出邏輯，當狀態處於計數階段時將 `shift_ena` 設為 1，其餘情況設為 0。
+5. 實作狀態跳轉邏輯，確保在第 4 個週期結束後，系統會鎖定在一個輸出為 0 的空閒狀態直到下一次重置。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    output shift_ena
+);
+
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

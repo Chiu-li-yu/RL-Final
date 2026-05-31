@@ -1,0 +1,90 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該 PS/2 滑鼠協議邊界偵測器分解為 5 個具體、可執行子目標的步驟：
+
+1. 設計一個 2-bit 的狀態暫存器，用以追蹤當前接收到的是第 1、2 或 3 個位元組（Byte）。
+2. 實作重置邏輯，在 `reset` 為 high 時將狀態機歸零至「等待第 1 位元組」狀態。
+3. 實作「偵測第一位元組」邏輯，僅在目前的 `in[3] == 1` 時才允許狀態從「等待」轉換至「接收第 2 位元組」。
+4. 實作計數邏輯，確保在接收到第一位元組後，連續觸發兩次狀態轉換以依序接收後續的兩個位元組。
+5. 實作輸出邏輯，當狀態機完成第 3 個位元組的接收時，在下一個時脈週期將 `done` 訊號拉高為 1，並同時跳回等待狀態。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 1] ← compile_and_test: R  mismatches=182
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 182 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 182 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 182 in 400 samples
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 2] ← compile_and_test: R  mismatches=70
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 70 mismatches. First mismatch occurred at time 230.
+Hint: Total mismatched samples is 70 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 70 in 400 samples
+
+[attempt 3] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 3] ← compile_and_test: R  mismatches=176
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 176 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 176 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 176 in 400 samples
+
+[attempt 4] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 4] ← compile_and_test: R  mismatches=90
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 90 mismatches. First mismatch occurred at time 210.
+Hint: Total mismatched samples is 90 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 90 in 400 samples
+
+[attempt 5] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 5] ← compile_and_test: R  mismatches=177
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 177 mismatches. First mismatch occurred at time 210.
+Hint: Total mismatched samples is 177 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 177 in 400 samples

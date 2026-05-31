@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob144_conwaylife",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "C",
+  "sim_error_log": "/tmp/tmpl8s3d74a.sv:17: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:17: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:25: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:25: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:26: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:26: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:27: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:27: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:28: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:28: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:29: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:29: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:30: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:30: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:31: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:31: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:32: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:32: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:35: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:35: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:37: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:37: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:39: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:39: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:39: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:39: error: Array index expressions must be constant here.\n/tmp/tmpl8s3d74a.sv:50: error: A reference to a wire or reg (`r') is not allowed in a constant expression.\n/tmp/tmpl8s3d74a.sv:50: error: Array index expressions must be constant here.\n28 error(s) during elaboration.",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "C",
+    "C",
+    "C",
+    "C",
+    "C"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 1,
+  "task": "spec-to-rtl",
+  "experiment": "no_error_details"
+}

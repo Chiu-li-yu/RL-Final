@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了有效達成此 Verilog FSM 設計目標，建議將工作分解為以下 5 個具體步驟：
+
+1. 定義狀態機（FSM）的狀態編碼，並實現針對序列 "1101" 的偵測邏輯。
+2. 設計「Shift Phase」計數器邏輯，確保在偵測到序列後能精確維持 `shift_ena` 為高電位 4 個時脈週期。
+3. 實作「Counting Phase」邏輯，在進入狀態時拉高 `counting` 訊號，並監聽外部 `done_counting` 訊號以決定跳轉。
+4. 建立「Done Phase」狀態，在拉高 `done` 輸出後，監聽 `ack` 訊號並在確認後回到初始狀態。
+5. 整合所有邏輯於同步時脈區塊中，並撰寫同步重置（Reset）電路，確保系統能隨時回到初始待命狀態。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    input done_counting,
+    input ack,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

@@ -1,0 +1,21 @@
+{
+  "problem_id": "Prob065_7420",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "w",
+  "sim_error_log": "/tmp/tmpmt7ae1e0.sv:15: error: p1y is not a valid l-value in tb.top_module1.\n/tmp/tmpmt7ae1e0.sv:10:      : p1y is declared here as wire.\n/tmp/tmpmt7ae1e0.sv:16: error: p2y is not a valid l-value in tb.top_module1.\n/tmp/tmpmt7ae1e0.sv:11:      : p2y is declared here as wire.\n/tmp/tmpmt7ae1e0.sv:14: warning: @* found no sensitivities so it will never trigger.\n2 error(s) during elaboration.",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "w"
+  ],
+  "synth_error_sequence": [
+    null
+  ],
+  "decompose_spec_calls": 0,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_memory"
+}

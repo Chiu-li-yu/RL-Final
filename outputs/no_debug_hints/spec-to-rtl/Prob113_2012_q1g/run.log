@@ -4,8 +4,8 @@ module TopModule (
     input [3:0] x,
     output f
 );
-    // K-map layout:
-    // Row (x[2]x[3]): 00, 01, 11, 10
+    // Karnaugh Map mapping:
+    // x = {x[2], x[3], x[0], x[1]}
 [attempt 1] ← compile_and_test: R  mismatches=67
 VCD info: dumpfile wave.vcd opened for output.
 /mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob113_2012_q1g_test.sv:16: $finish called at 501 (1ps)
@@ -17,12 +17,13 @@ Mismatches: 67 in 100 samples
 
 [attempt 1] → decompose_spec
 [attempt 1] ← decompose_spec:
-為了完成此 Verilog 設計任務，建議採取以下 4 個步驟：
+為了完成這個 Verilog 設計任務，你可以將過程分解為以下五個子目標：
 
-1. 根據 K-map 數據填寫真值表，確認輸入 `x[3:0]` 與輸出 `f` 的邏輯對應關係。
-2. 利用布林代數化簡法或 K-map 分組法，導出輸出 `f` 的簡化邏輯運算式。
-3. 根據化簡後的邏輯表達式，編寫 Verilog 模組（使用 `assign` 語句或邏輯閘實現）。
-4. 編寫測試平台 (Testbench) 對所有 16 種輸入組合進行遍歷，驗證 Verilog 輸出是否與 K-map 完全相符。
+1. 根據 K-map 的填值情況，列出所有輸出為 1 的輸入組合 (x[3], x[2], x[1], x[0]) 之真值表 (Truth Table)。
+2. 使用布林代數或布林化簡法（如圈選 K-map 中的 1）來導出輸出函數的最簡邏輯表達式。
+3. 根據導出的布林表達式，編寫 Verilog 的 `module` 定義，並在 `assign` 語句中使用邏輯運算子（如 `&`, `|`, `~`) 實現該函數。
+4. 編寫一個 Verilog Testbench，對所有 16 種輸入組合 (0000 到 1111) 進行遍歷測試，以驗證邏輯正確性。
+5. 使用 EDA 工具（如 ModelSim, Vivado 或 Icarus Verilog）執行模擬並檢查波形，確保輸出結果與 K-map 相符。
 
 [attempt 2] → compile_and_test
 module TopModule (
@@ -30,31 +31,23 @@ module TopModule (
     output f
 );
     // Inputs: x[3], x[2], x[1], x[0]
-    // Mapping:
-[attempt 2] ← compile_and_test: R  mismatches=67
+    // K-map:
+[attempt 2] ← compile_and_test: R  mismatches=50
 VCD info: dumpfile wave.vcd opened for output.
 /mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob113_2012_q1g_test.sv:16: $finish called at 501 (1ps)
-Hint: Output 'f' has 67 mismatches. First mismatch occurred at time 10.
-Hint: Total mismatched samples is 67 out of 100 samples
+Hint: Output 'f' has 50 mismatches. First mismatch occurred at time 10.
+Hint: Total mismatched samples is 50 out of 100 samples
 
 Simulation finished at 501 ps
-Mismatches: 67 in 100 samples
-
-[attempt 2] → decompose_spec
-[attempt 2] ← decompose_spec:
-1. 根據 K-map 真值表，將所有輸出為 1 的組合整理成邏輯 minterms (m0, m1, m4, m5, m6, m12, m14, m15)。
-2. 使用布林代數或 K-map 化簡法，將上述 minterms 簡化為最簡邏輯運算式 (Sum of Products)。
-3. 在 Verilog 中定義模組介面，輸入為 4-bit 向量 `x[3:0]`，輸出為單一 bit `f`。
-4. 使用 `assign` 敘述與邏輯運算子 (如 `&`, `|`, `~`) 實作步驟 2 所得之化簡後的布林邏輯。
-5. 編寫 Testbench 驗證所有 16 種輸入組合，確認輸出 `f` 與原始 K-map 的值完全相符。
+Mismatches: 50 in 100 samples
 
 [attempt 3] → compile_and_test
 module TopModule (
     input [3:0] x,
     output f
 );
-    // Based on K-map:
-    // f = 1 at (x3, x2, x1, x0) = 0000, 0001, 1100, 1110, 1111, 0100, 0110, 0101
+    // Let's re-interpret the K-map carefully.
+    // x = {x[3], x[2], x[1], x[0]}
 [attempt 3] ← compile_and_test: .
 
 [attempt 3] → synthesize

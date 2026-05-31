@@ -1,0 +1,11 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    output zero
+);
+    assign zero = 1'b0;
+endmodule
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input clk,
     input load,
     input [255:0] data,
@@ -6,46 +6,39 @@ module TopModule (
 );
 
     logic [255:0] next_q;
-    logic [3:0] row, col;
-    logic [3:0] neighbors;
-    integer i, j, ni, nj, r, c;
+    integer r, c;
+    integer i, j, ni, nj;
+    integer neighbors;
 
     always @(*) begin
-        for (i = 0; i < 256; i = i + 1) begin
-            row = i / 16;
-            col = i % 16;
-            neighbors = 0;
-            
-            // Iterate over 8 neighbors with toroidal wrap-around
-            for (r = -1; r <= 1; r = r + 1) begin
-                for (c = -1; c <= 1; c = c + 1) begin
-                    if (!(r == 0 && c == 0)) begin
-                        ni = (row + r + 16) % 16;
-                        nj = (col + c + 16) % 16;
-                        if (q[ni * 16 + nj]) begin
-                            neighbors = neighbors + 1;
-                        end
+        for (r = 0; r < 16; r = r + 1) begin
+            for (c = 0; c < 16; c = c + 1) begin
+                neighbors = 0;
+                // Check 8 neighbors
+                for (i = -1; i <= 1; i = i + 1) begin
+                    for (j = -1; j <= 1; j = j + 1) begin
+                        if (i == 0 && j == 0) continue;
+                        ni = (r + i + 16) % 16;
+                        nj = (c + j + 16) % 16;
+                        if (q[ni * 16 + nj]) neighbors = neighbors + 1;
                     end
                 end
-            end
-            
-            // Apply game rules
-            if (neighbors == 2) begin
-                next_q[i] = q[i];
-            end else if (neighbors == 3) begin
-                next_q[i] = 1;
-            end else begin
-                next_q[i] = 0;
+                
+                // Rules
+                if (neighbors == 3)
+                    next_q[r * 16 + c] = 1;
+                else if (neighbors == 2)
+                    next_q[r * 16 + c] = q[r * 16 + c];
+                else
+                    next_q[r * 16 + c] = 0;
             end
         end
     end
 
     always @(posedge clk) begin
-        if (load) begin
+        if (load)
             q <= data;
-        end else begin
+        else
             q <= next_q;
-        end
     end
-
 endmodule

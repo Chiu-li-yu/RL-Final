@@ -5,53 +5,54 @@ module TopModule (
     output logic [7:0] out_byte,
     output logic done
 );
+    // The previous attempt failed. Maybe the start bit is detected,
+    // then data is collected, but the timing of state transitions is off.
+    // Let's refine the FSM to ensure it samples correctly.
 
-    logic [2:0] state, next_state;
-    parameter IDLE = 3'd0;
-    parameter START = 3'd1;
-    parameter DATA = 3'd2;
-    parameter STOP = 3'd3;
+    typedef enum logic [2:0] {
+        IDLE,
+        START,
+        DATA,
+        STOP,
+        WAIT_STOP
+    } state_t;
 
-    logic [2:0] bit_cnt;
+    state_t state;
     logic [7:0] shift_reg;
-    logic [7:0] data_reg;
+    logic [2:0] bit_cnt;
 
     always_ff @(posedge clk) begin
         if (reset) begin
             state <= IDLE;
-            bit_cnt <= 3'd0;
-            shift_reg <= 8'd0;
-            data_reg <= 8'd0;
+            out_byte <= 8'b0;
             done <= 1'b0;
+            shift_reg <= 8'b0;
+            bit_cnt <= 3'b0;
         end else begin
-            state <= next_state;
-            if (state == DATA) begin
-                shift_reg <= {in, shift_reg[7:1]};
-                bit_cnt <= bit_cnt + 1'd1;
-            end else if (state == IDLE || state == STOP) begin
-                bit_cnt <= 3'd0;
-            end
-            
-            if (state == STOP && next_state == IDLE && in == 1'b1) begin
-                data_reg <= shift_reg;
-                done <= 1'b1;
-            end else begin
-                done <= 1'b0;
-            end
+            done <= 1'b0;
+            case (state)
+                IDLE: begin
+                    if (in == 1'b0) state <= DATA; // After START bit (0)
+                end
+                DATA: begin
+                    shift_reg[bit_cnt] <= in;
+                    if (bit_cnt == 3'd7) state <= STOP;
+                    else bit_cnt <= bit_cnt + 1'b1;
+                end
+                STOP: begin
+                    if (in == 1'b1) begin
+                        out_byte <= shift_reg;
+                        done <= 1'b1;
+                        state <= IDLE;
+                    end else begin
+                        state <= WAIT_STOP;
+                    end
+                end
+                WAIT_STOP: begin
+                    if (in == 1'b1) state <= IDLE;
+                end
+                default: state <= IDLE;
+            endcase
         end
     end
-
-    always @(*) begin
-        next_state = state;
-        case (state)
-            IDLE: next_state = (in == 1'b0) ? START : IDLE;
-            START: next_state = DATA;
-            DATA: next_state = (bit_cnt == 3'd7) ? STOP : DATA;
-            STOP: next_state = (in == 1'b1) ? IDLE : STOP;
-            default: next_state = IDLE;
-        endcase
-    end
-
-    assign out_byte = data_reg;
-
 endmodule

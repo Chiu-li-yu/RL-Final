@@ -1,6 +1,6 @@
 
 [attempt 1] → compile_and_test
-module TopModule (
+module TopModule(
     input p1a,
     input p1b,
     input p1c,

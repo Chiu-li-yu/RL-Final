@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該 12 小時制時鐘題目分解的 5 個具體子目標：
+
+1. 設計秒 (ss) 計數器：在 ena 有效時累加並以 BCD 格式進位（00-59），若溢位則觸發分進位訊號。
+2. 設計分 (mm) 計數器：在秒進位訊號觸發時累加並以 BCD 格式進位（00-59），若溢位則觸發時進位訊號。
+3. 設計時 (hh) 計數器：實作 12 小時制邏輯（12 -> 01 -> 11 -> 12），處理 BCD 進位並在 12 時觸發 AM/PM 切換訊號。
+4. 設計 PM 狀態機：根據時進位邏輯，在時間達到 12 時翻轉 PM 旗標（0 為 AM，1 為 PM）。
+5. 整合重置邏輯：建立同步高電位 Reset 機制，確保重置時所有暫存器回歸至 12:00:00 AM 並處理所有邏輯的時序連接。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input ena,
+    output logic pm,
+    output logic [7:0] hh,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

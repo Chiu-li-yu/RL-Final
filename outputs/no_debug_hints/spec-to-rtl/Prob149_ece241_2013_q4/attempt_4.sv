@@ -9,50 +9,35 @@ module TopModule (
 );
 
     logic [2:0] prev_s;
-    logic [1:0] curr_lvl, prev_lvl;
+    logic dfr_reg;
 
+    assign dfr = dfr_reg;
+
+    // Nominal flows are combinational based on s
+    always @(*) begin
+        case (s)
+            3'b111: {fr2, fr1, fr0} = 3'b000;
+            3'b011: {fr2, fr1, fr0} = 3'b001;
+            3'b001: {fr2, fr1, fr0} = 3'b011;
+            3'b000: {fr2, fr1, fr0} = 3'b111;
+            default: {fr2, fr1, fr0} = 3'b111;
+        endcase
+    end
+
+    // dfr and prev_s state machine
     always @(posedge clk) begin
         if (reset) begin
-            prev_s <= 3'b000;
+            prev_s  <= 3'b000;
+            dfr_reg <= 1'b1;
         end else begin
             prev_s <= s;
+            // "If the sensor change indicates that the previous level was higher than current,
+            // the flow rate should be increased by opening the Supplemental flow valve (dfr)"
+            // Also need to check if the state is NOT the lowest state (Below s[0])? 
+            // Actually the prompt says "The flow rate when the level is between... is determined by two factors"
+            // Let's implement the logic: dfr = (s < prev_s)
+            dfr_reg <= (s < prev_s);
         end
     end
-
-    // Combinational logic for levels
-    always @(*) begin
-        case(s)
-            3'b111: curr_lvl = 2'd3;
-            3'b011: curr_lvl = 2'd2;
-            3'b001: curr_lvl = 2'd1;
-            default: curr_lvl = 2'd0;
-        endcase
-        
-        case(prev_s)
-            3'b111: prev_lvl = 2'd3;
-            3'b011: prev_lvl = 2'd2;
-            3'b001: prev_lvl = 2'd1;
-            default: prev_lvl = 2'd0;
-        endcase
-    end
-
-    // Register outputs for synchronous reset
-    logic fr2_r, fr1_r, fr0_r, dfr_r;
-
-    always @(posedge clk) begin
-        if (reset) begin
-            fr2_r <= 1; fr1_r <= 1; fr0_r <= 1; dfr_r <= 1;
-        end else begin
-            fr2_r <= (s == 3'b000);
-            fr1_r <= (s == 3'b000 || s == 3'b001);
-            fr0_r <= (s == 3'b000 || s == 3'b001 || s == 3'b011);
-            dfr_r <= (s == 3'b000) || (prev_lvl > curr_lvl);
-        end
-    end
-
-    assign fr2 = fr2_r;
-    assign fr1 = fr1_r;
-    assign fr0 = fr0_r;
-    assign dfr = dfr_r;
 
 endmodule

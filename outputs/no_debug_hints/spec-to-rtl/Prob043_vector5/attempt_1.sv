@@ -10,17 +10,11 @@ module TopModule (
     assign inputs = {a, b, c, d, e};
 
     always @(*) begin
-        // out[24] corresponds to (a == a)
-        // out[20] corresponds to (a == e)
-        // ...
-        // out[0] corresponds to (e == e)
-        // The indices 24 down to 0:
-        // i=0 corresponds to (a,a), i=4 corresponds to (a,e)
-        // i=5 corresponds to (b,a), i=9 corresponds to (b,e)
-        // ...
-        for (int i = 0; i < 5; i = i + 1) begin
-            for (int j = 0; j < 5; j = j + 1) begin
-                out[24 - (i * 5 + j)] = (inputs[4 - i] == inputs[4 - j]);
+        for (int i = 0; i < 5; i++) begin
+            for (int j = 0; j < 5; j++) begin
+                // The requirement: out[idx] = ~(inputs[i] ^ inputs[j])
+                // Which is inputs[i] == inputs[j]
+                out[i * 5 + j] = (inputs[4 - i] == inputs[4 - j]);
             end
         end
     end

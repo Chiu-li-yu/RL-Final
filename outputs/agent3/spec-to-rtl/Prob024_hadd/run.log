@@ -1,0 +1,27 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input  a,
+    input  b,
+    output sum,
+    output cout
+);
+[attempt 1] ← compile_and_test: w
+/tmp/tmp1yxfeszd.sv:8: error: sum is not a valid l-value in tb.top_module1.
+/tmp/tmp1yxfeszd.sv:4:      : sum is declared here as wire.
+/tmp/tmp1yxfeszd.sv:9: error: cout is not a valid l-value in tb.top_module1.
+/tmp/tmp1yxfeszd.sv:5:      : cout is declared here as wire.
+/tmp/tmp1yxfeszd.sv:7: warning: @* found no sensitivities so it will never trigger.
+2 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input  a,
+    input  b,
+    output logic sum,
+    output logic cout
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

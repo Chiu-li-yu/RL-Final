@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 Verilog 模組設計，您可以依照以下 4 個步驟進行實作：
+
+1. 定義模組介面，宣告輸入埠 `a, b, c, d, e` (皆為 4-bit) 與輸出埠 `q` (4-bit)。
+2. 使用 `always @(*)` 區塊建立組合邏輯電路，並在內部使用 `case` 陳述式針對 `c` 的數值進行分支處理。
+3. 在 `case` 中根據題目條件分別賦值：當 `c` 為 0 到 3 時，將對應的變數 `b, e, a, d` 指定給 `q`。
+4. 使用 `default` 語法處理 `c >= 4` 的情況，將 `q` 強制設為 4'hf (十進位 15)。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input  logic [3:0] a,
+    input  logic [3:0] b,
+    input  logic [3:0] c,
+    input  logic [3:0] d,
+    input  logic [3:0] e,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

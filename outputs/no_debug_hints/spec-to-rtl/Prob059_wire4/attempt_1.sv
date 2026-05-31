@@ -1,18 +1,14 @@
 module TopModule (
-    input logic a,
-    input logic b,
-    input logic c,
-    output logic w,
-    output logic x,
-    output logic y,
-    output logic z
+    input  a,
+    input  b,
+    input  c,
+    output w,
+    output x,
+    output y,
+    output z
 );
-
-    always @(*) begin
-        w = a;
-        x = b;
-        y = b;
-        z = c;
-    end
-
+    assign w = a;
+    assign x = b;
+    assign y = b;
+    assign z = c;
 endmodule

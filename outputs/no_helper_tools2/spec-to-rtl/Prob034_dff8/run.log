@@ -1,0 +1,28 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input [7:0] d,
+    output logic [7:0] q
+);
+    always @(posedge clk) begin
+[attempt 1] ← compile_and_test: R  mismatches=1
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob034_dff8_test.sv:36: $finish called at 206 (1ps)
+Hint: Output 'q' has 1 mismatches. First mismatch occurred at time 5.
+Hint: Total mismatched samples is 1 out of 41 samples
+
+Simulation finished at 206 ps
+Mismatches: 1 in 41 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input [7:0] d,
+    output logic [7:0] q
+);
+    initial q = 8'b0;
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

@@ -20,4 +20,5 @@ module TopModule (
             default: out = 4'd0;
         endcase
     end
+
 endmodule

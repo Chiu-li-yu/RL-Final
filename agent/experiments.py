@@ -28,6 +28,7 @@ class Experiment:
     max_attempts:     int
     independent_runs: int
     description:      str
+    binary_feedback:  bool = False            # True = 只回傳 passed，隱藏 error_type/error_log
 
 
 ALL_EXPERIMENTS: dict[str, Experiment] = {
@@ -65,6 +66,14 @@ ALL_EXPERIMENTS: dict[str, Experiment] = {
         max_attempts=1,
         independent_runs=5,
         description="無記憶（5 次獨立 session，每次僅輸入題目描述）",
+    ),
+    "no_error_details": Experiment(
+        id="no_error_details",
+        enabled_tools=None,
+        max_attempts=5,
+        independent_runs=1,
+        binary_feedback=True,
+        description="二元回饋（compile_and_test/synthesize 只回傳 passed，隱藏 error_type/error_log）",
     ),
 }
 

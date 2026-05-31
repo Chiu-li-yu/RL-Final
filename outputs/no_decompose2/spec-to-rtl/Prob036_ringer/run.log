@@ -1,0 +1,12 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input ring,
+    input vibrate_mode,
+    output ringer,
+    output motor
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

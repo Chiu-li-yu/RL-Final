@@ -1,0 +1,21 @@
+{
+  "problem_id": "Prob003_step_one",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob003_step_one_test.sv:30: $finish called at 102 (1ps)\nHint: Output 'one' has 20 mismatches. First mismatch occurred at time 5.\nHint: Total mismatched samples is 20 out of 20 samples\n\nSimulation finished at 102 ps\nMismatches: 20 in 20 samples",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R"
+  ],
+  "synth_error_sequence": [
+    null
+  ],
+  "decompose_spec_calls": 0,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_memory"
+}

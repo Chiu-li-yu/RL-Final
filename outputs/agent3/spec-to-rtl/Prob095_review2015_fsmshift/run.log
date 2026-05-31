@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 FSM 設計，建議將任務分解為以下 4 個具體子目標：
+
+1. 定義一個 3-bit 的計數器（Counter）來追蹤已輸出的 cycle 數，並設定其在 0 至 3 之間循環或停止。
+2. 實作狀態邏輯：當 reset 為 high 時，強制狀態回歸初始值；否則在啟動後透過計數器追蹤 4 個時脈週期。
+3. 根據計數器的數值設定組合邏輯，當計數小於 4 時將 `shift_ena` 設為 high，否則設為 low。
+4. 撰寫邊緣觸發（`posedge clk`）的區塊，同步更新計數器狀態，確保 reset 發生時立即重新計數。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    output logic shift_ena
+);
+    logic [2:0] count;
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

@@ -3,11 +3,11 @@ module TopModule (
     output logic [7:0]   out
 );
     integer i;
-    always @(*) begin
+    always_comb begin
         out = 8'd0;
         for (i = 0; i < 255; i = i + 1) begin
             if (in[i]) begin
-                out = out + 8'd1;
+                out = out + 1'b1;
             end
         end
     end

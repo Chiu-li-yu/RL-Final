@@ -1,12 +1,11 @@
 module TopModule (
-    input logic a,
-    input logic b,
-    input logic cin,
-    output logic cout,
-    output logic sum
+    input  a,
+    input  b,
+    input  cin,
+    output cout,
+    output sum
 );
-    always @(*) begin
-        sum = a ^ b ^ cin;
-        cout = (a & b) | (b & cin) | (a & cin);
-    end
+
+    assign {cout, sum} = a + b + cin;
+
 endmodule

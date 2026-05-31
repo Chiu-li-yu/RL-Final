@@ -1,0 +1,12 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input [7:0] d,
+    output logic [7:0] q
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

@@ -24,12 +24,6 @@ Gemini 可選擇的操作。透過 function calling 結構化輸出：
 - `rewrite_code(problem_description, sub_goals)`：放棄現有程式碼，根據子目標重寫
 - `call_tool(tool_name, args)`：呼叫外部工具
 
-**Reward**
-每個 episode 結束後的回饋訊號：
-
-- `+1`：所有 test case 通過（Mismatches = 0）
-- `0`：達到嘗試上限仍失敗
-
 **Episode**
 一道 VerilogEval 題目從第一次嘗試到成功或放棄的完整過程（最多 3 步）。
 

@@ -1,13 +1,15 @@
 module TopModule (
     input clk,
     input [7:0] in,
-    output logic [7:0] anyedge
+    output [7:0] anyedge
 );
-    logic [7:0] prev_in;
+    logic [7:0] in_prev;
+    logic [7:0] anyedge_reg;
 
     always_ff @(posedge clk) begin
-        prev_in <= in;
-        anyedge <= in ^ prev_in;
+        in_prev <= in;
+        anyedge_reg <= (in ^ in_prev);
     end
 
+    assign anyedge = anyedge_reg;
 endmodule

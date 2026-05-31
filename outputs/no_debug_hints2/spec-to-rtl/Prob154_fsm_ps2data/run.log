@@ -1,0 +1,36 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 1] ← compile_and_test: e
+/tmp/tmp3jk_b__l.sv:44: error: This assignment requires an explicit cast.
+/tmp/tmp3jk_b__l.sv:47: error: This assignment requires an explicit cast.
+2 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 2] ← compile_and_test: e
+/tmp/tmppgl2ui9n.sv:42: error: This assignment requires an explicit cast.
+/tmp/tmppgl2ui9n.sv:45: error: This assignment requires an explicit cast.
+2 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

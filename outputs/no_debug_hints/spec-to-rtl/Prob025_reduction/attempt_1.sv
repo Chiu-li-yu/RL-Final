@@ -1,8 +1,8 @@
 module TopModule (
-    input logic [7:0] in,
-    output logic parity
+    input [7:0] in,
+    output parity
 );
-    always @(*) begin
-        parity = ^in;
-    end
+
+    assign parity = ^in;
+
 endmodule

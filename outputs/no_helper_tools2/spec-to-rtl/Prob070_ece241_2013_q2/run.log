@@ -1,0 +1,85 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input  a,
+    input  b,
+    input  c,
+    input  d,
+    output out_sop,
+[attempt 1] ← compile_and_test: R  mismatches=24
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob070_ece241_2013_q2_test.sv:63: $finish called at 535 (1ps)
+Hint: Output 'out_sop' has 3 mismatches. First mismatch occurred at time 250.
+Hint: Output 'out_pos' has 21 mismatches. First mismatch occurred at time 30.
+Hint: Total mismatched samples is 24 out of 107 samples
+
+Simulation finished at 535 ps
+Mismatches: 24 in 107 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input  a,
+    input  b,
+    input  c,
+    input  d,
+    output out_sop,
+[attempt 2] ← compile_and_test: R  mismatches=40
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob070_ece241_2013_q2_test.sv:63: $finish called at 535 (1ps)
+Hint: Output 'out_sop' has 3 mismatches. First mismatch occurred at time 250.
+Hint: Output 'out_pos' has 37 mismatches. First mismatch occurred at time 50.
+Hint: Total mismatched samples is 40 out of 107 samples
+
+Simulation finished at 535 ps
+Mismatches: 40 in 107 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input  a,
+    input  b,
+    input  c,
+    input  d,
+    output out_sop,
+[attempt 3] ← compile_and_test: R  mismatches=32
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob070_ece241_2013_q2_test.sv:63: $finish called at 535 (1ps)
+Hint: Output 'out_sop' has 10 mismatches. First mismatch occurred at time 170.
+Hint: Output 'out_pos' has 22 mismatches. First mismatch occurred at time 40.
+Hint: Total mismatched samples is 32 out of 107 samples
+
+Simulation finished at 535 ps
+Mismatches: 32 in 107 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input  a,
+    input  b,
+    input  c,
+    input  d,
+    output out_sop,
+[attempt 4] ← compile_and_test: R  mismatches=32
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob070_ece241_2013_q2_test.sv:63: $finish called at 535 (1ps)
+Hint: Output 'out_sop' has 10 mismatches. First mismatch occurred at time 170.
+Hint: Output 'out_pos' has 22 mismatches. First mismatch occurred at time 40.
+Hint: Total mismatched samples is 32 out of 107 samples
+
+Simulation finished at 535 ps
+Mismatches: 32 in 107 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input  a,
+    input  b,
+    input  c,
+    input  d,
+    output out_sop,
+[attempt 5] ← compile_and_test: R  mismatches=24
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob070_ece241_2013_q2_test.sv:63: $finish called at 535 (1ps)
+Hint: Output 'out_sop' has 3 mismatches. First mismatch occurred at time 250.
+Hint: Output 'out_pos' has 21 mismatches. First mismatch occurred at time 30.
+Hint: Total mismatched samples is 24 out of 107 samples
+
+Simulation finished at 535 ps
+Mismatches: 24 in 107 samples

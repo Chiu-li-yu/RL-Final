@@ -1,0 +1,12 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic load,
+    input logic [1:0] ena,
+    input logic [99:0] data,
+    output logic [99:0] q
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

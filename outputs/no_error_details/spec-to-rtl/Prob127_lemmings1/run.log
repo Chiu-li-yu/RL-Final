@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 Moore 型狀態機設計，建議將任務分解為以下 5 個步驟：
+
+1. 定義狀態編碼（如 `LEFT=0, RIGHT=1`）並宣告狀態暫存器與下一個狀態變數。
+2. 實作組合邏輯區塊（`always @*`），根據當前狀態與輸入（bump_left, bump_right）決定下一個狀態的跳轉邏輯。
+3. 實作循序邏輯區塊（`always @(posedge clk or posedge areset)`），處理非同步重置並更新狀態暫存器。
+4. 實作輸出解碼邏輯（`assign` 或 `always`），根據當前狀態設定 `walk_left` 與 `walk_right` 的值。
+5. 整合所有模組代碼並檢查是否符合 Moore 狀態機的輸出規則（僅依賴狀態，不依賴輸入）。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    output walk_left,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

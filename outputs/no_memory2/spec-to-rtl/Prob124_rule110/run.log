@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是針對此 Rule 110 單元自動機設計的 5 個具體執行子目標：
+
+1. 定義模組介面，包含 `clk`、`load` 輸入訊號以及 `data[511:0]` 與 `q[511:0]` 暫存器陣列。
+2. 實作同步 `load` 機制，在 `clk` 上升緣時，若 `load` 為高電位則將 `data` 寫入 `q`，否則進入下一步更新。
+3. 為每個細胞編寫 Rule 110 的組合邏輯運算式（例如：`next_q[i] = q[i]^q[i-1] | (~q[i] & q[i-1])` 或使用 `case` 語句），並處理 `i=0` 與 `i=511` 的邊界條件（設邊界為 0）。
+4. 在 `clk` 上升緣觸發時，將所有細胞的計算結果同步更新至 `q[511:0]`。
+5. 驗證代碼邏輯，確保每個時脈週期所有單元同時根據上一週期的鄰居狀態進行規則映射更新。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [511:0] data,
+    output logic [511:0] q
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

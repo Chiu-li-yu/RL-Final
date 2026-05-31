@@ -6,10 +6,15 @@ module TopModule (
     input [7:0] in,
     output logic [23:0] out_bytes,
     output logic done
-[attempt 1] ← compile_and_test: e
-/tmp/tmp3jk_b__l.sv:44: error: This assignment requires an explicit cast.
-/tmp/tmp3jk_b__l.sv:47: error: This assignment requires an explicit cast.
-2 error(s) during elaboration.
+[attempt 1] ← compile_and_test: R  mismatches=434
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 434 mismatches. First mismatch occurred at time 240.
+Hint: Output 'done' has no mismatches.
+Hint: Total mismatched samples is 434 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 434 in 1619 samples
 
 [attempt 2] → compile_and_test
 module TopModule (
@@ -18,10 +23,15 @@ module TopModule (
     input [7:0] in,
     output logic [23:0] out_bytes,
     output logic done
-[attempt 2] ← compile_and_test: e
-/tmp/tmppgl2ui9n.sv:42: error: This assignment requires an explicit cast.
-/tmp/tmppgl2ui9n.sv:45: error: This assignment requires an explicit cast.
-2 error(s) during elaboration.
+[attempt 2] ← compile_and_test: R  mismatches=500
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 480 mismatches. First mismatch occurred at time 240.
+Hint: Output 'done' has 500 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 500 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 500 in 1619 samples
 
 [attempt 3] → compile_and_test
 module TopModule (

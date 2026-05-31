@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該題目分解為 5 個具體、可執行子目標的步驟：
+
+1. 實作 Module A：使用 `assign z = (x ^ y) & x;` 語句編寫邏輯模組 A。
+2. 實作 Module B：使用 `assign z = ~(x ^ y);` (或 `xnor`) 語句編寫邏輯模組 B。
+3. 定義 Top-level 模組框架：宣告輸入埠 `x, y` 與輸出埠 `z`，並宣告用於中間連接的 wire 訊號。
+4. 實例化子模組：在 Top-level 中實例化兩個 A 模組 (A1, A2) 與兩個 B 模組 (B1, B2)，並將 `x, y` 連接至所有子模組。
+5. 實作組合邏輯：利用 `assign` 語句執行 OR 與 AND 的組合運算，最後透過 XOR 計算並輸出至 `z`。
+
+[attempt 1] → compile_and_test
+module ModuleA(
+    input x,
+    input y,
+    output z
+);
+    assign z = (x ^ y) & x;
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

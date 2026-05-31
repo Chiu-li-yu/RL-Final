@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+這裡將該 Verilog 題目分解為 5 個具體且可執行的子目標：
+
+1. 定義有限狀態機（FSM）的狀態編碼，包含初始狀態及偵測到「1」、「11」、「110」與目標序列「1101」的狀態。
+2. 實作狀態轉移邏輯（Next State Logic），依據當前輸入位元與當前狀態，定義遷移至下一個狀態的條件。
+3. 實作輸出邏輯（Output Logic），設定當狀態進入「1101」偵測完成後的條件，確保 `start_shifting` 訊號被置位並鎖定。
+4. 編寫同步重置（Synchronous Reset）邏輯，確保在重置訊號為高時，FSM 能正確回到初始狀態並重置輸出。
+5. 撰寫 Testbench 模擬波形，輸入包含目標序列與干擾序列，驗證 `start_shifting` 能在序列正確出現後永久保持為 1。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

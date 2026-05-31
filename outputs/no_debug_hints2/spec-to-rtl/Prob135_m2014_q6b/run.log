@@ -1,0 +1,23 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input [2:0] y,
+    input w,
+    output Y1
+);
+
+[attempt 1] ← compile_and_test: C
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob135_m2014_q6b_test.sv:47: vvp.tgt error: uwire "Y1_dut" must have a single driver, found (2).
+error: Code generation had 1 error(s).
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input [2:0] y,
+    input w,
+    output Y1
+);
+
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

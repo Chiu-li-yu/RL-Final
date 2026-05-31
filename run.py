@@ -33,7 +33,7 @@ from agent.task import get_task, Task
 from agent.dataset import load_problem, save_code, save_result, list_problems
 from agent.experiments import ALL_EXPERIMENTS, get_experiment
 
-_DEFAULT_MODEL = "gemma-4-31b-it" # "gemini-3.1-flash-lite" # gemma-4-31b-it
+_DEFAULT_MODEL = "gemini-3.1-flash-lite" # "gemini-3.1-flash-lite" # gemma-4-31b-it
 
 
 def _resolve_problem_id(token: str, task: Task) -> str | None:
@@ -92,11 +92,12 @@ class RunObserver:
     """
 
     def __init__(self, problem_id: str, task: Task, experiment: str,
-                 model: str = _DEFAULT_MODEL):
-        self._problem_id  = problem_id
-        self._task        = task
-        self._experiment  = experiment
-        self._model       = model
+                 model: str = _DEFAULT_MODEL, binary_feedback: bool = False):
+        self._problem_id      = problem_id
+        self._task            = task
+        self._experiment      = experiment
+        self._model           = model
+        self._binary_feedback = binary_feedback
         # 精簡的過程 log，供 show_summary() 使用
         self._summary_log: list[str] = []
 
@@ -130,14 +131,19 @@ class RunObserver:
     def on_tool_result(self, name: str, result: dict, attempt: int) -> None:
         if name == "compile_and_test":
             # 累積精簡過程 log（供總結使用）
-            etype = result.get("error_type", "?")
-            mc    = result.get("mismatch_count", 0)
-            entry = f"[attempt {attempt}] compile_and_test → {etype}"
-            if mc > 0:
-                entry += f"（{mc} mismatches）"
-            if result.get("error_log"):
-                entry += f"\n  錯誤：{result['error_log'].splitlines()[0][:120]}"
-            self._summary_log.append(entry)
+            # binary_feedback 模式下只記 pass/fail，不記錯誤細節
+            if self._binary_feedback:
+                status = "PASS" if result.get("passed") else "FAIL"
+                self._summary_log.append(f"[attempt {attempt}] compile_and_test → {status}")
+            else:
+                etype = result.get("error_type", "?")
+                mc    = result.get("mismatch_count", 0)
+                entry = f"[attempt {attempt}] compile_and_test → {etype}"
+                if mc > 0:
+                    entry += f"（{mc} mismatches）"
+                if result.get("error_log"):
+                    entry += f"\n  錯誤：{result['error_log'].splitlines()[0][:120]}"
+                self._summary_log.append(entry)
         elif name == "synthesize":
             etype = result.get("error_type", "?")
             self._summary_log.append(f"[attempt {attempt}] synthesize → {etype}")
@@ -219,24 +225,28 @@ class RunObserver:
             _print(f"\n{GREEN}{BOLD}✅  simulation PASS — 呼叫 synthesize 驗證可合成性{R}")
             return True
 
-        etype  = result["error_type"]
-        mc     = result.get("mismatch_count", 0)
-        _print(f"\n{RED}❌  {etype}{R}" + (f"  (mismatches: {mc})" if mc > 0 else ""))
+        if self._binary_feedback:
+            _print(f"\n{RED}❌  FAIL{R}  （no_error_details 模式：錯誤細節已隱藏）")
+        else:
+            etype  = result["error_type"]
+            mc     = result.get("mismatch_count", 0)
+            _print(f"\n{RED}❌  {etype}{R}" + (f"  (mismatches: {mc})" if mc > 0 else ""))
 
-        if result.get("error_log"):
-            err_lines = result["error_log"].splitlines()
-            for line in err_lines[:6]:
-                _print(f"   {GRAY}{line}{R}")
-            if len(err_lines) > 6:
-                _print(f"   {GRAY}  … ({len(err_lines) - 6} more lines, 輸入 v 查看全部){R}")
+            if result.get("error_log"):
+                err_lines = result["error_log"].splitlines()
+                for line in err_lines[:6]:
+                    _print(f"   {GRAY}{line}{R}")
+                if len(err_lines) > 6:
+                    _print(f"   {GRAY}  … ({len(err_lines) - 6} more lines, 輸入 v 查看全部){R}")
 
         _print(f"\n{DLINE}")
         menu = (
             f"{CYAN}繼續讓 Agent 嘗試？{R}（第 {attempt} 次） "
             f"[{BOLD}Enter{R} 繼續 / "
             f"{BOLD}a{R} 中止 / "
-            f"{BOLD}v{R} 完整 log / "
-            f"{BOLD}c{R} 完整程式碼 / "
+            + (f"" if self._binary_feedback else
+               f"{BOLD}v{R} 完整 log / ")
+            + f"{BOLD}c{R} 完整程式碼 / "
             f"{BOLD}h{R} 補充修改方向 / "
             f"{BOLD}s{R} 總結目前過程] > "
         )
@@ -251,8 +261,11 @@ class RunObserver:
                 _print(f"{GRAY}已中止。{R}")
                 return False
             elif ans == "v":
-                _print(f"\n{GRAY}── Error Log ──{R}")
-                _print(result.get("error_log", "(無 error log)"))
+                if self._binary_feedback:
+                    _print(f"{GRAY}（no_error_details 模式：不顯示 error log）{R}")
+                else:
+                    _print(f"\n{GRAY}── Error Log ──{R}")
+                    _print(result.get("error_log", "(無 error log)"))
             elif ans == "c":
                 _print(f"\n{GRAY}── Generated Code ──{R}")
                 _print(code)
@@ -297,14 +310,17 @@ def run_problem(
     _print(problem_desc[:600] + ("…" if len(problem_desc) > 600 else ""))
     _print(DLINE)
 
-    obs = RunObserver(problem_id, task, experiment, model=_DEFAULT_MODEL)
+    obs = RunObserver(problem_id, task, experiment, model=_DEFAULT_MODEL,
+                      binary_feedback=exp.binary_feedback)
     result = run_agent(
         problem_id=problem_id,
         problem_description=problem_desc,
         task=task,
         max_attempts=max_attempts,
+        model=_DEFAULT_MODEL,
         verbose=False,
         enabled_tools=exp.enabled_tools,
+        binary_feedback=exp.binary_feedback,
         on_thinking=obs.on_thinking,
         on_tool_call=obs.on_tool_call,
         on_tool_result=obs.on_tool_result,

@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input p1a,
     input p1b,
     input p1c,

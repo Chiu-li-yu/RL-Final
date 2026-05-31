@@ -1,0 +1,58 @@
+module TopModule(
+    input clk,
+    input reset,
+    input data,
+    input done_counting,
+    input ack,
+    output logic shift_ena,
+    output logic counting,
+    output logic done
+);
+
+    typedef enum logic [3:0] {
+        IDLE,
+        S1, S11, S110,
+        SHIFT1, SHIFT2, SHIFT3, SHIFT4,
+        COUNTING,
+        DONE
+    } state_t;
+
+    state_t state, next_state;
+
+    always @(posedge clk) begin
+        if (reset)
+            state <= IDLE;
+        else
+            state <= next_state;
+    end
+
+    always @(*) begin
+        shift_ena = 1'b0;
+        counting = 1'b0;
+        done = 1'b0;
+        next_state = state;
+
+        case (state)
+            IDLE: next_state = (data) ? S1 : IDLE;
+            S1:   next_state = (data) ? S11 : IDLE;
+            S11:  next_state = (data) ? S11 : S110;
+            S110: next_state = (data) ? SHIFT1 : IDLE;
+            
+            SHIFT1: begin shift_ena = 1'b1; next_state = SHIFT2; end
+            SHIFT2: begin shift_ena = 1'b1; next_state = SHIFT3; end
+            SHIFT3: begin shift_ena = 1'b1; next_state = SHIFT4; end
+            SHIFT4: begin shift_ena = 1'b1; next_state = COUNTING; end
+            
+            COUNTING: begin
+                counting = 1'b1;
+                next_state = (done_counting) ? DONE : COUNTING;
+            end
+            
+            DONE: begin
+                done = 1'b1;
+                next_state = (ack) ? IDLE : DONE;
+            end
+            default: next_state = IDLE;
+        endcase
+    end
+endmodule

@@ -1,0 +1,73 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 1] ← compile_and_test: e
+/tmp/tmpyzl2xw_p.sv:36: error: This assignment requires an explicit cast.
+/tmp/tmpyzl2xw_p.sv:37: error: This assignment requires an explicit cast.
+/tmp/tmpyzl2xw_p.sv:38: error: This assignment requires an explicit cast.
+/tmp/tmpyzl2xw_p.sv:39: error: This assignment requires an explicit cast.
+4 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 2] ← compile_and_test: e
+/tmp/tmpgzysixx6.sv:36: error: This assignment requires an explicit cast.
+/tmp/tmpgzysixx6.sv:37: error: This assignment requires an explicit cast.
+/tmp/tmpgzysixx6.sv:38: error: This assignment requires an explicit cast.
+/tmp/tmpgzysixx6.sv:39: error: This assignment requires an explicit cast.
+4 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 3] ← compile_and_test: R  mismatches=12
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob096_review2015_fsmseq_test.sv:74: $finish called at 3216 (1ps)
+Hint: Output 'start_shifting' has 12 mismatches. First mismatch occurred at time 50.
+Hint: Total mismatched samples is 12 out of 643 samples
+
+Simulation finished at 3216 ps
+Mismatches: 12 in 643 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 4] ← compile_and_test: R  mismatches=120
+VCD info: dumpfile wave.vcd opened for output.
+Hint: Your reset should be synchronous, but doesn't appear to be.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob096_review2015_fsmseq_test.sv:74: $finish called at 3216 (1ps)
+Hint: Output 'start_shifting' has 120 mismatches. First mismatch occurred at time 105.
+Hint: Total mismatched samples is 120 out of 643 samples
+
+Simulation finished at 3216 ps
+Mismatches: 120 in 643 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 5] ← compile_and_test: .
+
+[attempt 5] → synthesize (auto, last attempt)
+[attempt 5] ← synthesize: Y

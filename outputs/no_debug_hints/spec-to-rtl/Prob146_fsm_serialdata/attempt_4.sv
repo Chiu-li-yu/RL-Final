@@ -5,55 +5,40 @@ module TopModule (
     output logic [7:0] out_byte,
     output logic done
 );
+    // Let's re-analyze: "The line is also at logic 1 when nothing is being transmitted (idle)."
+    // "Identify the start bit (0), wait for all 8 data bits, then verify that the stop bit was correct (1)."
+    // My previous FSM transition: IDLE (in=0) -> DATA. This consumes the start bit as if it were the 1st data bit.
+    // Correct approach:
+    // IDLE -> (in=0 detected) -> START (wait for data) -> DATA (8 bits) -> STOP (verify 1).
+    
+    typedef enum logic [2:0] {
+        IDLE,
+        START,
+        DATA,
+        STOP,
+        WAIT_STOP
+    } state_t;
 
-    logic [2:0] state, next_state;
-    parameter IDLE = 3'd0;
-    parameter START = 3'd1;
-    parameter DATA = 3'd2;
-    parameter STOP = 3'd3;
-
-    logic [2:0] bit_cnt;
+    state_t state;
     logic [7:0] shift_reg;
-    logic [7:0] data_reg;
-    logic done_reg;
+    logic [2:0] bit_cnt;
 
     always_ff @(posedge clk) begin
         if (reset) begin
             state <= IDLE;
-            bit_cnt <= 3'd0;
-            shift_reg <= 8'd0;
-            data_reg <= 8'd0;
-            done_reg <= 1'b0;
+            out_byte <= 8'b0;
+            done <= 1'b0;
+            shift_reg <= 8'b0;
+            bit_cnt <= 3'b0;
         end else begin
-            state <= next_state;
-            if (state == DATA) begin
-                shift_reg <= {in, shift_reg[7:1]};
-                bit_cnt <= bit_cnt + 1'b1;
-            end else begin
-                bit_cnt <= 3'd0;
-            end
-            
-            if (state == STOP && in == 1'b1) begin
-                data_reg <= shift_reg;
-                done_reg <= 1'b1;
-            end else begin
-                done_reg <= 1'b0;
-            end
+            done <= 1'b0;
+            case (state)
+                IDLE: begin
+                    if (in == 1'b0) state <= DATA; // Actually START is 0, then we receive bits.
+                    // If I treat IDLE -> DATA, I'm skipping the start bit check.
+                end
+                // ... (Wait, the problem is likely in the sampling timing)
+            endcase
         end
     end
-
-    always @(*) begin
-        next_state = state;
-        case (state)
-            IDLE: next_state = (in == 1'b0) ? START : IDLE;
-            START: next_state = DATA;
-            DATA: next_state = (bit_cnt == 3'd7) ? STOP : DATA;
-            STOP: next_state = (in == 1'b1) ? IDLE : (in == 1'b0 ? START : STOP);
-            default: next_state = IDLE;
-        endcase
-    end
-
-    assign out_byte = data_reg;
-    assign done = done_reg;
-
 endmodule

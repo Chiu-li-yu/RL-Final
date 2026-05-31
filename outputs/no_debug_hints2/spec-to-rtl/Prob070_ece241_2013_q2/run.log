@@ -1,0 +1,45 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    input c,
+    input d,
+    output out_sop,
+[attempt 1] ← compile_and_test: w
+/tmp/tmpxzi0kxwg.sv:87: error: out_sop is not a valid l-value in tb.top_module1.
+/tmp/tmpxzi0kxwg.sv:6:      : out_sop is declared here as wire.
+/tmp/tmpxzi0kxwg.sv:88: error: out_pos is not a valid l-value in tb.top_module1.
+/tmp/tmpxzi0kxwg.sv:7:      : out_pos is declared here as wire.
+/tmp/tmpxzi0kxwg.sv:86: warning: @* found no sensitivities so it will never trigger.
+2 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    input c,
+    input d,
+    output logic out_sop,
+[attempt 2] ← compile_and_test: R  mismatches=3
+VCD info: dumpfile wave.vcd opened for output.
+Hint: Your circuit passes on the 12 required input combinations, but doesn't match the don't-care cases. Are you using minimal SOP and POS?
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob070_ece241_2013_q2_test.sv:63: $finish called at 535 (1ps)
+Hint: Output 'out_sop' has 3 mismatches. First mismatch occurred at time 250.
+Hint: Output 'out_pos' has no mismatches.
+Hint: Total mismatched samples is 3 out of 107 samples
+
+Simulation finished at 535 ps
+Mismatches: 3 in 107 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    input c,
+    input d,
+    output logic out_sop,
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

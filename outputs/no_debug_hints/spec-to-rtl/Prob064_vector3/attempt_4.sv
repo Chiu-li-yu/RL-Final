@@ -11,19 +11,21 @@ module TopModule (
     output logic [7:0] z
 );
 
-    logic [31:0] combined;
+    logic [31:0] full_vec;
 
     always @(*) begin
-        // Let's assume the testbench expects a specific bit ordering.
-        // What if the testbench considers the last 2 bits are NOT at the very end of 32 bits, 
-        // but perhaps at the end of the concatenation before mapping to w, x, y, z?
-        // Actually, the simplest interpretation of "concatenation of the input vectors 
-        // followed by two 1 bits (LSB positions)" is {a, b, c, d, e, f, 2'b11}.
+        // The common trick in HDL Bits Vector3 is that concatenation might be 
+        // treated as a literal and then split.
+        // Let's try to pad the inputs to make it 32 bits explicitly.
+        // Or re-read carefully: "The output should be a concatenation of the input vectors followed by two 1 bits"
+        // 30 bits + 2 bits = 32 bits.
         
-        // Wait, maybe the concatenation order in the assignment {w, x, y, z} = ...
-        // is different?
-        // Let's try assigning directly:
-        {w, x, y, z} = {a, b, c, d, e, f, 2'b11};
+        full_vec = {a, b, c, d, e, f, 2'b11};
+        
+        w = full_vec[31:24];
+        x = full_vec[23:16];
+        y = full_vec[15:8];
+        z = full_vec[7:0];
     end
 
 endmodule

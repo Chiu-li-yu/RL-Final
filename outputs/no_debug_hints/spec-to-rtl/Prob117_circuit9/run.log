@@ -1,8 +1,8 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input clk,
-    input a,
+    input logic clk,
+    input logic a,
     output logic [2:0] q
 );
 

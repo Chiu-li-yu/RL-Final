@@ -1,0 +1,33 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input in,
+    output out
+);
+[attempt 1] ← compile_and_test: e
+/tmp/tmpmppyi345.sv:26: error: This assignment requires an explicit cast.
+/tmp/tmpmppyi345.sv:27: error: This assignment requires an explicit cast.
+/tmp/tmpmppyi345.sv:28: error: This assignment requires an explicit cast.
+/tmp/tmpmppyi345.sv:29: error: This assignment requires an explicit cast.
+4 error(s) during elaboration.
+
+[attempt 1] → get_debug_hints(error_type='S')
+[attempt 1] ← get_debug_hints: Syntax Error：iverilog 無法解析程式碼語法。
+修正方式：
+1. 查看 error_log 中的行號，確認該行附近是否有拼寫錯誤
+2. 常見原因：缺少分號、begin/end 未配對、module/endmodule 未配對
+3. 確認 port 宣告格式正確（input/output logic，不使用 wire/reg）
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input in,
+    output out
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

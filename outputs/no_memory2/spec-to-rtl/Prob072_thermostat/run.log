@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是針對該 Verilog 恆溫控制器題目分解的 5 個具體子目標：
+
+1. 定義模組介面，包含輸入訊號（mode, too_cold, too_hot, fan_on）與輸出訊號（heater, aircon, fan）。
+2. 實作 Heating mode 邏輯：當 mode 為 1 且 too_cold 為 1 時開啟 heater，否則關閉，並確保此模式下 aircon 恆為 0。
+3. 實作 Cooling mode 邏輯：當 mode 為 0 且 too_hot 為 1 時開啟 aircon，否則關閉，並確保此模式下 heater 恆為 0。
+4. 實作 Fan 控制邏輯：撰寫組合邏輯以滿足「heater 開啟」、「aircon 開啟」或「fan_on 輸入為 1」三者任一條件即開啟 fan。
+5. 編寫 Testbench 驗證所有情境（包括模式切換與 fan 的優先級控制），確保邏輯輸出符合題目要求。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic mode,
+    input logic too_cold,
+    input logic too_hot,
+    input logic fan_on,
+    output logic heater,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

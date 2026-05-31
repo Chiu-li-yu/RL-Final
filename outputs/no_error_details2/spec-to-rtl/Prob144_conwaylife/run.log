@@ -1,0 +1,43 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是實現 16x16 Game of Life 的 5 個具體執行子目標：
+
+1. 定義 16x16 暫存器陣列 (256-bit vector) 並實作同步資料載入與重置機制。
+2. 編寫組合邏輯函數，利用模運算 (modulo arithmetic) 計算每個單元格在環狀邊界條件下的 8 個相鄰座標。
+3. 設計狀態轉移邏輯，根據題目規則（0-1 死、2 維持、3 生、4+ 死）計算下一個週期的狀態。
+4. 建立雙層暫存器或更新機制，確保在時脈上升緣同步更新所有 256 個單元格的狀態。
+5. 編寫 Testbench 驗證環狀邊界（Toroidal wrap-around）與標準演算法規則的邏輯正確性。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output reg [255:0] q
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Ys
+/tmp/tmpn_pazzol.sv:17: ERROR: syntax error, unexpected TOK_AUTOMATIC
+
+[attempt 1] → get_debug_hints(error_type='Ys')
+[attempt 1] ← get_debug_hints: yosys 合成錯誤常見原因：
+1. 不可合成語法：#delay、task/function 含不支援的語法
+2. 未定義的 module：引用了不存在的 submodule
+3. 多重驅動：同一訊號被兩個 always block 驅動
+4. 合成器無法識別的語法：部分 SystemVerilog 語法 yosys 不支援
+修正方式：查看 error_log 中的行號，移除或替換不可合成的語法。
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output reg [255:0] q
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

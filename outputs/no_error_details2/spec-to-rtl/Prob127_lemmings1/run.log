@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是針對該 Lemmings 有限狀態機（FSM）設計的 4 個具體子目標：
+
+1. 定義狀態編碼（`parameter` 或 `typedef`）並宣告狀態暫存器 `state` 與次態暫存器 `next_state`。
+2. 撰寫同步邏輯（Sequential block），處理 `areset` 非同步重置以及 `clk` 上升緣觸發的狀態更新。
+3. 撰寫組合邏輯（Combinational block），根據目前的 `state` 與 `bump_left`/`bump_right` 輸入決定 `next_state` 的跳轉條件。
+4. 撰寫輸出邏輯（Combinational block），根據當前的 `state` 指派 `walk_left` 與 `walk_right` 的輸出值。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic areset,
+    input logic bump_left,
+    input logic bump_right,
+    output logic walk_left,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

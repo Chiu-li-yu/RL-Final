@@ -1,0 +1,12 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic [2:0] vec,
+    output logic [2:0] outv,
+    output logic o2,
+    output logic o1,
+    output logic o0
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

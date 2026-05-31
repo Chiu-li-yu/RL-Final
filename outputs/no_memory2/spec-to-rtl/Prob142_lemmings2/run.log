@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該 Verilog 有限狀態機 (FSM) 題目分解的 5 個子目標：
+
+1. 定義狀態編碼（Left, Right, Fall_Left, Fall_Right）並宣告狀態暫存器與次態邏輯變數。
+2. 實作非同步重置（areset）邏輯，確保在重置時將狀態強制設定為 Walk_Left。
+3. 根據題目行為規則，撰寫描述狀態轉換邏輯的 `always @(posedge clk or posedge areset)` 與 `case` 敘述區塊。
+4. 根據目前狀態與輸入（bump_left, bump_right, ground），實作判斷「狀態何時切換」以及「何時保持不變」的邏輯。
+5. 實作輸出邏輯（Combinational Logic），確保 `walk_left`、`walk_right` 與 `aaah` 根據目前的狀態正確輸出。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

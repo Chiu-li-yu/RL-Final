@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 12 小時制時鐘的設計，建議將任務分解為以下 4 個子目標：
+
+1. 實作秒 (ss) 與分 (mm) 的 BCD 計數器，當 `ena` 為高電位時，秒數在 00-59 間循環，並在歸零時觸發分進位訊號。
+2. 實作小時 (hh) 的 BCD 計數器與 AM/PM 狀態切換，處理 12:59 到 01:00 的轉換邏輯，並在到達 11:59 時反轉 `pm` 位元。
+3. 整合各個計數模組，將「秒進位到分」、「分進位到時」的邏輯串接，確保計時行為符合 12 小時制規範。
+4. 加入同步 `reset` 邏輯，確保在重置時將時鐘強制設定為 12:00:00 AM，並使用 Testbench 驗證邊界條件（如 11:59 AM 轉 12:00 PM）。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input ena,
+    output logic pm,
+    output logic [7:0] hh,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

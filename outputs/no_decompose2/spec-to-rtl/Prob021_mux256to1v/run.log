@@ -1,0 +1,12 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input  [1023:0] in,
+    input  [7:0]    sel,
+    output [3:0]    out
+);
+    logic [3:0] out_reg;
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

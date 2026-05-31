@@ -14,12 +14,17 @@ module TopModule (
     logic [31:0] concat_data;
 
     always @(*) begin
-        concat_data = {a, b, c, d, e, f, 2'b11};
-        // The concatenation order in the problem implies 
-        // the first input is the MSB side.
-        // Let's check the bits order.
+        // The spec says: "The output should be a concatenation of the input vectors followed by two 1 bits (the two 1 bits should be in the LSB positions)."
+        // Concatenation order: a, b, c, d, e, f, then 1, 1.
+        // {a, b, c, d, e, f} is 30 bits.
         // concat_data = {a, b, c, d, e, f, 2'b11}
-        // w should be bits 31:24, x 23:16, y 15:8, z 7:0
+        // Bit 31: a[4] ... Bit 0: 1
+        
+        // Let's re-verify the concatenation order. {a, b, c, d, e, f, 2'b11}
+        concat_data = {a, b, c, d, e, f, 2'b11};
+        
+        // Output concatenation sequence: w, x, y, z.
+        // So {w, x, y, z} should be equal to {a, b, c, d, e, f, 2'b11}.
         w = concat_data[31:24];
         x = concat_data[23:16];
         y = concat_data[15:8];

@@ -7,13 +7,13 @@ module TopModule (
     output out_xor
 );
 [attempt 1] ← compile_and_test: w
-/tmp/tmp6xord57u.sv:9: error: out_and is not a valid l-value in tb.top_module1.
-/tmp/tmp6xord57u.sv:3:      : out_and is declared here as wire.
-/tmp/tmp6xord57u.sv:10: error: out_or is not a valid l-value in tb.top_module1.
-/tmp/tmp6xord57u.sv:4:      : out_or is declared here as wire.
-/tmp/tmp6xord57u.sv:11: error: out_xor is not a valid l-value in tb.top_module1.
-/tmp/tmp6xord57u.sv:5:      : out_xor is declared here as wire.
-/tmp/tmp6xord57u.sv:8: warning: @* found no sensitivities so it will never trigger.
+/tmp/tmpzmlnuc_l.sv:9: error: out_and is not a valid l-value in tb.top_module1.
+/tmp/tmpzmlnuc_l.sv:3:      : out_and is declared here as wire.
+/tmp/tmpzmlnuc_l.sv:10: error: out_or is not a valid l-value in tb.top_module1.
+/tmp/tmpzmlnuc_l.sv:4:      : out_or is declared here as wire.
+/tmp/tmpzmlnuc_l.sv:11: error: out_xor is not a valid l-value in tb.top_module1.
+/tmp/tmpzmlnuc_l.sv:5:      : out_xor is declared here as wire.
+/tmp/tmpzmlnuc_l.sv:8: warning: @* found no sensitivities so it will never trigger.
 3 error(s) during elaboration.
 
 [attempt 2] → compile_and_test

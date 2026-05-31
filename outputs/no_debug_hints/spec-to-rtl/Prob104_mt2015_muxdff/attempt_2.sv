@@ -3,15 +3,19 @@ module TopModule (
     input L,
     input q_in,
     input r_in,
-    output Q
+    output logic Q
 );
-    logic q_reg;
-    assign Q = q_reg;
 
-    always @(posedge clk) begin
+    logic next_q;
+    always_comb begin
         if (L)
-            q_reg <= r_in;
+            next_q = r_in;
         else
-            q_reg <= q_in;
+            next_q = q_in;
     end
+
+    always_ff @(posedge clk) begin
+        Q <= next_q;
+    end
+
 endmodule

@@ -1,23 +1,17 @@
-module TopModule(
-    input  clk,
-    input  d,
+module TopModule (
+    input clk,
+    input d,
     output q
 );
+    logic q1, q2;
 
-    logic q_posedge;
-    logic q_negedge;
-    logic q_final;
-
-    always_ff @(posedge clk) begin
-        q_posedge <= d;
+    always @(posedge clk) begin
+        q1 <= d ^ q2;
     end
 
-    always_ff @(negedge clk) begin
-        q_negedge <= d;
+    always @(negedge clk) begin
+        q2 <= d ^ q1;
     end
 
-    assign q_final = clk ? q_posedge : q_negedge;
-
-    assign q = q_final;
-
+    assign q = q1 ^ q2;
 endmodule

@@ -16,9 +16,9 @@ module TopModule (
     end
 
     always @(*) begin
-        // The instruction says "the wire that feeds the NOT gate is really wire out"
-        // So we can assign out directly.
-        // The output out is the OR of the two AND gates.
+        // The spec says "the wire that feeds the NOT gate is really wire out"
+        // So we can assign out first, then assign out_n
+        // However, standard Verilog/Logic would just be:
     end
 
     assign out = and1_out | and2_out;

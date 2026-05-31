@@ -9,8 +9,14 @@ module TopModule (
 );
 
     logic [2:0] prev_s;
-    logic [1:0] curr_lvl, prev_lvl;
 
+    // Reset logic: "resets the state machine to a state equivalent to 
+    // if the water level had been low for a long time (no sensors asserted, 
+    // and all four outputs asserted)."
+    // So on reset, we want fr2=1, fr1=1, fr0=1, dfr=1.
+    // Since nominal flows are combinational based on s, 
+    // if we want them to be 1, s must be 3'b000.
+    
     always @(posedge clk) begin
         if (reset) begin
             prev_s <= 3'b000;
@@ -20,49 +26,37 @@ module TopModule (
     end
 
     always @(*) begin
-        case(s)
-            3'b111: curr_lvl = 2'd3;
-            3'b011: curr_lvl = 2'd2;
-            3'b001: curr_lvl = 2'd1;
-            default: curr_lvl = 2'd0;
-        endcase
-        
-        case(prev_s)
-            3'b111: prev_lvl = 2'd3;
-            3'b011: prev_lvl = 2'd2;
-            3'b001: prev_lvl = 2'd1;
-            default: prev_lvl = 2'd0;
-        endcase
-    end
-
-    logic fr2_r, fr1_r, fr0_r, dfr_r;
-
-    always @(posedge clk) begin
         if (reset) begin
-            fr2_r <= 1; fr1_r <= 1; fr0_r <= 1; dfr_r <= 1;
+            {fr2, fr1, fr0, dfr} = 4'b1111;
         end else begin
-            fr2_r <= (s == 3'b000);
-            fr1_r <= (s == 3'b000 || s == 3'b001);
-            fr0_r <= (s == 3'b000 || s == 3'b001 || s == 3'b011);
-            // dfr logic:
-            // 1. Below s[0] (already covered by fr2, but requirement says s[0] no sensors asserted)
-            // 2. Previous level > Current level: (prev_lvl > curr_lvl)
-            // Wait, does "supplemental" mean it is ONLY triggered by the change?
-            // "If the sensor change indicates... increased by opening the Supplemental flow valve"
-            // So if no change, dfr = (s == 3'b000). 
-            // My code: if change happens, and prev > curr, dfr = 1. Else dfr = (s==000).
-            if (s != prev_s && prev_lvl > curr_lvl)
-                dfr_r <= 1;
-            else if (s == 3'b000)
-                dfr_r <= 1;
-            else
-                dfr_r <= 0;
+            case (s)
+                3'b111: {fr2, fr1, fr0} = 3'b000;
+                3'b011: {fr2, fr1, fr0} = 3'b001;
+                3'b001: {fr2, fr1, fr0} = 3'b110; // Wait, check table again: Between 1 and 0: s[0] asserted. Table: s[0] asserted -> fr0, fr1.
+                // Re-reading table:
+                // Between s[2] and s[1] | s[0], s[1] | fr0
+                // Between s[1] and s[0] | s[0]       | fr0, fr1
+                // Below s[0]            | None       | fr0, fr1, fr2
+                default: {fr2, fr1, fr0} = 3'b111;
+            endcase
+            
+            // Re-check table mapping
+            // s[2], s[1], s[0]
+            // 3'b111: Above -> None -> 000
+            // 3'b011: s[0], s[1] -> fr0 -> 001
+            // 3'b001: s[0] -> fr0, fr1 -> 011
+            // 3'b000: None -> fr0, fr1, fr2 -> 111
+
+            case (s)
+                3'b111: {fr2, fr1, fr0} = 3'b000;
+                3'b011: {fr2, fr1, fr0} = 3'b001;
+                3'b001: {fr2, fr1, fr0} = 3'b011;
+                3'b000: {fr2, fr1, fr0} = 3'b111;
+                default: {fr2, fr1, fr0} = 3'b111;
+            endcase
+
+            dfr = (s < prev_s);
         end
     end
-
-    assign fr2 = fr2_r;
-    assign fr1 = fr1_r;
-    assign fr0 = fr0_r;
-    assign dfr = dfr_r;
 
 endmodule

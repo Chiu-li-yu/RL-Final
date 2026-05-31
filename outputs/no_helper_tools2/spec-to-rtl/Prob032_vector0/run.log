@@ -1,0 +1,31 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input [2:0] vec,
+    output [2:0] outv,
+    output o2,
+    output o1,
+    output o0
+[attempt 1] ← compile_and_test: w
+/tmp/tmprx9ljth2.sv:10: error: outv is not a valid l-value in tb.top_module1.
+/tmp/tmprx9ljth2.sv:3:      : outv is declared here as wire.
+/tmp/tmprx9ljth2.sv:11: error: o2 is not a valid l-value in tb.top_module1.
+/tmp/tmprx9ljth2.sv:4:      : o2 is declared here as wire.
+/tmp/tmprx9ljth2.sv:12: error: o1 is not a valid l-value in tb.top_module1.
+/tmp/tmprx9ljth2.sv:5:      : o1 is declared here as wire.
+/tmp/tmprx9ljth2.sv:13: error: o0 is not a valid l-value in tb.top_module1.
+/tmp/tmprx9ljth2.sv:6:      : o0 is declared here as wire.
+/tmp/tmprx9ljth2.sv:9: warning: @* found no sensitivities so it will never trigger.
+4 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input [2:0] vec,
+    output logic [2:0] outv,
+    output logic o2,
+    output logic o1,
+    output logic o0
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

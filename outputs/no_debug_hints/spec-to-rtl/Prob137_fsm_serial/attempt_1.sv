@@ -4,63 +4,59 @@ module TopModule (
     input in,
     output logic done
 );
-    typedef enum logic [2:0] {
-        IDLE  = 3'd0,
-        START = 3'd1,
-        DATA  = 3'd2,
-        STOP  = 3'd3,
-        WAIT_IDLE = 3'd4
+
+    typedef enum logic [3:0] {
+        IDLE,
+        START,
+        DATA,
+        STOP,
+        WAIT_STOP
     } state_t;
 
     state_t state, next_state;
-    logic [3:0] bit_cnt;
-    logic [3:0] next_bit_cnt;
+    logic [2:0] bit_count;
+    logic [2:0] next_bit_count;
 
     always_ff @(posedge clk) begin
         if (reset) begin
             state <= IDLE;
-            bit_cnt <= 0;
-            done <= 0;
+            bit_count <= 0;
         end else begin
             state <= next_state;
-            bit_cnt <= next_bit_cnt;
-            // done is a pulse, handled in comb logic but latched here
-            if (state == STOP && in == 1'b1)
-                done <= 1'b1;
-            else
-                done <= 1'b0;
+            bit_count <= next_bit_count;
         end
     end
 
     always @(*) begin
         next_state = state;
-        next_bit_cnt = bit_cnt;
-        
+        next_bit_count = bit_count;
+        done = 1'b0;
+
         case (state)
             IDLE: begin
-                if (in == 1'b0)
-                    next_state = START;
-            end
-            START: begin
-                // In a real UART we'd sample in the middle, but here we assume per-clock
-                next_state = DATA;
-                next_bit_cnt = 0;
+                if (in == 1'b0) begin
+                    next_state = DATA;
+                    next_bit_count = 3'd0;
+                end
             end
             DATA: begin
-                if (bit_cnt == 4'd7)
+                if (bit_count == 3'd7) begin
                     next_state = STOP;
-                else
-                    next_bit_cnt = bit_cnt + 1'b1;
+                end
+                next_bit_count = bit_count + 1'b1;
             end
             STOP: begin
-                if (in == 1'b1)
+                if (in == 1'b1) begin
                     next_state = IDLE;
-                else
-                    next_state = WAIT_IDLE;
+                    done = 1'b1;
+                end else begin
+                    next_state = WAIT_STOP;
+                end
             end
-            WAIT_IDLE: begin
-                if (in == 1'b1)
+            WAIT_STOP: begin
+                if (in == 1'b1) begin
                     next_state = IDLE;
+                end
             end
             default: next_state = IDLE;
         endcase

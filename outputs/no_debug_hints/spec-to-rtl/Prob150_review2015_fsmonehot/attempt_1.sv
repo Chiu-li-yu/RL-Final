@@ -13,17 +13,17 @@ module TopModule (
     output shift_ena
 );
 
-    // Encoding: (S, S1, S11, S110, B0, B1, B2, B3, Count, Wait)
-    parameter S    = 10'b0000000001;
-    parameter S1   = 10'b0000000010;
-    parameter S11  = 10'b0000000100;
-    parameter S110 = 10'b0000001000;
-    parameter B0   = 10'b0000010000;
-    parameter B1   = 10'b0000100000;
-    parameter B2   = 10'b0001000000;
-    parameter B3   = 10'b0010000000;
-    parameter Count = 10'b0100000000;
-    parameter Wait  = 10'b1000000000;
+    // One-hot state encoding
+    localparam S    = 10'b0000000001;
+    localparam S1   = 10'b0000000010;
+    localparam S11  = 10'b0000000100;
+    localparam S110 = 10'b0000001000;
+    localparam B0   = 10'b0000010000;
+    localparam B1   = 10'b0000100000;
+    localparam B2   = 10'b0001000000;
+    localparam B3   = 10'b0010000000;
+    localparam Count= 10'b0100000000;
+    localparam Wait = 10'b1000000000;
 
     logic [9:0] next_state;
 
@@ -38,20 +38,20 @@ module TopModule (
             B1:   next_state = B2;
             B2:   next_state = B3;
             B3:   next_state = Count;
-            Count: next_state = done_counting ? Wait : Count;
-            Wait:  next_state = ack ? S : Wait;
+            Count:next_state = done_counting ? Wait : Count;
+            Wait: next_state = ack ? S : Wait;
             default: next_state = S;
         endcase
     end
 
-    assign B3_next = (next_state == B3);
-    assign S_next = (next_state == S);
-    assign S1_next = (next_state == S1);
+    assign S_next     = (next_state == S);
+    assign S1_next    = (next_state == S1);
+    assign B3_next    = (next_state == B3);
     assign Count_next = (next_state == Count);
-    assign Wait_next = (next_state == Wait);
+    assign Wait_next  = (next_state == Wait);
 
-    assign shift_ena = (state == B0) || (state == B1) || (state == B2) || (state == B3);
-    assign counting  = (state == Count);
-    assign done      = (state == Wait);
+    assign shift_ena  = (state == B0) || (state == B1) || (state == B2) || (state == B3);
+    assign counting   = (state == Count);
+    assign done       = (state == Wait);
 
 endmodule

@@ -1,0 +1,24 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input a,
+    input b,
+    output out_assign,
+    output out_always_comb,
+[attempt 1] ← compile_and_test: w
+/tmp/tmpyacqhsu9.sv:13: error: out_always_comb is not a valid l-value in tb.top_module1.
+/tmp/tmpyacqhsu9.sv:6:      : out_always_comb is declared here as wire.
+1 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input a,
+    input b,
+    output logic out_assign,
+    output logic out_always_comb,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

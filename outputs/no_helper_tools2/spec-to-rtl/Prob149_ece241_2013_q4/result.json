@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob149_ece241_2013_q4",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob149_ece241_2013_q4_test.sv:84: $finish called at 10200 (1ps)\nHint: Output 'fr2' has no mismatches.\nHint: Output 'fr1' has no mismatches.\nHint: Output 'fr0' has no mismatches.\nHint: Output 'dfr' has 964 mismatches. First mismatch occurred at time 90.\nHint: Total mismatched samples is 964 out of 2040 samples\n\nSimulation finished at 10200 ps\nMismatches: 964 in 2040 samples",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R",
+    "R",
+    "R",
+    "R",
+    "R"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 0,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_helper_tools"
+}

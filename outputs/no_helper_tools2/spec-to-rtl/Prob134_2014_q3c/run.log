@@ -1,0 +1,57 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input x,
+    input [2:0] y,
+    output Y0,
+    output z
+[attempt 1] ← compile_and_test: S
+/tmp/tmp0cfov_1u.sv:15: syntax error
+/tmp/tmp0cfov_1u.sv:15: error: Invalid module instantiation
+/tmp/tmp0cfov_1u.sv:18: error: Invalid module item.
+/tmp/tmp0cfov_1u.sv:19: syntax error
+/tmp/tmp0cfov_1u.sv:19: error: Invalid module item.
+/tmp/tmp0cfov_1u.sv:20: syntax error
+/tmp/tmp0cfov_1u.sv:20: error: Invalid module item.
+/tmp/tmp0cfov_1u.sv:21: syntax error
+/tmp/tmp0cfov_1u.sv:21: error: Invalid module item.
+/tmp/tmp0cfov_1u.sv:22: syntax error
+/tmp/tmp0cfov_1u.sv:22: error: Invalid module item.
+/tmp/tmp0cfov_1u.sv:23: syntax error
+/tmp/tmp0cfov_1u.sv:28: error: Invalid module item.
+/tmp/tmp0cfov_1u.sv:29: syntax error
+/tmp/tmp0cfov_1u.sv:29: error: Invalid module item.
+/tmp/tmp0cfov_1u.sv:30: syntax error
+/tmp/tmp0cfov_1u.sv:30: error: Invalid module item.
+/tmp/tmp0cfov_1u.sv:31: syntax error
+/tmp/tmp0cfov_1u.sv:34: error: Invalid module item.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input x,
+    input [2:0] y,
+    output Y0,
+    output z
+[attempt 2] ← compile_and_test: R  mismatches=76
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob134_2014_q3c_test.sv:18: $finish called at 1001 (1ps)
+Hint: Output 'Y0' has 52 mismatches. First mismatch occurred at time 45.
+Hint: Output 'z' has 56 mismatches. First mismatch occurred at time 10.
+Hint: Total mismatched samples is 76 out of 200 samples
+
+Simulation finished at 1001 ps
+Mismatches: 76 in 200 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input x,
+    input [2:0] y,
+    output Y0,
+    output z
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

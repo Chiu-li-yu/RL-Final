@@ -1,0 +1,90 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: R  mismatches=317
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 317 mismatches. First mismatch occurred at time 150.
+Hint: Output 'walk_right' has 317 mismatches. First mismatch occurred at time 150.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 317 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 317 in 441 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 2] ← compile_and_test: R  mismatches=317
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 317 mismatches. First mismatch occurred at time 150.
+Hint: Output 'walk_right' has 317 mismatches. First mismatch occurred at time 150.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 317 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 317 in 441 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 3] ← compile_and_test: R  mismatches=317
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 317 mismatches. First mismatch occurred at time 150.
+Hint: Output 'walk_right' has 317 mismatches. First mismatch occurred at time 150.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 317 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 317 in 441 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 4] ← compile_and_test: R  mismatches=154
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 154 mismatches. First mismatch occurred at time 270.
+Hint: Output 'walk_right' has 154 mismatches. First mismatch occurred at time 270.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 154 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 154 in 441 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 5] ← compile_and_test: R  mismatches=154
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob142_lemmings2_test.sv:80: $finish called at 2206 (1ps)
+Hint: Output 'walk_left' has 154 mismatches. First mismatch occurred at time 270.
+Hint: Output 'walk_right' has 154 mismatches. First mismatch occurred at time 270.
+Hint: Output 'aaah' has no mismatches.
+Hint: Total mismatched samples is 154 out of 441 samples
+
+Simulation finished at 2206 ps
+Mismatches: 154 in 441 samples

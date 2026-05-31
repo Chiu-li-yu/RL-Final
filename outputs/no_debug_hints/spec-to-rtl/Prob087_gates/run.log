@@ -1,8 +1,8 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input a,
-    input b,
+    input  a,
+    input  b,
     output out_and,
     output out_or,
     output out_xor,

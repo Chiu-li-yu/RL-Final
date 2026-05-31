@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+根據您的需求，以下是實現該 Verilog 邏輯的 4 個具體子目標：
+
+1. 定義模組介面，包含 `clk` 與 `a` 作為輸入，以及一個 3-bit 的 `q` 作為暫存器輸出。
+2. 在 `always @(posedge clk)` 的區塊中實作重置邏輯：當輸入 `a` 為 1 時，將 `q` 強制設定為 3'd4。
+3. 在 `always` 區塊中實作計數邏輯：當輸入 `a` 為 0 時，將 `q` 執行加 1 操作。
+4. 加入模組 7 的繞回（wrap-around）條件：當 `q` 達到 6 時，下一次計數應歸零至 0。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input a,
+    output logic [2:0] q
+);
+
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize (auto, last attempt)
+[attempt 1] ← synthesize: Y

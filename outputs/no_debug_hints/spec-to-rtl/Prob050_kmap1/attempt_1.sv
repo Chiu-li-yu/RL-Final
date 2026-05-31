@@ -5,17 +5,20 @@ module TopModule (
     output out
 );
     // Karnaugh Map analysis:
-    // a=0: (bc=01, 11, 10) -> out=1
-    // a=1: (bc=00, 01, 11, 10) -> out=1
-    // From K-map:
-    // When a=0: out = b | c
-    // When a=1: out = 1
-    // Logic: out = a | (b | c) = a | b | c
+    // abc | out
+    // 000 | 0
+    // 001 | 1
+    // 010 | 1
+    // 011 | 1
+    // 100 | 1
+    // 101 | 1
+    // 110 | 1
+    // 111 | 1
     
-    logic out_temp;
+    // The output is 0 only when a=0, b=0, c=0.
+    // Therefore, out = !(~a & ~b & ~c) = a | b | c
+    
     always @(*) begin
-        out_temp = a | b | c;
+        out = a | b | c;
     end
-    
-    assign out = out_temp;
 endmodule

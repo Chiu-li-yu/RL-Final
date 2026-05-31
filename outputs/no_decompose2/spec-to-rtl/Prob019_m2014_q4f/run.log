@@ -1,0 +1,24 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input in1,
+    input in2,
+    output out
+);
+    logic in2_inv;
+[attempt 1] ← compile_and_test: w
+/tmp/tmpmxmcjn94.sv:12: error: out is not a valid l-value in tb.top_module1.
+/tmp/tmpmxmcjn94.sv:4:      : out is declared here as wire.
+1 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input in1,
+    input in2,
+    output logic out
+);
+    logic in2_inv;
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

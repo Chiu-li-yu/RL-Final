@@ -1,0 +1,46 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 1] ← compile_and_test: R  mismatches=780
+VCD info: dumpfile wave.vcd opened for output.
+Hint: The first test case is a blinker (initial state = 256'h7). First mismatch occurred at cycle 2.
+Hint:
+Hint: Cycle 2:         Your game state       Reference game state
+Hint:   q[255:240]     0000000000000000      0000000000000010
+Hint:   q[239:224]     0000000000000000      0000000000000000
+Hint:   q[223:208]     0000000000000000      0000000000000000
+Hint:   q[207:192]     0000000000000000      0000000000000000
+Hint:   q[191:176]     0000000000000000      0000000000000000
+Hint:   q[175:160]     0000000000000000      0000000000000000
+Hint:   q[159:144]     0000000000000000      0000000000000000
+Hint:   q[143:128]     0000000000000000      0000000000000000
+Hint:   q[127:112]     0000000000000000      0000000000000000
+Hint:   q[111: 96]     0000000000000000      0000000000000000
+Hint:   q[ 95: 80]     0000000000000000      0000000000000000
+Hint:   q[ 79: 64]     0000000000000000      0000000000000000
+Hint:   q[ 63: 48]     0000000000000
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input load,
+    input [255:0] data,
+    output logic [255:0] q
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

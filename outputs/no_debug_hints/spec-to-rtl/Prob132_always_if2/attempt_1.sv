@@ -8,16 +8,16 @@ module TopModule (
 
     always @(*) begin
         if (cpu_overheated)
-           shut_off_computer = 1'b1;
+            shut_off_computer = 1'b1;
         else
-           shut_off_computer = 1'b0;
+            shut_off_computer = 1'b0;
     end
 
     always @(*) begin
         if (~arrived && ~gas_tank_empty)
-           keep_driving = 1'b1;
+            keep_driving = 1'b1;
         else
-           keep_driving = 1'b0;
+            keep_driving = 1'b0;
     end
 
 endmodule

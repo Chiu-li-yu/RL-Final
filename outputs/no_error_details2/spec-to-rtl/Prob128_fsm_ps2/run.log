@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了完成這個 PS/2 滑鼠封包檢測的 FSM 設計，建議將任務分解為以下 5 個子目標：
+
+1. 定義狀態機（FSM）的狀態（如：IDLE/SEARCHING、BYTE2、BYTE3），並實作同步 Reset 與正緣觸發的狀態轉換邏輯。
+2. 實作 Byte 1 的檢測邏輯，確保只有在輸入 `in[3] == 1` 時才能從初始狀態跳轉至下一狀態。
+3. 建立計數邏輯或依序狀態轉換，以正確接收並鎖定第 2 個與第 3 個資料位元組（Byte 2, Byte 3）。
+4. 設計 `done` 訊號的輸出邏輯，確保其在第 3 個位元組接收完成的下一個時脈週期維持高電位（High）一個週期。
+5. 編寫測試平台（Testbench）並透過模擬驗證 FSM 是否能準確從連續的位元組串流中篩選出正確的 3-byte 序列。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output done
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

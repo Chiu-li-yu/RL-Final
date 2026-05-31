@@ -1,16 +1,12 @@
 module TopModule (
     input d,
     input ena,
-    output q
+    output logic q
 );
-
-    logic q_reg;
-
-    assign q = q_reg;
 
     always @(*) begin
         if (ena) begin
-            q_reg = d;
+            q = d;
         end
     end
 

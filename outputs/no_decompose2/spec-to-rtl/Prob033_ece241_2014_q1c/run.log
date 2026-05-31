@@ -1,0 +1,33 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input [7:0] a,
+    input [7:0] b,
+    output [7:0] s,
+    output overflow
+);
+[attempt 1] ← compile_and_test: w
+/tmp/tmpxx7r4i4h.sv:11: error: s is not a valid l-value in tb.top_module1.
+/tmp/tmpxx7r4i4h.sv:4:      : s is declared here as wire.
+/tmp/tmpxx7r4i4h.sv:15: error: overflow is not a valid l-value in tb.top_module1.
+/tmp/tmpxx7r4i4h.sv:5:      : overflow is declared here as wire.
+2 error(s) during elaboration.
+
+[attempt 1] → get_debug_hints(error_type='w')
+[attempt 1] ← get_debug_hints: Declared as wire：對宣告為 wire 的訊號做程序性賦值（在 always 區塊內賦值）。
+修正方式：
+1. 將該訊號的宣告從 wire 改為 logic
+2. 若已使用 logic 宣告但仍報此錯，確認沒有重複宣告
+3. 建議使用 logic，不使用 wire 或 reg
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input logic [7:0] a,
+    input logic [7:0] b,
+    output logic [7:0] s,
+    output logic overflow
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

@@ -1,0 +1,24 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input x,
+    input y,
+    output z
+);
+
+[attempt 1] ← compile_and_test: w
+/tmp/tmp8rkdxljn.sv:11: error: z is not a valid l-value in tb.top_module1.
+/tmp/tmp8rkdxljn.sv:4:      : z is declared here as wire.
+1 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input logic x,
+    input logic y,
+    output logic z
+);
+
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

@@ -3,12 +3,11 @@ module TopModule (
     input [7:0] in,
     output [7:0] anyedge
 );
-    logic [7:0] prev_in;
+    logic [7:0] in_prev;
 
     always_ff @(posedge clk) begin
-        prev_in <= in;
+        in_prev <= in;
     end
 
-    assign anyedge = in ^ prev_in;
-
+    assign anyedge = in ^ in_prev;
 endmodule

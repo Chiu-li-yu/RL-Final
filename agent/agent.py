@@ -1,11 +1,10 @@
 """
 Verilog Coding Agent — Gemini multi-turn chat with function calling.
 
-MDP 框架對應：
+In-Context RL 框架對應：
   State  = (problem_description, current_code, error_type, error_log, attempt_number)
   Action = Gemini 自行決定：生成/修正程式碼 → 呼叫 compile_and_test 或 decompose_spec
-  Reward = +1 passed，0 failed
-  Policy = Gemini（In-Context RL，不更新參數）
+  Policy = Gemini（不更新參數，透過 error feedback 在推理時調整生成策略）
   Episode = 單一題目，最多 max_attempts 次 compile_and_test 呼叫
 
 Module responsibilities:
@@ -377,6 +376,7 @@ class _DispatchCtx:
     rate_limiter:   "RateLimiter | None"
     verbose:        bool
     max_attempts:   int
+    binary_feedback: bool
     on_tool_call:   Callable | None
     on_tool_result: Callable | None
     on_save:        Callable | None
@@ -460,8 +460,9 @@ def _handle_compile_and_test(fc, ctx: _DispatchCtx) -> _DispatchOut:
             s = "✅ SYNTH PASS" if synth_result["passed"] else f"❌ {synth_result['error_type']}"
             print(f"[agent]   → {s} (auto)")
 
+    gemini_result = {"passed": result["passed"]} if ctx.binary_feedback else result
     return _DispatchOut(
-        part=types.Part.from_function_response(name="compile_and_test", response=result),
+        part=types.Part.from_function_response(name="compile_and_test", response=gemini_result),
         should_stop=should_stop or ep.fully_passed(),
         user_hint=user_hint,
     )
@@ -491,8 +492,9 @@ def _handle_synthesize(fc, ctx: _DispatchCtx) -> _DispatchOut:
         status = "✅ SYNTH PASS" if synth_result["passed"] else f"❌ {synth_result['error_type']}"
         print(f"[agent]   → {status}")
 
+    gemini_synth = {"passed": synth_result["passed"]} if ctx.binary_feedback else synth_result
     return _DispatchOut(
-        part=types.Part.from_function_response(name="synthesize", response=synth_result),
+        part=types.Part.from_function_response(name="synthesize", response=gemini_synth),
         should_stop=ep.fully_passed(),
     )
 
@@ -574,6 +576,8 @@ def run_agent(
     # None = 啟用全部工具；否則只包含集合中的工具名稱
     # 永遠啟用：compile_and_test、synthesize
     # 可選關閉：decompose_spec、get_debug_hints
+    binary_feedback: bool = False,
+    # True = compile_and_test / synthesize 只回傳 {"passed": bool}，隱藏 error_type / error_log
     # ── 顯示 / 互動 callbacks（全部可選）────────────────────────────────────
     on_thinking:    Callable[[str], None]            | None = None,
     on_tool_call:   Callable[[str, dict, int], None] | None = None,
@@ -657,6 +661,7 @@ def run_agent(
             problem_id=problem_id, task=task,
             model=model, rate_limiter=rate_limiter,
             verbose=verbose, max_attempts=max_attempts,
+            binary_feedback=binary_feedback,
             on_tool_call=on_tool_call, on_tool_result=on_tool_result,
             on_save=on_save, on_checkpoint=on_checkpoint,
         )

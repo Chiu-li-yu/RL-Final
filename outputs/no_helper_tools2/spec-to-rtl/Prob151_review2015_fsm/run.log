@@ -1,0 +1,44 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input data,
+    input done_counting,
+    input ack,
+[attempt 1] ← compile_and_test: e
+/tmp/tmp3khodirn.sv:36: error: This assignment requires an explicit cast.
+/tmp/tmp3khodirn.sv:37: error: This assignment requires an explicit cast.
+/tmp/tmp3khodirn.sv:38: error: This assignment requires an explicit cast.
+/tmp/tmp3khodirn.sv:39: error: This assignment requires an explicit cast.
+/tmp/tmp3khodirn.sv:48: error: This assignment requires an explicit cast.
+/tmp/tmp3khodirn.sv:53: error: This assignment requires an explicit cast.
+6 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input data,
+    input done_counting,
+    input ack,
+[attempt 2] ← compile_and_test: e
+/tmp/tmp5h7onm2c.sv:41: error: This assignment requires an explicit cast.
+/tmp/tmp5h7onm2c.sv:42: error: This assignment requires an explicit cast.
+/tmp/tmp5h7onm2c.sv:43: error: This assignment requires an explicit cast.
+/tmp/tmp5h7onm2c.sv:44: error: This assignment requires an explicit cast.
+/tmp/tmp5h7onm2c.sv:53: error: This assignment requires an explicit cast.
+/tmp/tmp5h7onm2c.sv:58: error: This assignment requires an explicit cast.
+6 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input data,
+    input done_counting,
+    input ack,
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y
