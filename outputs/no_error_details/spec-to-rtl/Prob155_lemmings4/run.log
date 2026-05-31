@@ -1,0 +1,29 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了有效實現 Lemmings FSM，建議將開發過程分解為以下五個子目標：
+
+1. 定義狀態機 (FSM) 狀態編碼與輸出邏輯，並建立同步重置 (areset) 及狀態轉換的 `always` 區塊架構。
+2. 實作墜落偵測與計時邏輯：建立一個計數器以追蹤連續墜落週期，並根據 `ground` 訊號實作 Fall 狀態切換與計數溢位判斷。
+3. 實作挖掘與行走行為邏輯：在 `ground=1` 且非墜落狀態下，根據 `dig` 訊號切換至 Dig 狀態，並依據 `bump` 訊號設定行走方向的狀態切換。
+4. 處理 Splatter 終止狀態：加入條件判斷，確保若墜落週期超過 20 且觸地，系統進入並鎖定在 Splatter 狀態 (輸出全為 0)。
+5. 整合各狀態輸出訊號：根據當前狀態 (State) 與規則需求，指派 `walk_left`、`walk_right`、`aaah` 與 `digging` 四個輸出接腳的組合邏輯。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: R  mismatches=114
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/Desktop/GitHub/School/強化學習期末專題/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 22 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 44 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 14 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 34 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 114 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 114 in 1003 samples

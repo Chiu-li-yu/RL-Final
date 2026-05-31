@@ -22,7 +22,7 @@
 - RL 框架論述要點：
   - **State**：題目 + 當前程式碼 + error_type + error_log + attempt_number
   - **Action**：fix_code / rewrite_code / call_tool（透過 function calling）
-  - **Reward**：Pass = +1；達到上限仍失敗 = 0
+  - **終止條件**：sim_passed AND synth_passed，或達到 max_attempts 上限
   - **Policy**：Gemini（LLM 本身）
   - **Episode**：一道題，最多 3 次 attempt
 

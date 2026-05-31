@@ -112,6 +112,7 @@ def _run_experiment(
             verbose=False,
             rate_limiter=rate_limiter,
             enabled_tools=exp.enabled_tools,
+            binary_feedback=exp.binary_feedback,
             on_save=obs.on_save,
         )
 
@@ -128,6 +129,7 @@ def _run_experiment(
             verbose=False,
             rate_limiter=rate_limiter,
             enabled_tools=exp.enabled_tools,
+            binary_feedback=exp.binary_feedback,
             on_save=obs.on_save,
         )
         result = dict(result)
