@@ -1,0 +1,62 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: R  mismatches=96
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 40 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 44 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 10 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 22 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 96 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 96 in 1003 samples
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 2] ← compile_and_test: e
+/tmp/tmpe01fsjci.sv:62: error: This assignment requires an explicit cast.
+/tmp/tmpe01fsjci.sv:65: error: This assignment requires an explicit cast.
+2 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 3] ← compile_and_test: R  mismatches=76
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 12 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 32 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 10 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 22 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 76 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 76 in 1003 samples
+
+[attempt 4] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 4] ← compile_and_test: .
+
+[attempt 4] → synthesize
+[attempt 4] ← synthesize: Y

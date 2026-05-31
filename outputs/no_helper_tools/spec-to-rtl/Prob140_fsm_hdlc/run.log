@@ -1,0 +1,51 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic in,
+    output logic disc,
+    output logic flag,
+[attempt 1] ← compile_and_test: e
+/tmp/tmp47pnvkp8.sv:34: error: This assignment requires an explicit cast.
+/tmp/tmp47pnvkp8.sv:35: error: This assignment requires an explicit cast.
+/tmp/tmp47pnvkp8.sv:36: error: This assignment requires an explicit cast.
+/tmp/tmp47pnvkp8.sv:37: error: This assignment requires an explicit cast.
+/tmp/tmp47pnvkp8.sv:38: error: This assignment requires an explicit cast.
+/tmp/tmp47pnvkp8.sv:39: error: This assignment requires an explicit cast.
+/tmp/tmp47pnvkp8.sv:40: error: This assignment requires an explicit cast.
+/tmp/tmp47pnvkp8.sv:41: error: This assignment requires an explicit cast.
+/tmp/tmp47pnvkp8.sv:42: error: This assignment requires an explicit cast.
+9 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic in,
+    output logic disc,
+    output logic flag,
+[attempt 2] ← compile_and_test: e
+/tmp/tmphxdqe6ao.sv:24: error: This assignment requires an explicit cast.
+/tmp/tmphxdqe6ao.sv:25: error: This assignment requires an explicit cast.
+/tmp/tmphxdqe6ao.sv:26: error: This assignment requires an explicit cast.
+/tmp/tmphxdqe6ao.sv:27: error: This assignment requires an explicit cast.
+/tmp/tmphxdqe6ao.sv:28: error: This assignment requires an explicit cast.
+/tmp/tmphxdqe6ao.sv:29: error: This assignment requires an explicit cast.
+/tmp/tmphxdqe6ao.sv:30: error: This assignment requires an explicit cast.
+/tmp/tmphxdqe6ao.sv:31: error: This assignment requires an explicit cast.
+/tmp/tmphxdqe6ao.sv:32: error: This assignment requires an explicit cast.
+/tmp/tmphxdqe6ao.sv:33: error: This assignment requires an explicit cast.
+10 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic in,
+    output logic disc,
+    output logic flag,
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

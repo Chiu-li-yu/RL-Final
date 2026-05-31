@@ -1,0 +1,12 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input  [7:0] a,
+    input  [7:0] b,
+    output [7:0] s,
+    output       overflow
+);
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

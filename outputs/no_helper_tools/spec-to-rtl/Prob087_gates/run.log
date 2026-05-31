@@ -1,0 +1,35 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    output out_and,
+    output out_or,
+    output out_xor,
+[attempt 1] ← compile_and_test: w
+/tmp/tmph6m8edem.sv:14: error: out_and is not a valid l-value in tb.top_module1.
+/tmp/tmph6m8edem.sv:4:      : out_and is declared here as wire.
+/tmp/tmph6m8edem.sv:15: error: out_or is not a valid l-value in tb.top_module1.
+/tmp/tmph6m8edem.sv:5:      : out_or is declared here as wire.
+/tmp/tmph6m8edem.sv:16: error: out_xor is not a valid l-value in tb.top_module1.
+/tmp/tmph6m8edem.sv:6:      : out_xor is declared here as wire.
+/tmp/tmph6m8edem.sv:17: error: out_nand is not a valid l-value in tb.top_module1.
+/tmp/tmph6m8edem.sv:7:      : out_nand is declared here as wire.
+/tmp/tmph6m8edem.sv:18: error: out_nor is not a valid l-value in tb.top_module1.
+/tmp/tmph6m8edem.sv:8:      : out_nor is declared here as wire.
+/tmp/tmph6m8edem.sv:19: error: out_xnor is not a valid l-value in tb.top_module1.
+/tmp/tmph6m8edem.sv:9:      : out_xnor is declared here as wire.
+/tmp/tmph6m8edem.sv:20: error: out_anotb is not a valid l-value in tb.top_module1.
+/tmp/tmph6m8edem.sv:10:      : out_anotb is d
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    output logic out_and,
+    output logic out_or,
+    output logic out_xor,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob137_fsm_serial",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob137_fsm_serial_test.sv:45: $finish called at 4526 (1ps)\nHint: Output 'done' has 47 mismatches. First mismatch occurred at time 110.\nHint: Total mismatched samples is 47 out of 905 samples\n\nSimulation finished at 4526 ps\nMismatches: 47 in 905 samples",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R",
+    "R",
+    "R",
+    "R",
+    "R"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 0,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_helper_tools"
+}

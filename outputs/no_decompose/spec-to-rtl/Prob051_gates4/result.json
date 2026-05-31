@@ -1,0 +1,21 @@
+{
+  "problem_id": "Prob051_gates4",
+  "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
+  "attempts": 1,
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "."
+  ],
+  "synth_error_sequence": [
+    "Y"
+  ],
+  "decompose_spec_calls": 0,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_decompose"
+}

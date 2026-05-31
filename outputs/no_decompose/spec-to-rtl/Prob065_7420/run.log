@@ -1,0 +1,27 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input  p1a,
+    input  p1b,
+    input  p1c,
+    input  p1d,
+    input  p2a,
+[attempt 1] ← compile_and_test: w
+/tmp/tmp16ds32gb.sv:15: error: p1y is not a valid l-value in tb.top_module1.
+/tmp/tmp16ds32gb.sv:10:      : p1y is declared here as wire.
+/tmp/tmp16ds32gb.sv:16: error: p2y is not a valid l-value in tb.top_module1.
+/tmp/tmp16ds32gb.sv:11:      : p2y is declared here as wire.
+/tmp/tmp16ds32gb.sv:14: warning: @* found no sensitivities so it will never trigger.
+2 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input  p1a,
+    input  p1b,
+    input  p1c,
+    input  p1d,
+    input  p2a,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

@@ -1,0 +1,23 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    input c,
+    input d,
+    output q
+[attempt 1] ← compile_and_test: C
+/tmp/tmpt5u1rznv.sv:8: error: 'q' has already been declared in this scope.
+/tmp/tmpt5u1rznv.sv:6:      : It was declared here as a net.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    input c,
+    input d,
+    output logic q
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

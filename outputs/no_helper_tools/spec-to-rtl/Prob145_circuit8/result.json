@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob145_circuit8",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "S",
+  "sim_error_log": "/tmp/tmp7v9axzht.sv:35: syntax error\n/tmp/tmp7v9axzht.sv:35: error: Syntax error in continuous assignment",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R",
+    "R",
+    "R",
+    "R",
+    "S"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 0,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_helper_tools"
+}

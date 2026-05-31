@@ -1,0 +1,32 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    output walk_left,
+[attempt 1] ← compile_and_test: S
+/tmp/tmppqz_y0f1.sv:21: syntax error
+/tmp/tmppqz_y0f1.sv:21: error: Invalid module instantiation
+/tmp/tmppqz_y0f1.sv:27: error: Invalid module item.
+/tmp/tmppqz_y0f1.sv:28: syntax error
+/tmp/tmppqz_y0f1.sv:31: error: Invalid module item.
+/tmp/tmppqz_y0f1.sv:32: syntax error
+/tmp/tmppqz_y0f1.sv:33: error: Invalid module item.
+/tmp/tmppqz_y0f1.sv:34: syntax error
+/tmp/tmppqz_y0f1.sv:35: error: Invalid module item.
+/tmp/tmppqz_y0f1.sv:36: syntax error
+/tmp/tmppqz_y0f1.sv:39: error: Invalid module item.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    output walk_left,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

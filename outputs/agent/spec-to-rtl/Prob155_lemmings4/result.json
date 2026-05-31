@@ -1,29 +1,23 @@
 {
   "problem_id": "Prob155_lemmings4",
-  "passed": true,
-  "sim_passed": true,
-  "synth_passed": true,
-  "attempts": 5,
-  "sim_error_type": ".",
-  "sim_error_log": "",
-  "synth_error_type": "Y",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 2,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)\nHint: Output 'walk_left' has 50 mismatches. First mismatch occurred at time 580.\nHint: Output 'walk_right' has 56 mismatches. First mismatch occurred at time 600.\nHint: Output 'aaah' has 14 mismatches. First mismatch occurred at time 690.\nHint: Output 'digging' has 34 mismatches. First mismatch occurred at time 620.\nHint: Total mismatched samples is 134 out of 1003 samples\n\nSimulation finished at 5016 ps\nMismatches: 134 in 1003 samples",
+  "synth_error_type": "",
   "synth_error_log": "",
   "sim_error_sequence": [
     "e",
-    "R",
-    "R",
-    "R",
-    "."
+    "R"
   ],
   "synth_error_sequence": [
     null,
-    null,
-    null,
-    null,
-    "Y"
+    null
   ],
   "decompose_spec_calls": 1,
-  "get_debug_hints_calls": 2,
+  "get_debug_hints_calls": 1,
   "task": "spec-to-rtl",
   "experiment": "agent"
 }

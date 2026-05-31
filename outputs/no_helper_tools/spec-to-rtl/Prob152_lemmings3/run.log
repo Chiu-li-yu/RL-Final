@@ -1,0 +1,31 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: R  mismatches=227
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob152_lemmings3_test.sv:94: $finish called at 2216 (1ps)
+Hint: Output 'walk_left' has 171 mismatches. First mismatch occurred at time 120.
+Hint: Output 'walk_right' has 56 mismatches. First mismatch occurred at time 500.
+Hint: Output 'aaah' has no mismatches.
+Hint: Output 'digging' has no mismatches.
+Hint: Total mismatched samples is 227 out of 443 samples
+
+Simulation finished at 2216 ps
+Mismatches: 227 in 443 samples
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

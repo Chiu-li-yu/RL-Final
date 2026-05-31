@@ -1,0 +1,88 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 1] ← compile_and_test: S
+/tmp/tmplmrgs8tr.sv:33: syntax error
+/tmp/tmplmrgs8tr.sv:33: error: Invalid module instantiation
+/tmp/tmplmrgs8tr.sv:36: syntax error
+/tmp/tmplmrgs8tr.sv:36: error: Invalid module instantiation
+/tmp/tmplmrgs8tr.sv:37: syntax error
+/tmp/tmplmrgs8tr.sv:37: error: Invalid module instantiation
+/tmp/tmplmrgs8tr.sv:38: syntax error
+/tmp/tmplmrgs8tr.sv:38: error: Invalid module instantiation
+/tmp/tmplmrgs8tr.sv:39: syntax error
+/tmp/tmplmrgs8tr.sv:39: error: Invalid module instantiation
+/tmp/tmplmrgs8tr.sv:40: syntax error
+/tmp/tmplmrgs8tr.sv:40: error: Invalid module instantiation
+/tmp/tmplmrgs8tr.sv:45: error: Invalid module item.
+/tmp/tmplmrgs8tr.sv:46: syntax error
+/tmp/tmplmrgs8tr.sv:46: error: Invalid module instantiation
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:10: error: Invalid module item.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 2] ← compile_and_test: e
+/tmp/tmpx39waizp.sv:36: error: This assignment requires an explicit cast.
+/tmp/tmpx39waizp.sv:39: error: This assignment requires an explicit cast.
+2 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 3] ← compile_and_test: R  mismatches=434
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 434 mismatches. First mismatch occurred at time 240.
+Hint: Output 'done' has no mismatches.
+Hint: Total mismatched samples is 434 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 434 in 1619 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 4] ← compile_and_test: R  mismatches=434
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 434 mismatches. First mismatch occurred at time 240.
+Hint: Output 'done' has no mismatches.
+Hint: Total mismatched samples is 434 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 434 in 1619 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic [23:0] out_bytes,
+    output logic done
+[attempt 5] ← compile_and_test: R  mismatches=468
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob154_fsm_ps2data_test.sv:31: $finish called at 8096 (1ps)
+Hint: Output 'out_bytes' has 468 mismatches. First mismatch occurred at time 215.
+Hint: Output 'done' has no mismatches.
+Hint: Total mismatched samples is 468 out of 1619 samples
+
+Simulation finished at 8096 ps
+Mismatches: 468 in 1619 samples

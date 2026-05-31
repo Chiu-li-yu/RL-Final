@@ -1,0 +1,103 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: R  mismatches=114
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 22 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 44 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 14 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 34 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 114 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 114 in 1003 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 2] ← compile_and_test: R  mismatches=136
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 44 mismatches. First mismatch occurred at time 110.
+Hint: Output 'walk_right' has 66 mismatches. First mismatch occurred at time 110.
+Hint: Output 'aaah' has 14 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 34 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 136 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 136 in 1003 samples
+
+[attempt 3] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 3] ← compile_and_test: R  mismatches=84
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 64 mismatches. First mismatch occurred at time 800.
+Hint: Output 'walk_right' has 50 mismatches. First mismatch occurred at time 800.
+Hint: Output 'aaah' has 4 mismatches. First mismatch occurred at time 2840.
+Hint: Output 'digging' has 12 mismatches. First mismatch occurred at time 2950.
+Hint: Total mismatched samples is 84 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 84 in 1003 samples
+
+[attempt 4] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 4] ← compile_and_test: R  mismatches=160
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 88 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 70 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 14 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 34 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 160 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 160 in 1003 samples
+
+[attempt 5] → compile_and_test
+module TopModule(
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 5] ← compile_and_test: R  mismatches=160
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob155_lemmings4_test.sv:158: $finish called at 5016 (1ps)
+Hint: Output 'walk_left' has 88 mismatches. First mismatch occurred at time 580.
+Hint: Output 'walk_right' has 70 mismatches. First mismatch occurred at time 600.
+Hint: Output 'aaah' has 14 mismatches. First mismatch occurred at time 690.
+Hint: Output 'digging' has 34 mismatches. First mismatch occurred at time 620.
+Hint: Total mismatched samples is 160 out of 1003 samples
+
+Simulation finished at 5016 ps
+Mismatches: 160 in 1003 samples

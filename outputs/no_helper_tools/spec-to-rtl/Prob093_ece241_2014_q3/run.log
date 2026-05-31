@@ -1,0 +1,44 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input c,
+    input d,
+    output logic [3:0] mux_in
+);
+    // K-map table based on ab (rows) and cd (cols):
+[attempt 1] ← compile_and_test: R  mismatches=38
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob093_ece241_2014_q3_test.sv:38: $finish called at 300 (1ps)
+Hint: Output 'mux_in' has 38 mismatches. First mismatch occurred at time 5.
+Hint: Total mismatched samples is 38 out of 60 samples
+
+Simulation finished at 300 ps
+Mismatches: 38 in 60 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input c,
+    input d,
+    output logic [3:0] mux_in
+);
+    // Re-reading K-map:
+[attempt 2] ← compile_and_test: R  mismatches=38
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob093_ece241_2014_q3_test.sv:38: $finish called at 300 (1ps)
+Hint: Output 'mux_in' has 38 mismatches. First mismatch occurred at time 5.
+Hint: Total mismatched samples is 38 out of 60 samples
+
+Simulation finished at 300 ps
+Mismatches: 38 in 60 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input c,
+    input d,
+    output logic [3:0] mux_in
+);
+    // Let's re-map based on the indices 0, 1, 2, 3 corresponding to binary 00, 01, 10, 11 (ab)
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

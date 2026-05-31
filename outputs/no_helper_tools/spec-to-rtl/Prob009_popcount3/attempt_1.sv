@@ -1,0 +1,14 @@
+module TopModule (
+    input logic [2:0] in,
+    output logic [1:0] out
+);
+
+    logic [1:0] count;
+
+    always @(*) begin
+        count = in[0] + in[1] + in[2];
+    end
+
+    assign out = count;
+
+endmodule

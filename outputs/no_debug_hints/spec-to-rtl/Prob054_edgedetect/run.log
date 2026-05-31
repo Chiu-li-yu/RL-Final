@@ -1,0 +1,28 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input [7:0] in,
+    output logic [7:0] pedge
+);
+    logic [7:0] prev_in;
+[attempt 1] ← compile_and_test: R  mismatches=206
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob054_edgedetect_test.sv:45: $finish called at 1135 (1ps)
+Hint: Output 'pedge' has 206 mismatches. First mismatch occurred at time 30.
+Hint: Total mismatched samples is 206 out of 227 samples
+
+Simulation finished at 1135 ps
+Mismatches: 206 in 227 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input [7:0] in,
+    output logic [7:0] pedge
+);
+    logic [7:0] prev_in;
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

@@ -1,0 +1,34 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input ring,
+    input vibrate_mode,
+    output ringer,
+    output motor
+);
+[attempt 1] ← compile_and_test: w
+/tmp/tmp0bt625kg.sv:11: error: ringer is not a valid l-value in tb.top_module1.
+/tmp/tmp0bt625kg.sv:4:      : ringer is declared here as wire.
+/tmp/tmp0bt625kg.sv:12: error: motor is not a valid l-value in tb.top_module1.
+/tmp/tmp0bt625kg.sv:5:      : motor is declared here as wire.
+/tmp/tmp0bt625kg.sv:14: error: ringer is not a valid l-value in tb.top_module1.
+/tmp/tmp0bt625kg.sv:4:      : ringer is declared here as wire.
+/tmp/tmp0bt625kg.sv:15: error: motor is not a valid l-value in tb.top_module1.
+/tmp/tmp0bt625kg.sv:5:      : motor is declared here as wire.
+/tmp/tmp0bt625kg.sv:18: error: ringer is not a valid l-value in tb.top_module1.
+/tmp/tmp0bt625kg.sv:4:      : ringer is declared here as wire.
+/tmp/tmp0bt625kg.sv:19: error: motor is not a valid l-value in tb.top_module1.
+/tmp/tmp0bt625kg.sv:5:      : motor is declared here as wire.
+6 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input ring,
+    input vibrate_mode,
+    output logic ringer,
+    output logic motor
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

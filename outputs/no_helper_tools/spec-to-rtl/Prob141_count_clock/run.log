@@ -1,0 +1,32 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input ena,
+    output logic pm,
+    output logic [7:0] hh,
+[attempt 1] ← compile_and_test: R  mismatches=192347
+VCD info: dumpfile wave.vcd opened for output.
+TIMEOUT
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob141_count_clock_test.sv:261: $finish called at 1000000 (1ps)
+Hint: Output 'pm' has 86400 mismatches. First mismatch occurred at time 434270.
+Hint: Output 'hh' has 192347 mismatches. First mismatch occurred at time 38270.
+Hint: Output 'mm' has no mismatches.
+Hint: Output 'ss' has no mismatches.
+Hint: Total mismatched samples is 192347 out of 200000 samples
+
+Simulation finished at 1000000 ps
+Mismatches: 192347 in 200000 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input ena,
+    output logic pm,
+    output logic [7:0] hh,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

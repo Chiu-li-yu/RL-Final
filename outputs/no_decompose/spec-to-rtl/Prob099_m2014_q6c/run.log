@@ -1,0 +1,27 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input [5:0] y,
+    input w,
+    output Y1,
+    output Y3
+);
+[attempt 1] ← compile_and_test: w
+/tmp/tmpsflwtjdw.sv:39: error: Y1 is not a valid l-value in tb.top_module1.
+/tmp/tmpsflwtjdw.sv:4:      : Y1 is declared here as wire.
+/tmp/tmpsflwtjdw.sv:40: error: Y3 is not a valid l-value in tb.top_module1.
+/tmp/tmpsflwtjdw.sv:5:      : Y3 is declared here as wire.
+/tmp/tmpsflwtjdw.sv:38: warning: @* found no sensitivities so it will never trigger.
+2 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input [5:0] y,
+    input w,
+    output logic Y1,
+    output logic Y3
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

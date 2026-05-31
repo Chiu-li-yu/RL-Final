@@ -1,0 +1,28 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input w,
+    output z
+);
+[attempt 1] ← compile_and_test: e
+/tmp/tmpy97_52tu.sv:28: error: This assignment requires an explicit cast.
+/tmp/tmpy97_52tu.sv:29: error: This assignment requires an explicit cast.
+/tmp/tmpy97_52tu.sv:30: error: This assignment requires an explicit cast.
+/tmp/tmpy97_52tu.sv:31: error: This assignment requires an explicit cast.
+/tmp/tmpy97_52tu.sv:32: error: This assignment requires an explicit cast.
+/tmp/tmpy97_52tu.sv:33: error: This assignment requires an explicit cast.
+6 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input w,
+    output z
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

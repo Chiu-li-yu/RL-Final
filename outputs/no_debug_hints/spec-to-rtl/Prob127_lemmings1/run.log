@@ -1,0 +1,32 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    output walk_left,
+[attempt 1] ← compile_and_test: S
+/tmp/tmpbp1lo70u.sv:25: syntax error
+/tmp/tmpbp1lo70u.sv:24: error: Invalid module instantiation
+/tmp/tmpbp1lo70u.sv:30: error: Invalid module item.
+/tmp/tmpbp1lo70u.sv:31: syntax error
+/tmp/tmpbp1lo70u.sv:34: error: Invalid module item.
+/tmp/tmpbp1lo70u.sv:35: syntax error
+/tmp/tmpbp1lo70u.sv:36: error: Invalid module item.
+/tmp/tmpbp1lo70u.sv:37: syntax error
+/tmp/tmpbp1lo70u.sv:38: error: Invalid module item.
+/tmp/tmpbp1lo70u.sv:39: syntax error
+/tmp/tmpbp1lo70u.sv:43: error: Invalid module item.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    output walk_left,
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

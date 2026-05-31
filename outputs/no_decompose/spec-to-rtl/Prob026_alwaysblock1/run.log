@@ -1,0 +1,31 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    output out_assign,
+    output out_alwaysblock
+);
+[attempt 1] ← compile_and_test: w
+/tmp/tmp5_ekx022.sv:11: error: out_alwaysblock is not a valid l-value in tb.top_module1.
+/tmp/tmp5_ekx022.sv:5:      : out_alwaysblock is declared here as wire.
+1 error(s) during elaboration.
+
+[attempt 1] → get_debug_hints(error_type='w')
+[attempt 1] ← get_debug_hints: Declared as wire：對宣告為 wire 的訊號做程序性賦值（在 always 區塊內賦值）。
+修正方式：
+1. 將該訊號的宣告從 wire 改為 logic
+2. 若已使用 logic 宣告但仍報此錯，確認沒有重複宣告
+3. 建議使用 logic，不使用 wire 或 reg
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input a,
+    input b,
+    output logic out_assign,
+    output logic out_alwaysblock
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

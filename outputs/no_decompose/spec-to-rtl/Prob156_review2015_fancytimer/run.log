@@ -1,0 +1,38 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic data,
+    output logic [3:0] count,
+    output logic counting,
+[attempt 1] ← compile_and_test: e
+/tmp/tmpsqcxbmaz.sv:70: error: This assignment requires an explicit cast.
+/tmp/tmpsqcxbmaz.sv:71: error: This assignment requires an explicit cast.
+/tmp/tmpsqcxbmaz.sv:72: error: This assignment requires an explicit cast.
+3 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic data,
+    output logic [3:0] count,
+    output logic counting,
+[attempt 2] ← compile_and_test: e
+/tmp/tmpw7ni100s.sv:59: error: This assignment requires an explicit cast.
+/tmp/tmpw7ni100s.sv:60: error: This assignment requires an explicit cast.
+/tmp/tmpw7ni100s.sv:61: error: This assignment requires an explicit cast.
+3 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic data,
+    output logic [3:0] count,
+    output logic counting,
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

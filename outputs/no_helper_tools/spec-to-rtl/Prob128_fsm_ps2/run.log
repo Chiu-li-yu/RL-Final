@@ -1,0 +1,80 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 1] ← compile_and_test: R  mismatches=176
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 176 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 176 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 176 in 400 samples
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 2] ← compile_and_test: R  mismatches=176
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 176 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 176 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 176 in 400 samples
+
+[attempt 3] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 3] ← compile_and_test: R  mismatches=176
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 176 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 176 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 176 in 400 samples
+
+[attempt 4] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 4] ← compile_and_test: R  mismatches=176
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 176 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 176 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 176 in 400 samples
+
+[attempt 5] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 5] ← compile_and_test: R  mismatches=176
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 176 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 176 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 176 in 400 samples

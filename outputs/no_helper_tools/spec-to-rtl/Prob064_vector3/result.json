@@ -1,0 +1,27 @@
+{
+  "problem_id": "Prob064_vector3",
+  "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
+  "attempts": 4,
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R",
+    "R",
+    "R",
+    "."
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    "Y"
+  ],
+  "decompose_spec_calls": 0,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "no_helper_tools"
+}

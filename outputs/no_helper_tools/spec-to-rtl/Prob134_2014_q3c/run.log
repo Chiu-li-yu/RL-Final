@@ -1,0 +1,29 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input  clk,
+    input  x,
+    input  [2:0] y,
+    output Y0,
+    output z
+[attempt 1] ← compile_and_test: R  mismatches=75
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob134_2014_q3c_test.sv:18: $finish called at 1001 (1ps)
+Hint: Output 'Y0' has 52 mismatches. First mismatch occurred at time 45.
+Hint: Output 'z' has 55 mismatches. First mismatch occurred at time 10.
+Hint: Total mismatched samples is 75 out of 200 samples
+
+Simulation finished at 1001 ps
+Mismatches: 75 in 200 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input  clk,
+    input  x,
+    input  [2:0] y,
+    output Y0,
+    output z
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

@@ -1,0 +1,40 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 1] ← compile_and_test: e
+/tmp/tmp7ej5aufb.sv:33: error: This assignment requires an explicit cast.
+/tmp/tmp7ej5aufb.sv:34: error: This assignment requires an explicit cast.
+/tmp/tmp7ej5aufb.sv:35: error: This assignment requires an explicit cast.
+/tmp/tmp7ej5aufb.sv:36: error: This assignment requires an explicit cast.
+4 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 2] ← compile_and_test: e
+/tmp/tmpd71bmn8a.sv:32: error: This assignment requires an explicit cast.
+/tmp/tmpd71bmn8a.sv:33: error: This assignment requires an explicit cast.
+/tmp/tmpd71bmn8a.sv:34: error: This assignment requires an explicit cast.
+/tmp/tmpd71bmn8a.sv:35: error: This assignment requires an explicit cast.
+4 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    output logic start_shifting
+);
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

@@ -1,0 +1,80 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic in,
+    output logic done
+);
+[attempt 1] ← compile_and_test: R  mismatches=47
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob137_fsm_serial_test.sv:45: $finish called at 4526 (1ps)
+Hint: Output 'done' has 47 mismatches. First mismatch occurred at time 110.
+Hint: Total mismatched samples is 47 out of 905 samples
+
+Simulation finished at 4526 ps
+Mismatches: 47 in 905 samples
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic in,
+    output logic done
+);
+[attempt 2] ← compile_and_test: R  mismatches=47
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob137_fsm_serial_test.sv:45: $finish called at 4526 (1ps)
+Hint: Output 'done' has 47 mismatches. First mismatch occurred at time 110.
+Hint: Total mismatched samples is 47 out of 905 samples
+
+Simulation finished at 4526 ps
+Mismatches: 47 in 905 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic in,
+    output logic done
+);
+[attempt 3] ← compile_and_test: R  mismatches=47
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob137_fsm_serial_test.sv:45: $finish called at 4526 (1ps)
+Hint: Output 'done' has 47 mismatches. First mismatch occurred at time 110.
+Hint: Total mismatched samples is 47 out of 905 samples
+
+Simulation finished at 4526 ps
+Mismatches: 47 in 905 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic in,
+    output logic done
+);
+[attempt 4] ← compile_and_test: R  mismatches=78
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob137_fsm_serial_test.sv:45: $finish called at 4526 (1ps)
+Hint: Output 'done' has 78 mismatches. First mismatch occurred at time 110.
+Hint: Total mismatched samples is 78 out of 905 samples
+
+Simulation finished at 4526 ps
+Mismatches: 78 in 905 samples
+
+[attempt 5] → compile_and_test
+module TopModule (
+    input logic clk,
+    input logic reset,
+    input logic in,
+    output logic done
+);
+[attempt 5] ← compile_and_test: R  mismatches=47
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob137_fsm_serial_test.sv:45: $finish called at 4526 (1ps)
+Hint: Output 'done' has 47 mismatches. First mismatch occurred at time 110.
+Hint: Total mismatched samples is 47 out of 905 samples
+
+Simulation finished at 4526 ps
+Mismatches: 47 in 905 samples

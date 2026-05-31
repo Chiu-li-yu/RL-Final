@@ -1,0 +1,40 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input logic clk,
+    input logic areset,
+    input logic in,
+    output logic out
+);
+[attempt 1] ← compile_and_test: e
+/tmp/tmpjn8ertdj.sv:26: error: This assignment requires an explicit cast.
+/tmp/tmpjn8ertdj.sv:27: error: This assignment requires an explicit cast.
+/tmp/tmpjn8ertdj.sv:28: error: This assignment requires an explicit cast.
+/tmp/tmpjn8ertdj.sv:29: error: This assignment requires an explicit cast.
+4 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input logic clk,
+    input logic areset,
+    input logic in,
+    output logic out
+);
+[attempt 2] ← compile_and_test: e
+/tmp/tmpu63h54fc.sv:26: error: This assignment requires an explicit cast.
+/tmp/tmpu63h54fc.sv:27: error: This assignment requires an explicit cast.
+/tmp/tmpu63h54fc.sv:28: error: This assignment requires an explicit cast.
+/tmp/tmpu63h54fc.sv:29: error: This assignment requires an explicit cast.
+4 error(s) during elaboration.
+
+[attempt 3] → compile_and_test
+module TopModule(
+    input logic clk,
+    input logic areset,
+    input logic in,
+    output logic out
+);
+[attempt 3] ← compile_and_test: .
+
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y
