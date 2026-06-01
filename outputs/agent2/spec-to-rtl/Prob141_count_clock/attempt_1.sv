@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     input ena,
@@ -8,58 +8,58 @@ module TopModule (
     output logic [7:0] ss
 );
 
-    logic [7:0] ss_next, mm_next, hh_next;
-    logic pm_next;
+    logic [3:0] ss0, ss1, mm0, mm1, hh0, hh1;
 
-    always @(posedge clk) begin
+    assign ss = {ss1, ss0};
+    assign mm = {mm1, mm0};
+    assign hh = {hh1, hh0};
+
+    always_ff @(posedge clk) begin
         if (reset) begin
-            ss <= 8'h00;
-            mm <= 8'h00;
-            hh <= 8'h12;
+            ss0 <= 4'd0; ss1 <= 4'd0;
+            mm0 <= 4'd0; mm1 <= 4'd0;
+            hh0 <= 4'd2; hh1 <= 4'd1;
             pm <= 1'b0;
         end else if (ena) begin
-            ss <= ss_next;
-            mm <= mm_next;
-            hh <= hh_next;
-            pm <= pm_next;
-        end
-    end
-
-    always @(*) begin
-        // Seconds Logic
-        if (ss[3:0] == 9) begin
-            ss_next = {ss[7:4] + 1'b1, 4'h0};
-            if (ss[7:4] == 5) ss_next = 8'h00;
-        end else begin
-            ss_next = ss + 1'b1;
-        end
-
-        // Minutes Logic
-        mm_next = mm;
-        if (ss[3:0] == 9 && ss[7:4] == 5) begin
-            if (mm[3:0] == 9) begin
-                mm_next = {mm[7:4] + 1'b1, 4'h0};
-                if (mm[7:4] == 5) mm_next = 8'h00;
-            end else begin
-                mm_next = mm + 1'b1;
-            end
-        end
-
-        // Hours & PM Logic
-        hh_next = hh;
-        pm_next = pm;
-        if (ss[3:0] == 9 && ss[7:4] == 5 && mm[3:0] == 9 && mm[7:4] == 5) begin
-            if (hh == 8'h11) begin
-                hh_next = 8'h12;
-                pm_next = !pm;
-            end else if (hh == 8'h12) begin
-                hh_next = 8'h01;
-            end else begin
-                if (hh[3:0] == 9) begin
-                    hh_next = {hh[7:4] + 1'b1, 4'h0};
+            // Seconds
+            if (ss0 == 4'd9) begin
+                ss0 <= 4'd0;
+                if (ss1 == 4'd5) begin
+                    ss1 <= 4'd0;
+                    // Minutes
+                    if (mm0 == 4'd9) begin
+                        mm0 <= 4'd0;
+                        if (mm1 == 4'd5) begin
+                            mm1 <= 4'd0;
+                            // Hours
+                            if (hh1 == 4'd0 && hh0 == 4'd9) begin
+                                hh1 <= 4'd1; hh0 <= 4'd0;
+                            end else if (hh1 == 4'd1 && hh0 == 4'd1) begin
+                                hh1 <= 4'd0; hh0 <= 4'd1;
+                            end else if (hh1 == 4'd1 && hh0 == 4'd2) begin
+                                hh1 <= 4'd0; hh0 <= 4'd1;
+                            end else begin
+                                if (hh0 == 4'd9) begin
+                                    hh0 <= 4'd0; hh1 <= hh1 + 1'b1;
+                                end else begin
+                                    hh0 <= hh0 + 1'b1;
+                                end
+                            end
+                            // PM logic (toggle at 12:00)
+                            if (hh1 == 4'd1 && hh0 == 4'd2) begin
+                                pm <= ~pm;
+                            end
+                        end else begin
+                            mm1 <= mm1 + 1'b1;
+                        end
+                    end else begin
+                        mm0 <= mm0 + 1'b1;
+                    end
                 end else begin
-                    hh_next = hh + 1'b1;
+                    ss1 <= ss1 + 1'b1;
                 end
+            end else begin
+                ss0 <= ss0 + 1'b1;
             end
         end
     end

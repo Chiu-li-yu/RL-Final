@@ -1,4 +1,4 @@
-module TopModule(
+module TopModule (
     input clk,
     input reset,
     input [7:0] in,
@@ -7,43 +7,60 @@ module TopModule(
 );
 
     typedef enum logic [1:0] {
-        IDLE = 2'd0,
-        BYTE2 = 2'd1,
-        BYTE3 = 2'd2,
-        DONE = 2'd3
+        STATE_SEARCH = 2'd0,
+        STATE_BYTE2  = 2'd1,
+        STATE_BYTE3  = 2'd2
     } state_t;
 
-    state_t state, next_state;
-    logic [7:0] b1, b2, b3;
+    state_t current_state, next_state;
+    logic [23:0] buffer, next_buffer;
+    logic next_done;
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            state <= IDLE;
-            b1 <= 8'd0;
-            b2 <= 8'd0;
-            b3 <= 8'd0;
+            current_state <= STATE_SEARCH;
+            buffer <= 24'b0;
+            done <= 1'b0;
         end else begin
-            state <= next_state;
-            if (state == IDLE && in[3]) b1 <= in;
-            if (state == BYTE2) b2 <= in;
-            if (state == BYTE3) b3 <= in;
+            current_state <= next_state;
+            buffer <= next_buffer;
+            done <= next_done;
         end
     end
 
-    always @(*) begin
-        next_state = state;
-        case (state)
-            IDLE:  if (in[3]) next_state = BYTE2;
-            BYTE2: next_state = BYTE3;
-            BYTE3: next_state = DONE;
-            DONE:  next_state = IDLE;
-            default: next_state = IDLE;
+    always_comb begin
+        next_state = current_state;
+        next_buffer = buffer;
+        next_done = 1'b0;
+
+        case (current_state)
+            STATE_SEARCH: begin
+                if (in[3]) begin
+                    next_buffer[23:16] = in;
+                    next_state = STATE_BYTE2;
+                end
+            end
+            STATE_BYTE2: begin
+                next_buffer[15:8] = in;
+                next_state = STATE_BYTE3;
+            end
+            STATE_BYTE3: begin
+                next_buffer[7:0] = in;
+                next_done = 1'b1;
+                out_bytes = {next_buffer[23:16], next_buffer[15:8], in};
+                next_state = STATE_SEARCH;
+            end
+            default: next_state = STATE_SEARCH;
         endcase
     end
 
-    always @(*) begin
-        done = (state == DONE);
-        out_bytes = {b1, b2, b3};
+    // Ensure out_bytes is only updated correctly
+    always_comb begin
+        if (done) begin
+            out_bytes = buffer;
+        end else begin
+            out_bytes = 24'b0;
+        end
     end
 
 endmodule

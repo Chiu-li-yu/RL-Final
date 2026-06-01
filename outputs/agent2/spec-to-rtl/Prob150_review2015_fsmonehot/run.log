@@ -1,13 +1,13 @@
 
 [attempt 0] → decompose_spec
 [attempt 0] ← decompose_spec:
-為了有效地完成這個 10 狀態 Moore 機的實作，建議將任務分解為以下 5 個步驟：
+以下是針對該 Moore 狀態機設計的 5 個具體執行步驟：
 
-1. 定義 10 個狀態的參數（Parameter）常量並宣告 10-bit 的狀態暫存器 (Current State) 與下一個狀態邏輯 (Next State)。
-2. 使用 `always @(*)` 區塊實作組合邏輯，根據輸入訊號 (d, done_counting, ack) 與當前狀態，定義 10 種狀態的跳轉邏輯。
-3. 實作組合邏輯以產生指定的輸出訊號 (shift_ena, counting, done)，根據 Moore 機特性僅依賴當前狀態。
-4. 實作組合邏輯來產生特定狀態的下一個狀態預測值 (如 S_next, S1_next, B3_next 等)，作為模組輸出。
-5. 編寫一個時序邏輯區塊 (always @(posedge clk))，將下一個狀態 (Next State) 更新至當前狀態暫存器中。
+1. 定義 10 個 one-hot 編碼參數並宣告狀態暫存器 (state register) 與下一個狀態變數 (next_state)。
+2. 實作組合邏輯區塊 (always @*)，根據目前狀態及輸入信號 (d, done_counting, ack) 定義狀態轉換規則。
+3. 實作時序邏輯區塊 (always @(posedge clk))，將狀態暫存器更新為下一個狀態。
+4. 實作輸出解碼邏輯 (Output Logic)，根據目前狀態賦值 shift_ena、counting 及 done 信號。
+5. 根據題目需求，額外定義並實現 B3_next, S_next, S1_next 等特定狀態躍遷信號的邏輯電路。
 
 [attempt 1] → compile_and_test
 module TopModule (

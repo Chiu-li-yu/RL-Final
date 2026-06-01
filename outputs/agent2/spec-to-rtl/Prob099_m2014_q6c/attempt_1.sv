@@ -5,7 +5,7 @@ module TopModule (
     output Y3
 );
 
-    // One-hot assignment:
+    // One-hot state assignment:
     // A: y[0] = 000001
     // B: y[1] = 000010
     // C: y[2] = 000100
@@ -13,28 +13,29 @@ module TopModule (
     // E: y[4] = 010000
     // F: y[5] = 100000
 
-    // State transitions:
-    // A --0--> B (y[1] next)
-    // A --1--> A
-    // B --0--> C
-    // B --1--> D (y[3] next)
-    // C --0--> E
-    // C --1--> D (y[3] next)
-    // D --0--> F
-    // D --1--> A
-    // E --0--> E (y[4] next)
-    // E --1--> D (y[3] next)
-    // F --0--> C
-    // F --1--> D (y[3] next)
+    // Transitions (from input w):
+    // A(y0) --0--> B(y1),  --1--> A(y0)
+    // B(y1) --0--> C(y2),  --1--> D(y3)
+    // C(y2) --0--> E(y4),  --1--> D(y3)
+    // D(y3) --0--> F(y5),  --1--> A(y0)
+    // E(y4) --0--> E(y4),  --1--> D(y3)
+    // F(y5) --0--> C(y2),  --1--> D(y3)
 
-    // Next State Logic:
-    // Y[1] = (y[0] & ~w)
-    // Y[3] = (y[1] & w) | (y[2] & w) | (y[4] & w) | (y[5] & w)
-    
-    // Simplify Y3:
+    // Y1 (Next state B):
+    // Active when transition to B occurs: A -> B (w=0)
+    // Y1 = y[0] & (~w)
+
+    // Y3 (Next state D):
+    // Active when transition to D occurs: B -> D (w=1), C -> D (w=1), E -> D (w=1), F -> D (w=1)
+    // Y3 = (y[1] & w) | (y[2] & w) | (y[4] & w) | (y[5] & w)
     // Y3 = w & (y[1] | y[2] | y[4] | y[5])
 
-    assign Y1 = (y[0] & ~w);
-    assign Y3 = w & (y[1] | y[2] | y[4] | y[5]);
+    always @(*) begin
+        // Y1 is 1 when in state A and w is 0
+        assign Y1 = y[0] & (~w);
+        
+        // Y3 is 1 when in state B, C, E, F and w is 1
+        assign Y3 = w & (y[1] | y[2] | y[4] | y[5]);
+    end
 
 endmodule

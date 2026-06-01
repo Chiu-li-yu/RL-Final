@@ -5,19 +5,22 @@ module TopModule (
     input r_in,
     output Q
 );
-    logic q_reg;
-    logic mux_out;
 
-    always @(*) begin
-        if (L)
-            mux_out = r_in;
-        else
-            mux_out = q_in;
-    end
+    logic q_internal;
+
+    // Flip-flop logic with 2:1 multiplexer directly in FF logic
+    // Q is output directly, or can be registered.
+    // The requirement is to behave like the FF + MUX combination.
+    // The previous implementation used d_next = L ? r_in : q_in;
+    // which corresponds to the FF input.
 
     always_ff @(posedge clk) begin
-        q_reg <= mux_out;
+        if (L)
+            q_internal <= r_in;
+        else
+            q_internal <= q_in;
     end
 
-    assign Q = q_reg;
+    assign Q = q_internal;
+
 endmodule

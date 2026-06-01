@@ -1,10 +1,10 @@
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input logic ring,
-    input logic vibrate_mode,
-    output logic ringer,
-    output logic motor
+    input ring,
+    input vibrate_mode,
+    output ringer,
+    output motor
 );
 [attempt 1] ← compile_and_test: .
 

@@ -5,47 +5,51 @@ module TopModule (
     output logic [7:0] out_byte,
     output logic done
 );
-    localparam IDLE = 0, DATA = 1, STOP = 2;
-    logic [1:0] state, next_state;
+    // UART protocol: Idle(1) -> Start(0) -> 8 Data (LSB first) -> Stop(1)
+    localparam IDLE = 0, START = 1, DATA = 2, STOP = 3, WAIT = 4;
+    logic [2:0] state, next_state;
+    logic [3:0] cnt;
     logic [7:0] data;
-    logic [2:0] count;
 
     always_ff @(posedge clk) begin
         if (reset) begin
             state <= IDLE;
-            data <= 8'b0;
-            count <= 3'b0;
-            done <= 1'b0;
-            out_byte <= 8'b0;
+            cnt <= 0;
+            data <= 0;
+            done <= 0;
+            out_byte <= 0;
         end else begin
             state <= next_state;
+            
             case (next_state)
-                IDLE: begin
-                    done <= 1'b0;
-                    count <= 3'b0;
-                end
                 DATA: begin
-                    if (state == DATA) begin
-                        data <= {in, data[7:1]};
-                        count <= count + 1'b1;
-                    end
+                    if (state == START) cnt <= 0;
+                    else cnt <= cnt + 1;
+                    data <= (state == START) ? {in, 7'b0} : {in, data[7:1]};
                 end
                 STOP: begin
-                    if (in == 1'b1 && state == DATA) begin // Finish receiving
-                        out_byte <= {in, data[7:1]}; // Wait, this logic is tricky
+                    if (in) begin
+                        done <= 1;
+                        out_byte <= data;
+                    end else begin
+                        done <= 0;
                     end
                 end
-            endcase
-            
-            // Re-think: Sample in DATA, latch to out_byte and done in STOP
-            if (state == DATA && count == 3'd7) begin
-                if (in == 1'b1) begin // Stop bit received
-                    out_byte <= {in, data[7:1]}; // Still wrong
+                default: begin
+                    done <= 0;
                 end
-            end
+            endcase
         end
     end
 
-    // Let's go back to a simpler, standard FSM
-    // Actually, just fix the DONE signal timing.
+    always @(*) begin
+        case (state)
+            IDLE: next_state = (in == 0) ? START : IDLE;
+            START: next_state = DATA;
+            DATA: next_state = (cnt == 7) ? STOP : DATA;
+            STOP: next_state = (in == 1) ? IDLE : WAIT;
+            WAIT: next_state = (in == 1) ? IDLE : WAIT;
+            default: next_state = IDLE;
+        endcase
+    end
 endmodule

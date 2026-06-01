@@ -1,0 +1,68 @@
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input L,
+    input q_in,
+    input r_in,
+    output Q
+[attempt 1] ← compile_and_test: R  mismatches=1
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob104_mt2015_muxdff_test.sv:21: $finish called at 996 (1ps)
+Hint: Output 'Q' has 1 mismatches. First mismatch occurred at time 5.
+Hint: Total mismatched samples is 1 out of 199 samples
+
+Simulation finished at 996 ps
+Mismatches: 1 in 199 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule (
+    input clk,
+    input L,
+    input q_in,
+    input r_in,
+    output Q
+[attempt 2] ← compile_and_test: R  mismatches=1
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob104_mt2015_muxdff_test.sv:21: $finish called at 996 (1ps)
+Hint: Output 'Q' has 1 mismatches. First mismatch occurred at time 5.
+Hint: Total mismatched samples is 1 out of 199 samples
+
+Simulation finished at 996 ps
+Mismatches: 1 in 199 samples
+
+[attempt 3] → compile_and_test
+module TopModule (
+    input clk,
+    input L,
+    input q_in,
+    input r_in,
+    output Q
+[attempt 3] ← compile_and_test: R  mismatches=1
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob104_mt2015_muxdff_test.sv:21: $finish called at 996 (1ps)
+Hint: Output 'Q' has 1 mismatches. First mismatch occurred at time 5.
+Hint: Total mismatched samples is 1 out of 199 samples
+
+Simulation finished at 996 ps
+Mismatches: 1 in 199 samples
+
+[attempt 4] → compile_and_test
+module TopModule (
+    input clk,
+    input L,
+    input q_in,
+    input r_in,
+    output Q
+[attempt 4] ← compile_and_test: .
+
+[attempt 4] → synthesize
+[attempt 4] ← synthesize: Y

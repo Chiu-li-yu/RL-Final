@@ -5,53 +5,58 @@ module TopModule (
     output logic [7:0] out_byte,
     output logic done
 );
-    // The FSM states: IDLE, START (wait for start bit 0), DATA (receive 8 bits), STOP (wait for 1)
-    localparam IDLE = 0, DATA = 1, STOP = 2, DONE = 3;
-    logic [1:0] state, next_state;
+    // The problem describes a UART receiver where each bit is sampled at the clk rate.
+    // Start bit: 0
+    // 8 Data bits (LSB first)
+    // Stop bit: 1
+    // The FSM:
+    // IDLE: Wait for start bit (0).
+    // DATA: Collect 8 bits.
+    // STOP: Expect 1.
+    
+    localparam IDLE = 0, START = 1, DATA = 2, STOP = 3, WAIT = 4;
+    logic [2:0] state, next_state;
+    logic [3:0] cnt;
     logic [7:0] data;
-    logic [2:0] count;
-
-    always_ff @(posedge clk) begin
-        if (reset) state <= IDLE;
-        else state <= next_state;
-    end
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            data <= 8'b0;
-            count <= 3'b0;
-            done <= 1'b0;
-            out_byte <= 8'b0;
+            state <= IDLE;
+            cnt <= 0;
+            data <= 0;
+            done <= 0;
+            out_byte <= 0;
         end else begin
+            state <= next_state;
             case (state)
                 IDLE: begin
-                    done <= 1'b0;
-                    count <= 3'b0;
+                    done <= 0;
                 end
                 DATA: begin
                     data <= {in, data[7:1]};
-                    count <= count + 1'b1;
+                    cnt <= cnt + 1;
                 end
                 STOP: begin
-                    if (in == 1'b1) begin
-                        done <= 1'b1;
+                    if (in) begin
+                        done <= 1;
                         out_byte <= data;
                     end else begin
-                        done <= 1'b0;
+                        done <= 0;
                     end
                 end
-                DONE: begin
-                    done <= 1'b0;
-                end
+                default: done <= 0;
             endcase
+            if (state != DATA) cnt <= 0;
         end
     end
 
     always @(*) begin
         case (state)
-            IDLE: next_state = (in == 0) ? DATA : IDLE;
-            DATA: next_state = (count == 3'd7) ? STOP : DATA;
-            STOP: next_state = (in == 1) ? IDLE : STOP; // Wait for stop bit
+            IDLE: next_state = (in == 0) ? START : IDLE;
+            START: next_state = DATA;
+            DATA: next_state = (cnt == 7) ? STOP : DATA;
+            STOP: next_state = (in == 1) ? IDLE : WAIT;
+            WAIT: next_state = (in == 1) ? IDLE : WAIT;
             default: next_state = IDLE;
         endcase
     end

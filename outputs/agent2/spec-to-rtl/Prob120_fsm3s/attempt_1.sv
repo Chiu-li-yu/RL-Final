@@ -12,25 +12,37 @@ module TopModule (
         D = 2'b11
     } state_t;
 
-    logic [1:0] state, next_state;
+    logic [1:0] current_state, next_state;
+    logic out_reg;
 
     always_ff @(posedge clk) begin
-        if (reset)
-            state <= A;
-        else
-            state <= next_state;
+        if (reset) begin
+            current_state <= A;
+        end else begin
+            current_state <= next_state;
+        end
     end
 
     always @(*) begin
-        case (state)
-            A: next_state = (in) ? B : A;
-            B: next_state = (in) ? B : C;
-            C: next_state = (in) ? D : A;
-            D: next_state = (in) ? B : C;
+        case (current_state)
+            A: next_state = in ? B : A;
+            B: next_state = in ? B : C;
+            C: next_state = in ? D : A;
+            D: next_state = in ? B : C;
             default: next_state = A;
         endcase
     end
 
-    assign out = (state == D);
+    always @(*) begin
+        case (current_state)
+            A: out_reg = 1'b0;
+            B: out_reg = 1'b0;
+            C: out_reg = 1'b0;
+            D: out_reg = 1'b1;
+            default: out_reg = 1'b0;
+        endcase
+    end
+
+    assign out = out_reg;
 
 endmodule

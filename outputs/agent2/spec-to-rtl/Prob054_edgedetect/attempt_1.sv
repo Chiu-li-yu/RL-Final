@@ -4,12 +4,14 @@ module TopModule (
     output [7:0] pedge
 );
 
-    logic [7:0] in_prev;
+    logic [7:0] prev_in;
 
     always_ff @(posedge clk) begin
-        in_prev <= in;
+        prev_in <= in;
     end
 
-    assign pedge = (~in_prev) & in;
+    always_comb begin
+        pedge = (in & ~prev_in);
+    end
 
 endmodule

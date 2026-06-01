@@ -1,6 +1,6 @@
 
 [attempt 1] → compile_and_test
-module TopModule (
+module TopModule(
     output zero
 );
     assign zero = 1'b0;

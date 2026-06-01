@@ -6,8 +6,6 @@ module TopModule (
 
     logic q;
 
-    // D Flip-Flop
-    // D = in ^ q
     always_ff @(posedge clk) begin
         q <= in ^ q;
     end

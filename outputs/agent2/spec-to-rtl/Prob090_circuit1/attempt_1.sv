@@ -3,9 +3,9 @@ module TopModule (
     input b,
     output q
 );
-    logic q_internal;
+    logic q_int;
     always @(*) begin
-        q_internal = a & b;
+        q_int = a & b;
     end
-    assign q = q_internal;
+    assign q = q_int;
 endmodule

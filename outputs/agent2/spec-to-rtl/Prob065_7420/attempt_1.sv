@@ -11,7 +11,15 @@ module TopModule (
     output p2y
 );
 
-    assign p1y = ~(p1a & p1b & p1c & p1d);
-    assign p2y = ~(p2a & p2b & p2c & p2d);
+    logic gate1;
+    logic gate2;
+
+    always @(*) begin
+        gate1 = p1a & p1b & p1c & p1d;
+        p1y = ~gate1;
+
+        gate2 = p2a & p2b & p2c & p2d;
+        p2y = ~gate2;
+    end
 
 endmodule

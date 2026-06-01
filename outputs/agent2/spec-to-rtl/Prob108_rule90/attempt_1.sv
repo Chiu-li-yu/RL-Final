@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input clk,
     input load,
     input [511:0] data,
@@ -9,24 +9,29 @@ module TopModule (
     integer i;
 
     always_ff @(posedge clk) begin
-        if (load) begin
+        if (load)
             q <= data;
-        end else begin
+        else
             q <= next_q;
-        end
     end
 
     always @(*) begin
         for (i = 0; i < 512; i = i + 1) begin
-            // Rule 90: Center' = Left XOR Right
-            // Boundaries are 0
-            if (i == 0) begin
-                next_q[i] = 1'b0 ^ q[1];
-            end else if (i == 511) begin
-                next_q[i] = q[510] ^ 1'b0;
-            end else begin
-                next_q[i] = q[i-1] ^ q[i+1];
-            end
+            // Left neighbor is q[i+1], Right neighbor is q[i-1]
+            // Boundaries: q[512] = 0, q[-1] = 0
+            logic left, right;
+            
+            if (i == 511)
+                left = 1'b0;
+            else
+                left = q[i+1];
+                
+            if (i == 0)
+                right = 1'b0;
+            else
+                right = q[i-1];
+            
+            next_q[i] = left ^ right;
         end
     end
 

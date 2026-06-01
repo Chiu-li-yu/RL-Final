@@ -3,10 +3,8 @@ module TopModule (
     output logic [7:0] out_hi,
     output logic [7:0] out_lo
 );
-
     always @(*) begin
         out_lo = in[7:0];
         out_hi = in[15:8];
     end
-
 endmodule

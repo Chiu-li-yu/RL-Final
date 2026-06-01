@@ -1,0 +1,45 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將 PS/2 滑鼠封包偵測器分解後的 4 個子目標：
+
+1. 定義有限狀態機（FSM），包含「等待起始位元」與「計數剩餘位元」兩種主要狀態。
+2. 實作狀態切換邏輯：當偵測到 `in[3] == 1` 時觸發狀態機進入封包接收流程。
+3. 實作計數器邏輯：在進入接收流程後，對連續接收到的三個 Byte 進行計數。
+4. 實作輸出邏輯：當計數器達到 3 時，將 `done` 訊號拉高一個時脈週期並重置狀態。
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 1] ← compile_and_test: R  mismatches=176
+VCD info: dumpfile wave.vcd opened for output.
+/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv:18: $finish called at 2001 (1ps)
+Hint: Output 'done' has 176 mismatches. First mismatch occurred at time 200.
+Hint: Total mismatched samples is 176 out of 400 samples
+
+Simulation finished at 2001 ps
+Mismatches: 176 in 400 samples
+
+[attempt 1] → get_debug_hints(error_type='R')
+[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
+1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
+2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
+3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
+4. Reset 初始值不符：state / counter 初始值與規格不符
+5. 計數器邊界：off-by-one（計數
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input reset,
+    input [7:0] in,
+    output logic done
+);
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

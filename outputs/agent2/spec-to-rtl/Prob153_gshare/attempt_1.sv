@@ -9,47 +9,45 @@ module TopModule (
     input train_taken,
     input train_mispredicted,
     input [6:0] train_history,
-    input [6:0] train_pc,
-    output logic predict_taken_out,
-    output logic [6:0] predict_history_out
+    input [6:0] train_pc
 );
-    // PHT: 128 entries of 2-bit counters
-    logic [1:0] pht [127:0];
+
     logic [6:0] ghr;
+    logic [1:0] pht [127:0];
+    integer i;
 
-    // Assignment for output ports
-    assign predict_history = ghr;
-
-    // Prediction logic
-    logic [6:0] predict_index;
-    assign predict_index = predict_pc ^ ghr;
-    
-    // Use assign for combinational logic of prediction
+    // Output current state for prediction
     always @(*) begin
-        predict_taken = (pht[predict_index] >= 2'b10);
+        predict_history = ghr;
+        predict_taken = pht[predict_pc ^ ghr][1];
     end
 
-    // Sequential logic for GHR and PHT
-    always @(posedge clk or posedge areset) begin
+    always_ff @(posedge clk or posedge areset) begin
         if (areset) begin
             ghr <= 7'b0;
-            for (int i = 0; i < 128; i++) pht[i] <= 2'b01; // Initialize to weakly not taken
+            for (i = 0; i < 128; i = i + 1) pht[i] <= 2'b01; // Initialize to Weakly Not Taken
         end else begin
-            // Training takes priority for GHR if mispredicted
-            if (train_valid && train_mispredicted) begin
-                ghr <= {train_history[5:0], train_taken};
-            end else if (predict_valid) begin
-                ghr <= {ghr[5:0], predict_taken};
-            end
-            
-            // PHT Update
             if (train_valid) begin
-                logic [6:0] train_index = train_pc ^ train_history;
+                // Training takes precedence
+                // Update PHT
                 if (train_taken) begin
-                    if (pht[train_index] < 2'b11) pht[train_index] <= pht[train_index] + 1;
+                    if (pht[train_pc ^ train_history] < 2'b11)
+                        pht[train_pc ^ train_history] <= pht[train_pc ^ train_history] + 1;
                 end else begin
-                    if (pht[train_index] > 2'b00) pht[train_index] <= pht[train_index] - 1;
+                    if (pht[train_pc ^ train_history] > 2'b00)
+                        pht[train_pc ^ train_history] <= pht[train_pc ^ train_history] - 1;
                 end
+                
+                // If mispredicted, recover GHR
+                if (train_mispredicted) begin
+                    ghr <= {train_history[5:0], train_taken};
+                end else if (predict_valid) begin
+                    // Prediction update
+                    ghr <= {ghr[5:0], predict_taken};
+                end
+            end else if (predict_valid) begin
+                // Just prediction update
+                ghr <= {ghr[5:0], predict_taken};
             end
         end
     end

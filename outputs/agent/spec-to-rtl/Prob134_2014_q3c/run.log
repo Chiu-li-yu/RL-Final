@@ -1,0 +1,28 @@
+
+[attempt 1] → compile_and_test
+module TopModule(
+    input clk,
+    input x,
+    input [2:0] y,
+    output Y0,
+    output z
+[attempt 1] ← compile_and_test: w
+/tmp/tmpgmfe_yc3.sv:23: error: z is not a valid l-value in tb.top_module1.
+/tmp/tmpgmfe_yc3.sv:6:      : z is declared here as wire.
+/tmp/tmpgmfe_yc3.sv:24: error: z is not a valid l-value in tb.top_module1.
+/tmp/tmpgmfe_yc3.sv:6:      : z is declared here as wire.
+/tmp/tmpgmfe_yc3.sv:25: error: z is not a valid l-value in tb.top_module1.
+/tmp/tmpgmfe_yc3.sv:6:      : z is declared here as wire.
+3 error(s) during elaboration.
+
+[attempt 2] → compile_and_test
+module TopModule(
+    input clk,
+    input x,
+    input [2:0] y,
+    output Y0,
+    output z
+[attempt 2] ← compile_and_test: .
+
+[attempt 2] → synthesize
+[attempt 2] ← synthesize: Y

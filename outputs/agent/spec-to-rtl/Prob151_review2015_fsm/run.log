@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+為了達成該 FSM 的設計，建議將任務分解為以下 5 個步驟：
+
+1. 設計一個模式偵測器（Pattern Detector），當連續輸入「1101」時觸發進入下一個狀態。
+2. 實作一個計數器邏輯，當偵測到模式後，將 `shift_ena` 拉高並持續準確 4 個時脈週期。
+3. 加入狀態機控制邏輯，在 `shift_ena` 完成後將 `counting` 訊號拉高，並監控 `done_counting` 輸入。
+4. 實作確認機制，當收到 `done_counting` 後將 `done` 拉高，直到收到 `ack` 訊號為止。
+5. 定義完整的 FSM 狀態轉換邏輯，並確保所有狀態在 `reset` 為高時能正確回到初始搜尋狀態。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input data,
+    input done_counting,
+    input ack,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

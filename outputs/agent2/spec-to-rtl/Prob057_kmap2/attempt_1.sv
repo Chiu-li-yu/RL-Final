@@ -6,74 +6,72 @@ module TopModule (
     output out
 );
 
-    logic out_temp;
-
-    always @(*) begin
-        // K-map table analysis:
-        // Mapping (a,b,c,d) to index:
-        // (0,0,0,0) -> 1
-        // (0,0,0,1) -> 1
-        // (0,0,1,1) -> 0
-        // (0,0,1,0) -> 1
-        // (0,1,0,0) -> 1
-        // (0,1,0,1) -> 0
-        // (0,1,1,1) -> 1
-        // (0,1,1,0) -> 1
-        // (1,1,0,0) -> 0
-        // (1,1,0,1) -> 0
-        // (1,1,1,1) -> 1
-        // (1,1,1,0) -> 0
-        // (1,0,0,0) -> 1
-        // (1,0,0,1) -> 1
-        // (1,0,1,1) -> 1
-        // (1,0,1,0) -> 0
-
-        // Karnaugh map cells (row:cd, col:ab)
-        // 00 00 -> 1
-        // 00 01 -> 1
-        // 00 11 -> 0
-        // 00 10 -> 1
-
-        // 01 00 -> 1
-        // 01 01 -> 0
-        // 01 11 -> 0
-        // 01 10 -> 1
-
-        // 11 00 -> 0
-        // 11 01 -> 1
-        // 11 11 -> 1
-        // 11 10 -> 1
-
-        // 10 00 -> 1
-        // 10 01 -> 1
-        // 10 11 -> 0
-        // 10 10 -> 0
-
-        // Simplification:
-        // Logic expression derived from K-map:
-        // out = (~b & ~c) | (a & ~c & d) | (~a & b & c) | (b & c & d) | (~a & ~d)
-        // Let's re-verify:
-        // Cells with 1:
-        // 0,0,0,0: 1
-        // 0,0,0,1: 1
-        // 0,0,1,0: 1
-        // 0,1,0,0: 1
-        // 0,1,1,0: 1
-        // 0,1,1,1: 1
-        // 1,1,1,1: 1
-        // 1,1,0,1: 0 (Wait, 1,1,0,1 is index 13, cd=01, ab=11, looking at map: cd=01(row 1), ab=11(col 2) -> 0. Correct.)
-        // 1,1,1,1 is index 15, cd=11, ab=11, map: 1. Correct.
-        // Let's use SOP based on truth table for safety.
-        
-        out_temp = (~a & ~b & ~c & ~d) | (~a & ~b & ~c &  d) | (~a & ~b &  c & ~d) | 
-                   (~a &  b & ~c & ~d) | (~a &  b &  c & ~d) | (~a &  b &  c &  d) |
-                   ( a &  b &  c &  d) | 
-                   ( a & ~b & ~c & ~d) | ( a & ~b & ~c &  d) | ( a & ~b &  c &  d);
-                   
-        // Minimized SOP:
-        // out = (~a & ~c) | (b & c & d) | (a & ~b & ~c) | (a & ~b & d) | (~a & b & ~d)
-        // Let's just use the boolean representation of the K-map directly.
-    end
+    // K-map:
+    //      ab
+    // cd  00 01 11 10
+    // 00 | 1 | 1 | 0 | 1 |
+    // 01 | 1 | 0 | 0 | 1 |
+    // 11 | 0 | 1 | 1 | 1 |
+    // 10 | 1 | 1 | 0 | 0 |
+    //
+    // Minimized expression:
+    // Grouping 1s:
+    // (a'b'c') + (a'd') + (b'c'd) + (abc) + (ac'd') + (abd')
+    // Wait, let's look at the K-map again.
+    //
+    // 1s at positions (c d a b):
+    // 0 0 0 0 -> 1
+    // 0 0 0 1 -> 1
+    // 0 0 1 0 -> 1
+    // 0 1 0 0 -> 1
+    // 0 1 1 0 -> 1
+    // 1 1 0 1 -> 1
+    // 1 1 1 1 -> 1
+    // 1 1 1 0 -> 1
+    // 1 0 0 0 -> 1
+    // 1 0 0 1 -> 1
     
+    // Truth Table:
+    // c d a b | out
+    // 0 0 0 0 | 1
+    // 0 0 0 1 | 1
+    // 0 0 1 0 | 1
+    // 0 0 1 1 | 0
+    // 0 1 0 0 | 1
+    // 0 1 0 1 | 0
+    // 0 1 1 0 | 0
+    // 0 1 1 1 | 1
+    // 1 0 0 0 | 1
+    // 1 0 0 1 | 1
+    // 1 0 1 0 | 0
+    // 1 0 1 1 | 1
+    // 1 1 0 0 | 0
+    // 1 1 0 1 | 1
+    // 1 1 1 0 | 1
+    // 1 1 1 1 | 1
+
+    logic out_temp;
+    always @(*) begin
+        case ({c, d, a, b})
+            4'b0000: out_temp = 1;
+            4'b0001: out_temp = 1;
+            4'b0010: out_temp = 1;
+            4'b0011: out_temp = 0;
+            4'b0100: out_temp = 1;
+            4'b0101: out_temp = 0;
+            4'b0110: out_temp = 0;
+            4'b0111: out_temp = 1;
+            4'b1000: out_temp = 1;
+            4'b1001: out_temp = 1;
+            4'b1010: out_temp = 0;
+            4'b1011: out_temp = 1;
+            4'b1100: out_temp = 0;
+            4'b1101: out_temp = 1;
+            4'b1110: out_temp = 1;
+            4'b1111: out_temp = 1;
+            default: out_temp = 0;
+        endcase
+    end
     assign out = out_temp;
+
 endmodule

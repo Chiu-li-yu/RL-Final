@@ -1,12 +1,12 @@
 module TopModule (
-    input logic clk,
-    input logic resetn,
-    input logic [1:0] byteena,
-    input logic [15:0] d,
+    input clk,
+    input resetn,
+    input [1:0] byteena,
+    input [15:0] d,
     output logic [15:0] q
 );
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         if (!resetn) begin
             q <= 16'b0;
         end else begin

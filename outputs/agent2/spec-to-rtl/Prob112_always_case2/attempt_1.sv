@@ -3,13 +3,14 @@ module TopModule (
     output logic [1:0] pos
 );
     always @(*) begin
-        if (in[3])
+        if (in[3]) begin
             pos = 2'd3;
-        else if (in[2])
+        end else if (in[2]) begin
             pos = 2'd2;
-        else if (in[1])
+        end else if (in[1]) begin
             pos = 2'd1;
-        else
+        end else begin
             pos = 2'd0;
+        end
     end
 endmodule

@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     input slowena,
@@ -7,12 +7,12 @@ module TopModule (
 
     always @(posedge clk) begin
         if (reset) begin
-            q <= 4'd0;
+            q <= 4'b0000;
         end else if (slowena) begin
-            if (q == 4'd9) begin
-                q <= 4'd0;
+            if (q >= 4'd9) begin
+                q <= 4'b0000;
             end else begin
-                q <= q + 4'd1;
+                q <= q + 4'b0001;
             end
         end
     end

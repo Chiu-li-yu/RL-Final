@@ -12,12 +12,8 @@ module TopModule (
         end else begin
             out = a + b;
         end
-
-        if (out == 8'b0) begin
-            result_is_zero = 1'b1;
-        end else begin
-            result_is_zero = 1'b0;
-        end
+        
+        result_is_zero = (out == 8'b0);
     end
 
 endmodule

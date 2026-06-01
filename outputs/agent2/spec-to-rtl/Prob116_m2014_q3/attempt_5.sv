@@ -2,38 +2,67 @@ module TopModule (
     input [3:0] x,
     output f
 );
-    // K-map:
-    // row: x[1]x[2] (x[3]x[2] in indices)
-    // col: x[3]x[4] (x[1]x[0] in indices)
-    // Map:
-    // x3x2 x1x0 | f
-    // 00 00 | d
-    // 00 01 | 0
-    // 00 11 | d
-    // 00 10 | d
-    // 01 00 | 0
-    // 01 01 | d
-    // 01 11 | 1
-    // 01 10 | 0
-    // 11 00 | 1
-    // 11 01 | 1
-    // 11 11 | d
-    // 11 10 | d
-    // 10 00 | 1
-    // 10 01 | 1
-    // 10 11 | 0
-    // 10 10 | d
-
-    // Try f = (x[3] & ~x[1]) | (~x[3] & x[2] & x[1] & x[0])
-    // The previous 17 mismatches might be from the 'd' assignments.
-    // Let's try to map the 1s and 0s exactly and leave d as a condition
-    // f = 1 if: (x3=0, x2=1, x1=1, x0=1) OR (x3=1, x2=1) OR (x3=1, x2=0) ...
-    // Looking at the map:
-    // When x[3]=1: f=1 for (00, 01), f=d for (11, 10)
-    // So if x[3]=1, f=1 (if we set d to 1).
-    // When x[3]=0, x[2]=1: f=1 for (11), f=0 for (00, 10), f=d for (01)
+    // Let's re-read the K-map carefully:
+    // x[3]x[4] is row (00, 01, 11, 10)
+    // x[1]x[2] is col (00, 01, 11, 10)
     
-    // Let's try:
-    assign f = x[3] | (x[2] & x[1]);
-
+    // Maybe x[4] and x[2] are not the LSBs?
+    // Maybe the input x is [x3, x4, x1, x2] = x[3], x[2], x[1], x[0]?
+    // Let's map it:
+    // K-map row bits: x[3], x[2]
+    // K-map col bits: x[1], x[0]
+    
+    // K-map (x3 x2 | x1 x0):
+    //      00 01 11 10
+    // 00 | d  0  d  d  (0000, 0001, 0011, 0010)
+    // 01 | 0  d  1  0  (0100, 0101, 0111, 0110)
+    // 11 | 1  1  d  d  (1100, 1101, 1111, 1110)
+    // 10 | 1  1  0  d  (1000, 1001, 1011, 1010)
+    
+    // Logic:
+    // 1 at:
+    // 0111 (7)
+    // 1100 (12)
+    // 1101 (13)
+    // 1000 (8)
+    // 1001 (9)
+    
+    // Let's try: f = (x[3] & ~x[1]) | (~x[3] & x[2] & x[1] & x[0])
+    // wait, I tried that. Maybe the 1s are at different places?
+    // Let's look at the map indices again:
+    // Row 00, Col 00: d
+    // Row 00, Col 01: 0
+    // Row 00, Col 11: d
+    // Row 00, Col 10: d
+    
+    // Row 01, Col 00: 0
+    // Row 01, Col 01: d
+    // Row 01, Col 11: 1
+    // Row 01, Col 10: 0
+    
+    // Row 11, Col 00: 1
+    // Row 11, Col 01: 1
+    // Row 11, Col 11: d
+    // Row 11, Col 10: d
+    
+    // Row 10, Col 00: 1
+    // Row 10, Col 01: 1
+    // Row 10, Col 11: 0
+    // Row 10, Col 10: d
+    
+    // Everything looks consistent with:
+    // f = 1 if:
+    // (x3, x2) = 01 and (x1, x0) = 11
+    // (x3, x2) = 11 and (x1, x0) = 00 or 01
+    // (x3, x2) = 10 and (x1, x0) = 00 or 01
+    
+    // f = (~x3 & x2 & x1 & x0) | (x3 & ~x1 & ~x2) | (x3 & ~x1 & x2)
+    // f = (~x3 & x2 & x1 & x0) | (x3 & ~x1)
+    
+    // This is the same. Maybe x indices are not 3,2,1,0?
+    // What if it is x[0], x[1], x[2], x[3]?
+    // Let's try x[0] as MSB.
+    
+    assign f = (x[0] & ~x[2]) | (~x[0] & x[1] & x[2] & x[3]);
+    
 endmodule

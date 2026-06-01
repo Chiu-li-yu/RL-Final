@@ -1,0 +1,21 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將 Lemmings 有限狀態機題目分解成的 4 個具體執行步驟：
+
+1. 定義狀態編碼（parameter 或 localparam）並宣告 state 與 next_state 暫存器。
+2. 實作同步時脈區塊（sequential logic），使用 areset 處理非同步重置並更新當前狀態。
+3. 實作組合邏輯區塊（combinational logic），根據當前狀態與輸入條件設定 next_state 的轉換規則。
+4. 實作輸出邏輯，根據當前狀態（state）設定 walk_left、walk_right 與 aaah 的輸出訊號。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    input ground,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

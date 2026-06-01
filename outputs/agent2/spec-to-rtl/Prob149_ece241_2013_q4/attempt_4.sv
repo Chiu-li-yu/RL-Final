@@ -1,4 +1,4 @@
-module TopModule(
+module TopModule (
     input clk,
     input reset,
     input [2:0] s,
@@ -7,44 +7,44 @@ module TopModule(
     output logic fr0,
     output logic dfr
 );
-    logic [1:0] current_level;
-    logic [1:0] prev_level;
+
+    // 水位編碼：s=000(level 0), s=001(level 1), s=011(level 2), s=111(level 3)
+    // 狀態機：記錄當前水位與前一水位
+    logic [1:0] curr, prev;
 
     always @(*) begin
         case (s)
-            3'b111: current_level = 2'd3;
-            3'b011: current_level = 2'd2;
-            3'b001: current_level = 2'd1;
-            default: current_level = 2'd0;
+            3'b000: curr = 2'd0;
+            3'b001: curr = 2'd1;
+            3'b011: curr = 2'd2;
+            3'b111: curr = 2'd3;
+            default: curr = 2'd0; // 規格未說明的情況
         endcase
     end
 
-    always_ff @(posedge clk) begin
-        if (reset)
-            prev_level <= 2'd0;
-        else
-            prev_level <= current_level;
+    always @(posedge clk) begin
+        if (reset) begin
+            prev <= 2'd0;
+        end else begin
+            prev <= curr;
+        end
     end
 
-    // Use Moore-like FSM (outputs only depend on current_level and prev_level)
+    // 輸出邏輯
+    // reset 必須是同步的
+    // 當 reset 為 1 時，行為等同於長時間低水位 (curr=0, prev=0)
     always @(*) begin
-        // Nominal
-        case (current_level)
-            2'd3: {fr2, fr1, fr0} = 3'b000;
-            2'd2: {fr2, fr1, fr0} = 3'b001;
-            2'd1: {fr2, fr1, fr0} = 3'b011;
-            2'd0: {fr2, fr1, fr0} = 3'b111;
-            default: {fr2, fr1, fr0} = 3'b000;
-        endcase
-
-        // Supplemental
-        if (reset)
-            dfr = 1'b1;
-        else if (current_level == 2'd0)
-            dfr = 1'b1;
-        else if (prev_level > current_level)
-            dfr = 1'b1;
-        else
-            dfr = 1'b0;
+        if (reset) begin
+            {fr2, fr1, fr0, dfr} = 4'b1111;
+        end else begin
+            case (curr)
+                2'd0: {fr2, fr1, fr0, dfr} = 4'b1111;
+                2'd1: {fr2, fr1, fr0, dfr} = {1'b0, 1'b1, 1'b1, (prev > curr)};
+                2'd2: {fr2, fr1, fr0, dfr} = {1'b0, 1'b0, 1'b1, (prev > curr)};
+                2'd3: {fr2, fr1, fr0, dfr} = 4'b0000;
+                default: {fr2, fr1, fr0, dfr} = 4'b1111;
+            endcase
+        end
     end
+
 endmodule

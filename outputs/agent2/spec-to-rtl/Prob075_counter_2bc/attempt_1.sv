@@ -6,26 +6,31 @@ module TopModule (
     output logic [1:0] state
 );
 
-    logic [1:0] counter;
+    logic [1:0] next_state;
 
     always_ff @(posedge clk or posedge areset) begin
         if (areset) begin
-            counter <= 2'b01;
+            state <= 2'b01;
         end else begin
-            if (train_valid) begin
-                if (train_taken) begin
-                    if (counter < 2'b11)
-                        counter <= counter + 1'b1;
-                end else begin
-                    if (counter > 2'b00)
-                        counter <= counter - 1'b1;
-                end
-            end
+            state <= next_state;
         end
     end
 
     always_comb begin
-        state = counter;
+        if (train_valid) begin
+            if (train_taken) begin
+                if (state < 2'b11)
+                    next_state = state + 1'b1;
+                else
+                    next_state = state;
+            end else begin
+                if (state > 2'b00)
+                    next_state = state - 1'b1;
+                else
+                    next_state = state;
+            end
+        end else begin
+            next_state = state;
+        end
     end
-
 endmodule

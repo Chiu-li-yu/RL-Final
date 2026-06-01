@@ -1,8 +1,9 @@
 module TopModule (
-    input logic [7:0] code,
+    input [7:0] code,
     output logic [3:0] out,
     output logic valid
 );
+
     always @(*) begin
         case (code)
             8'h45: begin out = 4'd0; valid = 1'b1; end

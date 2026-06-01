@@ -1,15 +1,18 @@
 module TopModule (
-    input logic [2:0] a,
-    input logic [2:0] b,
-    output logic [2:0] out_or_bitwise,
-    output logic out_or_logical,
-    output logic [5:0] out_not
+    input [2:0] a,
+    input [2:0] b,
+    output [2:0] out_or_bitwise,
+    output out_or_logical,
+    output [5:0] out_not
 );
 
     always @(*) begin
-        out_or_bitwise = a | b;
-        out_or_logical = a || b;
-        out_not = {~b, ~a};
+        // Bitwise OR
+        // out_or_bitwise = a | b; // Using continuous assignment
     end
+
+    assign out_or_bitwise = a | b;
+    assign out_or_logical = a || b;
+    assign out_not = {~b, ~a};
 
 endmodule

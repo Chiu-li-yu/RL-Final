@@ -1,18 +1,20 @@
 module TopModule (
-    input  a,
-    input  b,
-    input  cin,
+    input a,
+    input b,
+    input cin,
     output cout,
     output sum
 );
-    logic s_sum;
-    logic s_cout;
+
+    logic s;
+    logic c;
 
     always @(*) begin
-        s_sum = a ^ b ^ cin;
-        s_cout = (a & b) | (b & cin) | (a & cin);
+        s = a ^ b ^ cin;
+        c = (a & b) | (cin & (a ^ b));
     end
 
-    assign sum = s_sum;
-    assign cout = s_cout;
+    assign sum = s;
+    assign cout = c;
+
 endmodule

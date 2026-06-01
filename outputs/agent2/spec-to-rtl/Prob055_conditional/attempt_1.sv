@@ -12,7 +12,7 @@ module TopModule (
     always @(*) begin
         min_ab = (a < b) ? a : b;
         min_cd = (c < d) ? c : d;
-        min = (min_ab < min_cd) ? min_ab : min_cd;
+        min    = (min_ab < min_cd) ? min_ab : min_cd;
     end
 
 endmodule

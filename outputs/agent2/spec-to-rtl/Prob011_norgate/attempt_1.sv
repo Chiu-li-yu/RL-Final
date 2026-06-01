@@ -1,9 +1,11 @@
 module TopModule (
-    input  a,
-    input  b,
+    input a,
+    input b,
     output out
 );
 
-    assign out = ~(a | b);
+    always @(*) begin
+        out = ~(a | b);
+    end
 
 endmodule

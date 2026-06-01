@@ -1,0 +1,22 @@
+
+[attempt 0] → decompose_spec
+[attempt 0] ← decompose_spec:
+以下是將該 Verilog 題目分解為 5 個具體子目標的規劃：
+
+1. 實作秒與分的 BCD 計數器邏輯，並確保在達到 59 後歸零且向上一級進位。
+2. 實作小時的 BCD 計數器，邏輯需支援 12 小時循環（01 至 12）並能根據進位切換 AM/PM 狀態。
+3. 設計狀態切換邏輯，當小時從 11 變為 12 時翻轉 PM 訊號，並確保正確處理從 12 變為 01 的進位邏輯。
+4. 加入同步 Reset 機制，確保在重置時強制將時間設定為 12:00 AM（對應 BCD 格式為 8'h12, 8'h00, 8'h00）。
+5. 整合所有計數器模組，並利用 `ena` 訊號作為所有計數器更新的唯一致能控制（Enable）。
+
+[attempt 1] → compile_and_test
+module TopModule (
+    input clk,
+    input reset,
+    input ena,
+    output logic pm,
+    output logic [7:0] hh,
+[attempt 1] ← compile_and_test: .
+
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

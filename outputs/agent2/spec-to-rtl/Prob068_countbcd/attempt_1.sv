@@ -4,51 +4,52 @@ module TopModule (
     output logic [2:0] ena,
     output logic [15:0] q
 );
-    // BCD digits
-    logic [3:0] d0, d1, d2, d3;
 
-    // Internal enable signals for each stage
-    // ena[0] -> digit 1
-    // ena[1] -> digit 2
-    // ena[2] -> digit 3
-    always @(*) begin
-        ena[0] = (d0 == 4'd9);
-        ena[1] = (d0 == 4'd9 && d1 == 4'd9);
-        ena[2] = (d0 == 4'd9 && d1 == 4'd9 && d2 == 4'd9);
-    end
+    logic [3:0] digit0, digit1, digit2, digit3;
 
-    // Sequential logic for each digit
     always @(posedge clk) begin
         if (reset) begin
-            d0 <= 4'd0;
-            d1 <= 4'd0;
-            d2 <= 4'd0;
-            d3 <= 4'd0;
+            digit0 <= 4'd0;
+            digit1 <= 4'd0;
+            digit2 <= 4'd0;
+            digit3 <= 4'd0;
         end else begin
-            // Digit 0
-            if (d0 == 4'd9) d0 <= 4'd0;
-            else d0 <= d0 + 1'b1;
+            // Digit 0 (Ones)
+            if (digit0 == 4'd9)
+                digit0 <= 4'd0;
+            else
+                digit0 <= digit0 + 4'd1;
 
-            // Digit 1
-            if (ena[0]) begin
-                if (d1 == 4'd9) d1 <= 4'd0;
-                else d1 <= d1 + 1'b1;
+            // Digit 1 (Tens)
+            if (digit0 == 4'd9) begin
+                if (digit1 == 4'd9)
+                    digit1 <= 4'd0;
+                else
+                    digit1 <= digit1 + 4'd1;
             end
 
-            // Digit 2
-            if (ena[1]) begin
-                if (d2 == 4'd9) d2 <= 4'd0;
-                else d2 <= d2 + 1'b1;
+            // Digit 2 (Hundreds)
+            if (digit0 == 4'd9 && digit1 == 4'd9) begin
+                if (digit2 == 4'd9)
+                    digit2 <= 4'd0;
+                else
+                    digit2 <= digit2 + 4'd1;
             end
 
-            // Digit 3
-            if (ena[2]) begin
-                if (d3 == 4'd9) d3 <= 4'd0;
-                else d3 <= d3 + 1'b1;
+            // Digit 3 (Thousands)
+            if (digit0 == 4'd9 && digit1 == 4'd9 && digit2 == 4'd9) begin
+                if (digit3 == 4'd9)
+                    digit3 <= 4'd0;
+                else
+                    digit3 <= digit3 + 4'd1;
             end
         end
     end
 
-    assign q = {d3, d2, d1, d0};
-
+    always @(*) begin
+        ena[0] = (digit0 == 4'd9);
+        ena[1] = (digit0 == 4'd9 && digit1 == 4'd9);
+        ena[2] = (digit0 == 4'd9 && digit1 == 4'd9 && digit2 == 4'd9);
+        q = {digit3, digit2, digit1, digit0};
+    end
 endmodule

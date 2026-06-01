@@ -1,7 +1,7 @@
 module TopModule (
-    input clk,
-    input d,
-    input r,
+    input logic clk,
+    input logic d,
+    input logic r,
     output logic q
 );
 

@@ -5,7 +5,7 @@ module TopModule (
     input reset,
     output logic [4:0] q
 );
-
+    // 5-bit Galois LFSR with taps at 5 and 3
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

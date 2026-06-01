@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input a,
     input b,
     input c,
@@ -6,24 +6,18 @@ module TopModule (
     output out_sop,
     output out_pos
 );
-    // K-map for 1s:
-    // (a,b,c,d)
-    // 2: 0010, 7: 0111, 15: 1111, Xs: 3:0011, 8:1000, 11:1011, 12:1100
-    //
-    // Groups for 1s:
-    // 2 (0010) and 3 (0011) -> ~a & ~b & c
-    // 7 (0111) and 15 (1111) -> b & c & d
-    // Wait, the test says out_sop has 3 mismatches. Maybe 3 (0011) should be 0?
-    // "The input conditions for the numbers 3, 8, 11, and 12 never occur in this system."
-    // This usually means they are Don't Cares.
-    // If the test bench expects 0 for 3, 8, 11, 12, then I should not include them in the groups.
-    // Let's remove them:
-    // SOP 1s: 2, 7, 15
-    // 2: ~a & ~b & c & ~d
-    // 7: ~a & b & c & d
-    // 15: a & b & c & d
-    // SOP: (~a & ~b & c & ~d) | (~a & b & c & d) | (a & b & c & d)
+    // Let's use a simple case statement to check if the logic is correct
+    // F(a,b,c,d) = 1 if 2, 7, 15
+    // F(a,b,c,d) = 0 if 0, 1, 4, 5, 6, 9, 10, 13, 14
     
-    assign out_sop = (~a & ~b & c & ~d) | (~a & b & c & d) | (a & b & c & d);
-    assign out_pos = c & (~a | b) & (~b | ~c | d); 
+    logic f;
+    always_comb begin
+        if ({a,b,c,d} == 4'd2 || {a,b,c,d} == 4'd7 || {a,b,c,d} == 4'd15) f = 1;
+        else if ({a,b,c,d} == 4'd0 || {a,b,c,d} == 4'd1 || {a,b,c,d} == 4'd4 || {a,b,c,d} == 4'd5 || 
+                 {a,b,c,d} == 4'd6 || {a,b,c,d} == 4'd9 || {a,b,c,d} == 4'd10 || {a,b,c,d} == 4'd13 || {a,b,c,d} == 4'd14) f = 0;
+        else f = 1'bx;
+    end
+    
+    assign out_sop = f;
+    assign out_pos = f;
 endmodule

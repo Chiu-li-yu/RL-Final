@@ -4,17 +4,25 @@ module TopModule (
     input x1,
     output f
 );
+
+    logic f_logic;
+
     always @(*) begin
-        case ({x3, x2, x1})
-            3'b000: f = 0;
-            3'b001: f = 0;
-            3'b010: f = 1;
-            3'b011: f = 1;
-            3'b100: f = 0;
-            3'b101: f = 1;
-            3'b110: f = 0;
-            3'b111: f = 1;
-            default: f = 0;
-        endcase
+        // Truth table:
+        // 000 -> 0
+        // 001 -> 0
+        // 010 -> 1
+        // 011 -> 1
+        // 100 -> 0
+        // 101 -> 1
+        // 110 -> 0
+        // 111 -> 1
+        
+        // Expression simplification:
+        // f = (!x3 & x2) | (x3 & x1)
+        f_logic = (~x3 & x2) | (x3 & x1);
     end
+
+    assign f = f_logic;
+
 endmodule

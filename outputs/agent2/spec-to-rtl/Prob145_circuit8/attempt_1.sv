@@ -1,22 +1,26 @@
 module TopModule (
     input clock,
     input a,
-    output p,
-    output q
+    output logic p,
+    output logic q
 );
 
-    logic p_reg;
-    logic q_reg;
+    logic [1:0] state; // Simple state tracker to handle the sequence
 
-    assign p = p_reg;
-    assign q = q_reg;
-
-    always @(posedge clock) begin
-        p_reg <= a;
+    always_ff @(posedge clock) begin
+        // Based on the observation:
+        // p is high when clock is 1 and a is 1
+        // q changes when clock is 0 or transitions.
+        // It looks like a flip-flop behavior triggered on a condition.
+        
+        // p is basically a synchronous version of a
+        p <= (a); 
+        
+        // q seems to latch p when clock goes low
     end
-
-    always @(negedge clock) begin
-        q_reg <= p_reg;
+    
+    always_ff @(negedge clock) begin
+        q <= p;
     end
 
 endmodule

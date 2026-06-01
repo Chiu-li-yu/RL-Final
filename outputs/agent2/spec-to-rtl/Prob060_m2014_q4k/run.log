@@ -1,6 +1,6 @@
 
 [attempt 1] → compile_and_test
-module TopModule (
+module TopModule(
     input clk,
     input resetn,
     input in,

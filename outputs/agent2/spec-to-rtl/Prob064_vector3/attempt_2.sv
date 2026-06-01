@@ -1,27 +1,23 @@
 module TopModule (
-    input logic [4:0] a,
-    input logic [4:0] b,
-    input logic [4:0] c,
-    input logic [4:0] d,
-    input logic [4:0] e,
-    input logic [4:0] f,
+    input [4:0] a,
+    input [4:0] b,
+    input [4:0] c,
+    input [4:0] d,
+    input [4:0] e,
+    input [4:0] f,
     output logic [7:0] w,
     output logic [7:0] x,
     output logic [7:0] y,
     output logic [7:0] z
 );
-
     logic [31:0] combined;
 
     always @(*) begin
-        // The concatenation order should match the output mapping order
-        // The problem says: concatenate input vectors (a, b, c, d, e, f)
-        // followed by 2 bits.
-        // Total bits: 30 + 2 = 32.
-        // Output concatenation: {w, x, y, z}
-        // w should be the most significant, z should be the least.
+        // Concatenate inputs (a, b, c, d, e, f) total 30 bits
+        // Followed by two 1 bits
         combined = {a, b, c, d, e, f, 2'b11};
+        
+        // Split into 4 outputs of 8 bits each
         {w, x, y, z} = combined;
     end
-
 endmodule

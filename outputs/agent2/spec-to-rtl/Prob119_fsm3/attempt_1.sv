@@ -4,13 +4,8 @@ module TopModule (
     input in,
     output out
 );
-
     logic [1:0] state, next_state;
-
-    parameter A = 2'b00;
-    parameter B = 2'b01;
-    parameter C = 2'b10;
-    parameter D = 2'b11;
+    parameter A = 2'b00, B = 2'b01, C = 2'b10, D = 2'b11;
 
     always_ff @(posedge clk or posedge areset) begin
         if (areset)
@@ -21,14 +16,13 @@ module TopModule (
 
     always_comb begin
         case (state)
-            A: next_state = (in) ? B : A;
-            B: next_state = (in) ? B : C;
-            C: next_state = (in) ? D : A;
-            D: next_state = (in) ? B : C;
+            A: next_state = in ? B : A;
+            B: next_state = in ? B : C;
+            C: next_state = in ? D : A;
+            D: next_state = in ? B : C;
             default: next_state = A;
         endcase
     end
 
     assign out = (state == D);
-
 endmodule

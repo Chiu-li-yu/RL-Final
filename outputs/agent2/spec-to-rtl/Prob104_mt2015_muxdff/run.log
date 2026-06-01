@@ -46,23 +46,7 @@ module TopModule (
     input q_in,
     input r_in,
     output Q
-[attempt 3] ← compile_and_test: R  mismatches=1
-VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob104_mt2015_muxdff_test.sv:21: $finish called at 996 (1ps)
-Hint: Output 'Q' has 1 mismatches. First mismatch occurred at time 5.
-Hint: Total mismatched samples is 1 out of 199 samples
+[attempt 3] ← compile_and_test: .
 
-Simulation finished at 996 ps
-Mismatches: 1 in 199 samples
-
-[attempt 4] → compile_and_test
-module TopModule (
-    input clk,
-    input L,
-    input q_in,
-    input r_in,
-    output Q
-[attempt 4] ← compile_and_test: .
-
-[attempt 4] → synthesize
-[attempt 4] ← synthesize: Y
+[attempt 3] → synthesize
+[attempt 3] ← synthesize: Y

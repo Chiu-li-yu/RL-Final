@@ -1,20 +1,18 @@
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     input w,
     output z
 );
 
-    typedef enum logic [2:0] {
-        A = 3'd0,
-        B = 3'd1,
-        C = 3'd2,
-        D = 3'd3,
-        E = 3'd4,
-        F = 3'd5
-    } state_t;
+    logic [2:0] state, next_state;
 
-    state_t state, next_state;
+    parameter A = 3'd0;
+    parameter B = 3'd1;
+    parameter C = 3'd2;
+    parameter D = 3'd3;
+    parameter E = 3'd4;
+    parameter F = 3'd5;
 
     always_ff @(posedge clk) begin
         if (reset)

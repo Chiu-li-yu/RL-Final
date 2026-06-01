@@ -5,10 +5,10 @@ module TopModule (
     input in2,
     output out
 );
-
+    always @(*) begin
 [attempt 1] ← compile_and_test: w
-/tmp/tmphxx5t1_q.sv:8: error: out is not a valid l-value in tb.top_module1.
-/tmp/tmphxx5t1_q.sv:4:      : out is declared here as wire.
+/tmp/tmp2r28txs5.sv:7: error: out is not a valid l-value in tb.top_module1.
+/tmp/tmp2r28txs5.sv:4:      : out is declared here as wire.
 1 error(s) during elaboration.
 
 [attempt 2] → compile_and_test
@@ -17,7 +17,7 @@ module TopModule (
     input in2,
     output logic out
 );
-
+    always @(*) begin
 [attempt 2] ← compile_and_test: .
 
 [attempt 2] → synthesize

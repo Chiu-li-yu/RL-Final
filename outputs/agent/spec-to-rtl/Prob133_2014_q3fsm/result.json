@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob133_2014_q3fsm",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob133_2014_q3fsm_test.sv:59: $finish called at 7071 (1ps)\nHint: Output 'z' has 230 mismatches. First mismatch occurred at time 110.\nHint: Total mismatched samples is 230 out of 1414 samples\n\nSimulation finished at 7071 ps\nMismatches: 230 in 1414 samples",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R",
+    "R",
+    "R",
+    "e",
+    "R"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 1,
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

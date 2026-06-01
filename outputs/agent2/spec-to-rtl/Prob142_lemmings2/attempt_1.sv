@@ -8,51 +8,47 @@ module TopModule (
     output walk_right,
     output aaah
 );
-    localparam LEFT = 2'd0,
-               RIGHT = 2'd1,
-               FALL_LEFT = 2'd2,
-               FALL_RIGHT = 2'd3;
+
+    parameter WL = 2'b00;
+    parameter WR = 2'b01;
+    parameter FL = 2'b10;
+    parameter FR = 2'b11;
 
     logic [1:0] state, next_state;
 
-    // Sequential logic
-    always @(posedge clk or posedge areset) begin
+    always_ff @(posedge clk or posedge areset) begin
         if (areset)
-            state <= LEFT;
+            state <= WL;
         else
             state <= next_state;
     end
 
-    // Combinational logic
     always @(*) begin
         case (state)
-            LEFT: begin
-                if (!ground) next_state = FALL_LEFT;
-                else if (bump_left) next_state = RIGHT;
-                else if (bump_right) next_state = LEFT;
-                else next_state = LEFT;
+            WL: begin
+                if (!ground) next_state = FL;
+                else if (bump_left) next_state = WR;
+                else next_state = WL;
             end
-            RIGHT: begin
-                if (!ground) next_state = FALL_RIGHT;
-                else if (bump_right) next_state = LEFT;
-                else if (bump_left) next_state = RIGHT;
-                else next_state = RIGHT;
+            WR: begin
+                if (!ground) next_state = FR;
+                else if (bump_right) next_state = WL;
+                else next_state = WR;
             end
-            FALL_LEFT: begin
-                if (ground) next_state = LEFT;
-                else next_state = FALL_LEFT;
+            FL: begin
+                if (ground) next_state = WL;
+                else next_state = FL;
             end
-            FALL_RIGHT: begin
-                if (ground) next_state = RIGHT;
-                else next_state = FALL_RIGHT;
+            FR: begin
+                if (ground) next_state = WR;
+                else next_state = FR;
             end
-            default: next_state = LEFT;
+            default: next_state = WL;
         endcase
     end
 
-    // Output logic
-    assign walk_left = (state == LEFT);
-    assign walk_right = (state == RIGHT);
-    assign aaah = (state == FALL_LEFT || state == FALL_RIGHT);
+    assign walk_left = (state == WL);
+    assign walk_right = (state == WR);
+    assign aaah = (state == FL || state == FR);
 
 endmodule

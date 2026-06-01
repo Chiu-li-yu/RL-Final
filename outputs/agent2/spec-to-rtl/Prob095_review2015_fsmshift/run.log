@@ -1,21 +1,20 @@
 
 [attempt 0] → decompose_spec
 [attempt 0] ← decompose_spec:
-為了完成此 FSM 設計，建議將任務分解為以下 5 個子目標：
+為了完成這個 FSM 設計，建議將任務分解為以下 4 個具體子目標：
 
-1. 定義狀態機（FSM）的狀態編碼，包含初始狀態（IDLE/S0）以及代表 4 個週期輸出的計數狀態。
-2. 實作一個 2 位元或 3 位元的計數器邏輯，用於追蹤已輸出的時鐘週期次數。
-3. 設計狀態轉換邏輯（Next State Logic），確保系統在重置（Reset）後自動進入輸出狀態，並在計數達 4 次後跳轉至永久為 0 的停止狀態。
-4. 設計輸出邏輯（Output Logic），根據當前狀態判斷 `shift_ena` 在前 4 個週期輸出 1，其餘時間輸出 0。
-5. 撰寫同步重置（Synchronous Reset）邏輯，確保在 Reset 為高電位時，狀態機與計數器能立即歸零。
+1. 定義一個 3-bit 的計數器（Counter）來追蹤已輸出的 cycle 數，並設定其在 0 至 3 之間循環或停止。
+2. 實作狀態邏輯：當 reset 為 high 時，強制狀態回歸初始值；否則在啟動後透過計數器追蹤 4 個時脈週期。
+3. 根據計數器的數值設定組合邏輯，當計數小於 4 時將 `shift_ena` 設為 high，否則設為 low。
+4. 撰寫邊緣觸發（`posedge clk`）的區塊，同步更新計數器狀態，確保 reset 發生時立即重新計數。
 
 [attempt 1] → compile_and_test
-module TopModule (
+module TopModule(
     input clk,
     input reset,
     output logic shift_ena
 );
-
+    logic [2:0] count;
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

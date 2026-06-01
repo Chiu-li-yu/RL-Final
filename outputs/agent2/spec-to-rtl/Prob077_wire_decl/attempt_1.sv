@@ -6,24 +6,21 @@ module TopModule (
     output out,
     output out_n
 );
-
-    logic and1_out;
-    logic and2_out;
+    logic wire1;
+    logic wire2;
 
     always @(*) begin
-        and1_out = a & b;
-        and2_out = c & d;
+        wire1 = a & b;
+        wire2 = c & d;
     end
 
     always @(*) begin
-        // out is the result of the OR gate
-        // assign out = and1_out | and2_out;
-        // out_n is the inverse of out
-        // assign out_n = ~out;
+        // out is driven by OR of wire1 and wire2
+        // per requirements: out feeds the NOT gate for out_n
+        // so out can be used as the source for out_n
     end
 
-    // Direct assignments for logic gates
-    assign out = and1_out | and2_out;
+    assign out = wire1 | wire2;
     assign out_n = ~out;
 
 endmodule

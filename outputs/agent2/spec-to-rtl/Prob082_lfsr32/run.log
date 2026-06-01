@@ -47,7 +47,7 @@ module TopModule (
     input reset,
     output logic [31:0] q
 );
-
+    // Based on standard Galois LFSR implementation:
 [attempt 3] ← compile_and_test: .
 
 [attempt 3] → synthesize

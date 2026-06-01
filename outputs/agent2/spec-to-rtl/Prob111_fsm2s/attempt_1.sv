@@ -1,12 +1,16 @@
-module TopModule (
-    input logic clk,
-    input logic reset,
-    input logic j,
-    input logic k,
-    output logic out
+module TopModule(
+    input clk,
+    input reset,
+    input j,
+    input k,
+    output out
 );
-    typedef enum logic {OFF = 1'b0, ON = 1'b1} state_t;
-    state_t state, next_state;
+
+    logic state;
+    logic next_state;
+
+    localparam OFF = 1'b0;
+    localparam ON = 1'b1;
 
     always_ff @(posedge clk) begin
         if (reset)
@@ -15,16 +19,10 @@ module TopModule (
             state <= next_state;
     end
 
-    always_comb begin
+    always @(*) begin
         case (state)
-            OFF: begin
-                if (j) next_state = ON;
-                else next_state = OFF;
-            end
-            ON: begin
-                if (k) next_state = OFF;
-                else next_state = ON;
-            end
+            OFF: next_state = j ? ON : OFF;
+            ON:  next_state = k ? OFF : ON;
             default: next_state = OFF;
         endcase
     end

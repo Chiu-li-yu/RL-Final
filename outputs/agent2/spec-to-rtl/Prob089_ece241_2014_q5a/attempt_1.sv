@@ -2,35 +2,37 @@ module TopModule (
     input clk,
     input areset,
     input x,
-    output z
+    output logic z
 );
-
+    // Moore FSM for serial 2's complementer
+    // State 0: Haven't seen a '1' yet
+    // State 1: Have seen a '1' already
     logic state, next_state;
 
-    // Moore machine states:
-    // S0: No 1 seen yet. Output = Input
-    // S1: 1 seen. Output = !Input
-    localparam S0 = 1'b0;
-    localparam S1 = 1'b1;
+    always_ff @(posedge clk or posedge areset) begin
+        if (areset) begin
+            state <= 1'b0;
+        end else begin
+            state <= next_state;
+        end
+    end
 
-    // State transition logic
     always @(*) begin
         case (state)
-            S0: next_state = x ? S1 : S0;
-            S1: next_state = S1;
-            default: next_state = S0;
+            1'b0: begin
+                if (x == 1'b1) next_state = 1'b1;
+                else next_state = 1'b0;
+            end
+            1'b1: begin
+                next_state = 1'b1;
+            end
         endcase
     end
 
-    // Output logic
-    assign z = (state == S0) ? x : ~x;
-
-    // State register
-    always @(posedge clk or posedge areset) begin
-        if (areset)
-            state <= S0;
-        else
-            state <= next_state;
+    always @(*) begin
+        case (state)
+            1'b0: z = x; // When no 1 has been seen, z = x
+            1'b1: z = ~x; // When a 1 has been seen, invert x
+        endcase
     end
-
 endmodule

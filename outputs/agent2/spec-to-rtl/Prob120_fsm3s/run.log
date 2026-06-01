@@ -1,13 +1,13 @@
 
 [attempt 0] → decompose_spec
 [attempt 0] ← decompose_spec:
-這裡將該 Verilog 題目分解為 5 個具體、可執行的子目標：
+根據您的需求，將 Verilog 實作任務分解為以下 5 個子目標：
 
-1. 定義狀態編碼（Localparam 或 Enum）並宣告目前的狀態暫存器與下一個狀態變數。
-2. 撰寫同步重置邏輯，在 `posedge clk` 觸發時將狀態重置為 A。
-3. 根據題目描述的轉換規則，建立組合邏輯來決定狀態跳轉路徑（Next State Logic）。
-4. 根據狀態變數，編寫輸出邏輯，確保僅在狀態為 D 時輸出 1，其餘狀態為 0。
-5. 完成狀態機結構，並透過 Testbench 驗證所有輸入組合（in=0/1）下的跳轉路徑與輸出結果。
+1. 定義 Moore 狀態機所需的四個狀態（A, B, C, D），並使用 `typedef enum` 宣告狀態變數。
+2. 建立一個包含 `clk` 與 `reset` 的 `always_ff` 區塊，負責處理狀態的同步更新（將 `next_state` 賦值給 `current_state`）。
+3. 建立一個 `always @(*)` 組合邏輯區塊，根據 `current_state` 與 `in` 訊號計算出 `next_state`。
+4. 建立另一個 `always @(*)` 組合邏輯區塊，根據 `current_state` 決定輸出的值（Output logic）。
+5. 確保在 `always_ff` 區塊內實現同步高電位重置（Reset），並完成頂層模組的輸入/輸出埠定義。
 
 [attempt 1] → compile_and_test
 module TopModule (

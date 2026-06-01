@@ -1,4 +1,4 @@
-module TopModule (
+module TopModule(
     input clk,
     input j,
     input k,

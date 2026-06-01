@@ -5,7 +5,7 @@ module TopModule (
     input  logic [7:0]    sel,
     output logic [3:0]    out
 );
-    // 256 inputs, each is 4 bits wide. 256 * 4 = 1024.
+
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

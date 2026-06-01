@@ -5,7 +5,7 @@ module TopModule (
     input b,
     input c,
     input d,
-    output logic out
+    output out
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

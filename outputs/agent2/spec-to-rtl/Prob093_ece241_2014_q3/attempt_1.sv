@@ -1,16 +1,20 @@
 module TopModule (
     input c,
     input d,
-    output [3:0] mux_in
+    output logic [3:0] mux_in
 );
-    // Based on K-map analysis:
-    // col 00 (ab=00): c|d
-    // col 01 (ab=01): 0
-    // col 10 (ab=10): ~(c^d) -> XNOR
-    // col 11 (ab=11): c&d
-    
-    assign mux_in[0] = c | d;
-    assign mux_in[1] = 1'b0;
-    assign mux_in[2] = ~(c ^ d);
-    assign mux_in[3] = c & d;
+
+    // K-map analysis:
+    // col 00: (c=0,d=0)->0, (c=0,d=1)->1, (c=1,d=1)->1, (c=1,d=0)->1 => c | d
+    // col 01: (c=0,d=0)->0, (c=0,d=1)->0, (c=1,d=1)->0, (c=1,d=0)->0 => 0
+    // col 11: (c=0,d=0)->0, (c=0,d=1)->0, (c=1,d=1)->1, (c=1,d=0)->0 => c & d
+    // col 10: (c=0,d=0)->1, (c=0,d=1)->0, (c=1,d=1)->0, (c=1,d=0)->1 => ~(c ^ d)
+
+    always @(*) begin
+        mux_in[0] = c | d;
+        mux_in[1] = 1'b0;
+        mux_in[2] = c & d;
+        mux_in[3] = ~(c ^ d);
+    end
+
 endmodule

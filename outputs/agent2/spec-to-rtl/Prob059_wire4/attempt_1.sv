@@ -8,11 +8,9 @@ module TopModule (
     output z
 );
 
-    always @(*) begin
-        w = a;
-        x = b;
-        y = b;
-        z = c;
-    end
+    assign w = a;
+    assign x = b;
+    assign y = b;
+    assign z = c;
 
 endmodule

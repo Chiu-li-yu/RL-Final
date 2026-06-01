@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob140_fsm_hdlc",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "e",
+  "sim_error_log": "/tmp/tmpequkfzp2.sv:27: error: This assignment requires an explicit cast.\n/tmp/tmpequkfzp2.sv:28: error: This assignment requires an explicit cast.\n/tmp/tmpequkfzp2.sv:29: error: This assignment requires an explicit cast.\n/tmp/tmpequkfzp2.sv:30: error: This assignment requires an explicit cast.\n/tmp/tmpequkfzp2.sv:31: error: This assignment requires an explicit cast.\n/tmp/tmpequkfzp2.sv:32: error: This assignment requires an explicit cast.\n/tmp/tmpequkfzp2.sv:33: error: This assignment requires an explicit cast.\n/tmp/tmpequkfzp2.sv:34: error: This assignment requires an explicit cast.\n8 error(s) during elaboration.",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "e",
+    "R",
+    "e",
+    "R",
+    "e"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 2,
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

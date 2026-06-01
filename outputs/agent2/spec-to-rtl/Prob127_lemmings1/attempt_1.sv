@@ -1,26 +1,23 @@
 module TopModule (
-    input logic clk,
-    input logic areset,
-    input logic bump_left,
-    input logic bump_right,
-    output logic walk_left,
-    output logic walk_right
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    output walk_left,
+    output walk_right
 );
 
-    typedef enum logic {
-        LEFT = 1'b0,
-        RIGHT = 1'b1
-    } state_t;
+    parameter LEFT = 1'b0;
+    parameter RIGHT = 1'b1;
 
-    state_t state, next_state;
+    logic state, next_state;
 
-    // Sequential logic for state register
-    always_ff @(posedge clk or posedge areset) begin
-        if (areset) begin
+    // Sequential logic for state transition
+    always @(posedge clk or posedge areset) begin
+        if (areset)
             state <= LEFT;
-        end else begin
+        else
             state <= next_state;
-        end
     end
 
     // Combinational logic for next state
@@ -42,22 +39,8 @@ module TopModule (
         endcase
     end
 
-    // Combinational logic for outputs
-    always @(*) begin
-        case (state)
-            LEFT: begin
-                walk_left = 1'b1;
-                walk_right = 1'b0;
-            end
-            RIGHT: begin
-                walk_left = 1'b0;
-                walk_right = 1'b1;
-            end
-            default: begin
-                walk_left = 1'b1;
-                walk_right = 1'b0;
-            end
-        endcase
-    end
+    // Output logic
+    assign walk_left = (state == LEFT);
+    assign walk_right = (state == RIGHT);
 
 endmodule

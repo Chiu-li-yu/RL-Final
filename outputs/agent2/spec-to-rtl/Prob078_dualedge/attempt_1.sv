@@ -1,20 +1,21 @@
-module TopModule(
-    input clk,
-    input d,
+module TopModule (
+    input  clk,
+    input  d,
     output q
 );
+
     logic q1, q2;
 
-    // Use two flip-flops: one for posedge, one for negedge
+    // Positive edge triggered flip-flop
     always_ff @(posedge clk) begin
-        q1 <= d;
+        q1 <= d ^ q2;
     end
 
+    // Negative edge triggered flip-flop
     always_ff @(negedge clk) begin
-        q2 <= d;
+        q2 <= d ^ q1;
     end
 
-    // Use a mux to select between them based on clk
-    assign q = clk ? q1 : q2;
+    assign q = q1 ^ q2;
 
 endmodule

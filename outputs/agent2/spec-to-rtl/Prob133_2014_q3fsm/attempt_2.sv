@@ -5,40 +5,32 @@ module TopModule (
     input w,
     output logic z
 );
-    // 狀態機設計:
-    // A: 等待 s=1
-    // B0, B1, B2: 收集 w 的狀態
-    // B3: 輸出 z，同時判斷完 3 個 w 後的結果
-    
-    localparam STATE_A = 3'd0;
-    localparam STATE_B0 = 3'd1;
-    localparam STATE_B1 = 3'd2;
-    localparam STATE_B2 = 3'd3;
-    localparam STATE_B3 = 3'd4;
-    
-    logic [2:0] state, next_state;
-    logic [1:0] count_w;
 
-    always_ff @(posedge clk) begin
+    typedef enum logic [1:0] {
+        STATE_A = 2'd0,
+        STATE_B = 2'd1,
+        STATE_CHECK = 2'd2
+    } state_t;
+
+    state_t state, next_state;
+    logic [1:0] count;
+    logic [1:0] next_count;
+    logic [1:0] cycle_idx;
+    logic [1:0] next_cycle_idx;
+
+    always @(posedge clk) begin
         if (reset) begin
             state <= STATE_A;
-            count_w <= 2'b0;
+            count <= 2'd0;
+            cycle_idx <= 2'd0;
             z <= 1'b0;
         end else begin
             state <= next_state;
+            count <= next_count;
+            cycle_idx <= next_cycle_idx;
             
-            // 計數 w
-            if (next_state == STATE_B1 || next_state == STATE_B2 || next_state == STATE_B3) begin
-                if (state == STATE_B0) count_w <= (w ? 2'd1 : 2'd0);
-                else if (state == STATE_B1) count_w <= count_w + (w ? 1'b1 : 1'b0);
-                else if (state == STATE_B2) count_w <= count_w + (w ? 1'b1 : 1'b0);
-            end else begin
-                count_w <= 2'b0;
-            end
-            
-            // 輸出 z: 在 State B3 輸出
-            if (next_state == STATE_B3) begin
-                z <= (count_w + w == 2'd2);
+            if (state == STATE_CHECK && cycle_idx == 2'd2) begin
+                z <= (count + w == 2'd2);
             end else begin
                 z <= 1'b0;
             end
@@ -46,13 +38,30 @@ module TopModule (
     end
 
     always @(*) begin
+        next_state = state;
+        next_count = count;
+        next_cycle_idx = cycle_idx;
+        
         case (state)
-            STATE_A: next_state = s ? STATE_B0 : STATE_A;
-            STATE_B0: next_state = STATE_B1;
-            STATE_B1: next_state = STATE_B2;
-            STATE_B2: next_state = STATE_B3;
-            STATE_B3: next_state = STATE_B0;
-            default: next_state = STATE_A;
+            STATE_A: begin
+                if (s) next_state = STATE_B;
+            end
+            STATE_B: begin
+                next_count = 2'd0;
+                next_cycle_idx = 2'd0;
+                next_state = STATE_CHECK;
+            end
+            STATE_CHECK: begin
+                if (cycle_idx < 2'd2) begin
+                    next_count = count + w;
+                    next_cycle_idx = cycle_idx + 2'd1;
+                    next_state = STATE_CHECK;
+                end else begin
+                    next_count = 2'd0;
+                    next_cycle_idx = 2'd0;
+                    next_state = STATE_B;
+                end
+            end
         endcase
     end
 endmodule

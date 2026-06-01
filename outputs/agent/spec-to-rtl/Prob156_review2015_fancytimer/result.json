@@ -1,0 +1,29 @@
+{
+  "problem_id": "Prob156_review2015_fancytimer",
+  "passed": false,
+  "sim_passed": false,
+  "synth_passed": false,
+  "attempts": 5,
+  "sim_error_type": "R",
+  "sim_error_log": "VCD info: dumpfile wave.vcd opened for output.\nHint: The first test case should count for 2000 cycles. Your circuit counted 2002\nHint: The second test case should count for 15000 cycles. Your circuit counted 15207\nHint: Your FSM didn't pass the sample timing diagram posted with the problem statement. Perhaps try debugging that?\nTIMEOUT\n/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob156_review2015_fancytimer_test.sv:216: $finish called at 1000000 (1ps)\nHint: Output 'count' has 163227 mismatches. First mismatch occurred at time 130.\nHint: Output 'counting' has 1626 mismatches. First mismatch occurred at time 130.\nHint: Output 'done' has 1084 mismatches. First mismatch occurred at time 20130.\nHint: Total mismatched samples is 163973 out of 200000 samples\n\nSimulation finished at 1000000 ps\nMismatches: 163973 in 200000 samples",
+  "synth_error_type": "",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "R",
+    "R",
+    "R",
+    "R",
+    "R"
+  ],
+  "synth_error_sequence": [
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 1,
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

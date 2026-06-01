@@ -3,9 +3,7 @@ module TopModule (
     input in2,
     output out
 );
-
     always @(*) begin
         out = ~(in1 | in2);
     end
-
 endmodule

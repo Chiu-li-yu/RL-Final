@@ -5,52 +5,49 @@ module TopModule (
     output logic [7:0] out_byte,
     output logic done
 );
-
-    localparam IDLE = 0, DATA = 1, STOP = 2, DONE_STATE = 3;
-    logic [1:0] state, next_state;
+    // UART protocol: Idle(1) -> Start(0) -> 8 Data (LSB first) -> Stop(1)
+    // The FSM needs to be sampled at the middle of the bit.
+    // The spec implies we receive the bits at the clk rate.
+    // Let's re-verify the state machine.
+    localparam IDLE = 0, START = 1, DATA = 2, STOP = 3, WAIT_STOP = 4;
+    logic [2:0] state, next_state;
+    logic [3:0] bit_cnt;
     logic [7:0] shift_reg;
-    logic [2:0] bit_cnt;
 
-    // FSM needs to sample bits correctly. 
-    // Usually serial data is sampled in the middle of a bit period, 
-    // but here we just need to follow the bit-stream.
-    
     always_ff @(posedge clk) begin
         if (reset) begin
             state <= IDLE;
             bit_cnt <= 0;
-            shift_reg <= 8'b0;
-            out_byte <= 8'b0;
+            shift_reg <= 0;
             done <= 0;
+            out_byte <= 0;
         end else begin
             state <= next_state;
-            case (next_state)
-                DATA: begin
-                    if (state == DATA) begin
-                        shift_reg <= {in, shift_reg[7:1]};
-                        bit_cnt <= bit_cnt + 1;
-                    end else begin
-                        bit_cnt <= 0;
-                    end
-                end
-                DONE_STATE: begin
-                    out_byte <= shift_reg;
-                    done <= 1;
-                end
-                default: begin
-                    done <= 0;
-                end
-            endcase
+            
+            if (state == START) begin
+                bit_cnt <= 0;
+            end else if (state == DATA) begin
+                shift_reg <= {in, shift_reg[7:1]};
+                bit_cnt <= bit_cnt + 1;
+            end
+
+            if (next_state == IDLE && state == STOP && in == 1'b1) begin
+                done <= 1;
+                out_byte <= shift_reg;
+            end else begin
+                done <= 0;
+            end
         end
     end
 
     always @(*) begin
-        next_state = state;
         case (state)
-            IDLE: if (in == 0) next_state = DATA;
-            DATA: if (bit_cnt == 7) next_state = STOP;
-            STOP: if (in == 1) next_state = DONE_STATE; else next_state = IDLE;
-            DONE_STATE: next_state = IDLE;
+            IDLE: next_state = (in == 0) ? START : IDLE;
+            START: next_state = DATA;
+            DATA: next_state = (bit_cnt == 7) ? STOP : DATA;
+            STOP: next_state = (in == 1) ? IDLE : WAIT_STOP;
+            WAIT_STOP: next_state = (in == 1) ? IDLE : WAIT_STOP;
+            default: next_state = IDLE;
         endcase
     end
 endmodule

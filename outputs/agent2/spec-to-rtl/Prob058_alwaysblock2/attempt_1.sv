@@ -13,7 +13,7 @@ module TopModule (
         out_always_comb = a ^ b;
     end
 
-    always_ff @(posedge clk) begin
+    always @(posedge clk) begin
         out_always_ff <= a ^ b;
     end
 

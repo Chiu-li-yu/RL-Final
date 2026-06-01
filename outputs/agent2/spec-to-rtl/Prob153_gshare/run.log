@@ -1,13 +1,13 @@
 
 [attempt 0] → decompose_spec
 [attempt 0] ← decompose_spec:
-這裡將 gshare 分支預測器的實作分解為以下 5 個具體、可執行的子目標：
+根據您的需求，將 gshare 分支預測器的實作分解為以下 5 個具體子目標：
 
-1. 定義 128 個 2-bit 飽和計數器 (PHT) 的暫存器陣列與 GHR 暫存器，並實作非同步重置 (Asynchronous Reset) 邏輯。
-2. 實作預測階段邏輯：計算 `index = PC[6:0] ^ GHR[6:0]`，根據此索引讀取 PHT 並輸出預測結果。
-3. 實作 GHR 更新機制：在 `predict_valid` 時向左移位更新 GHR，並處理 `train_mispredicted` 時的 GHR 恢復 (Restore) 邏輯。
-4. 實作 PHT 更新邏輯：根據 `train_taken` 與目前的 2-bit 計數器狀態，執行飽和遞增或遞減，並在 `train_valid` 有效時更新指定索引的陣列。
-5. 整合預測與訓練介面，確保預測使用當前 PHT 狀態，而訓練更新操作在時脈邊緣同步完成。
+1. 定義 128 個 2-bit 飽和計數器 (PHT) 陣列，並實作基於 PC 與 GHR 異或 (XOR) 結果的索引查找與預測邏輯。
+2. 實作 GHR (Global History Register) 暫存器，並編寫在 `predict_valid` 時輸出預測結果，以及在下個時脈週期更新 GHR 的邏輯。
+3. 實作 2-bit 計數器的增減邏輯（飽和運算），並確保訓練介面能正確根據 `train_taken` 更新對應 PHT 入口。
+4. 實作分支錯誤復原機制，確保當 `train_mispredicted` 為真時，能將 GHR 恢復為 `train_history` 結合 `train_taken` 的正確狀態。
+5. 加入非同步高電位重置 (areset) 功能，並確保在同一週期同時發生預測與訓練時，訓練邏輯擁有優先處理權。
 
 [attempt 1] → compile_and_test
 module TopModule (
@@ -16,96 +16,7 @@ module TopModule (
     input predict_valid,
     input [6:0] predict_pc,
     output logic predict_taken,
-[attempt 1] ← compile_and_test: R  mismatches=433
-VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)
-Hint: Output 'predict_taken' has 109 mismatches. First mismatch occurred at time 30.
-Hint: Output 'predict_history' has 392 mismatches. First mismatch occurred at time 130.
-Hint: Total mismatched samples is 433 out of 1083 samples
+[attempt 1] ← compile_and_test: .
 
-Simulation finished at 5416 ps
-Mismatches: 433 in 1083 samples
-
-[attempt 1] → get_debug_hints(error_type='R')
-[attempt 1] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
-1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
-2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
-3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
-4. Reset 初始值不符：state / counter 初始值與規格不符
-5. 計數器邊界：off-by-one（計數
-
-[attempt 2] → compile_and_test
-module TopModule (
-    input clk,
-    input areset,
-    input predict_valid,
-    input [6:0] predict_pc,
-    output logic predict_taken,
-[attempt 2] ← compile_and_test: R  mismatches=433
-VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)
-Hint: Output 'predict_taken' has 109 mismatches. First mismatch occurred at time 30.
-Hint: Output 'predict_history' has 392 mismatches. First mismatch occurred at time 130.
-Hint: Total mismatched samples is 433 out of 1083 samples
-
-Simulation finished at 5416 ps
-Mismatches: 433 in 1083 samples
-
-[attempt 3] → compile_and_test
-module TopModule (
-    input clk,
-    input areset,
-    input predict_valid,
-    input [6:0] predict_pc,
-    output logic predict_taken,
-[attempt 3] ← compile_and_test: R  mismatches=433
-VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)
-Hint: Output 'predict_taken' has 109 mismatches. First mismatch occurred at time 30.
-Hint: Output 'predict_history' has 392 mismatches. First mismatch occurred at time 130.
-Hint: Total mismatched samples is 433 out of 1083 samples
-
-Simulation finished at 5416 ps
-Mismatches: 433 in 1083 samples
-
-[attempt 4] → compile_and_test
-module TopModule (
-    input clk,
-    input areset,
-    input predict_valid,
-    input [6:0] predict_pc,
-    output logic predict_taken,
-[attempt 4] ← compile_and_test: R  mismatches=433
-VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)
-Hint: Output 'predict_taken' has 109 mismatches. First mismatch occurred at time 30.
-Hint: Output 'predict_history' has 392 mismatches. First mismatch occurred at time 130.
-Hint: Total mismatched samples is 433 out of 1083 samples
-
-Simulation finished at 5416 ps
-Mismatches: 433 in 1083 samples
-
-[attempt 4] → get_debug_hints(error_type='R')
-[attempt 4] ← get_debug_hints: Runtime mismatch 常見原因（請逐項對照自己的程式碼）：
-1. Timing offset：FSM 有多餘狀態導致輸出慢一 cycle
-2. 狀態轉移條件錯誤：if (w) 應為 if (~w) 或反之
-3. 組合邏輯錯誤：output 賦值條件遺漏或邏輯反向
-4. Reset 初始值不符：state / counter 初始值與規格不符
-5. 計數器邊界：off-by-one（計數
-
-[attempt 5] → compile_and_test
-module TopModule (
-    input clk,
-    input areset,
-    input predict_valid,
-    input [6:0] predict_pc,
-    output logic predict_taken,
-[attempt 5] ← compile_and_test: R  mismatches=433
-VCD info: dumpfile wave.vcd opened for output.
-/mnt/d/school/w4afAILearn/期末/-/verilog-eval/dataset_spec-to-rtl/Prob153_gshare_test.sv:161: $finish called at 5416 (1ps)
-Hint: Output 'predict_taken' has 109 mismatches. First mismatch occurred at time 30.
-Hint: Output 'predict_history' has 392 mismatches. First mismatch occurred at time 130.
-Hint: Total mismatched samples is 433 out of 1083 samples
-
-Simulation finished at 5416 ps
-Mismatches: 433 in 1083 samples
+[attempt 1] → synthesize
+[attempt 1] ← synthesize: Y

@@ -8,37 +8,27 @@ module TopModule (
     output fan
 );
 
-    logic heater_int;
-    logic aircon_int;
-    logic fan_int;
+    logic heater_w;
+    logic aircon_w;
+    logic fan_w;
 
     always @(*) begin
-        heater_int = 0;
-        aircon_int = 0;
-        fan_int = 0;
-
         if (mode == 1'b1) begin
             // Heating mode
-            if (too_cold == 1'b1) begin
-                heater_int = 1'b1;
-                fan_int = 1'b1;
-            end
+            heater_w = too_cold;
+            aircon_w = 1'b0;
         end else begin
             // Cooling mode
-            if (too_hot == 1'b1) begin
-                aircon_int = 1'b1;
-                fan_int = 1'b1;
-            end
+            heater_w = 1'b0;
+            aircon_w = too_hot;
         end
 
-        // Fan on request
-        if (fan_on == 1'b1) begin
-            fan_int = 1'b1;
-        end
+        // Fan is on if heater is on, aircon is on, or fan_on is requested
+        fan_w = heater_w || aircon_w || fan_on;
     end
 
-    assign heater = heater_int;
-    assign aircon = aircon_int;
-    assign fan    = fan_int;
+    assign heater = heater_w;
+    assign aircon = aircon_w;
+    assign fan = fan_w;
 
 endmodule

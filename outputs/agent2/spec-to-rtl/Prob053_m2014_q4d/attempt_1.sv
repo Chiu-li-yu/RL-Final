@@ -7,12 +7,8 @@ module TopModule (
     logic d;
     logic q;
 
-    // XOR gate: d = in XOR q
-    always @(*) begin
-        d = in ^ q;
-    end
+    assign d = in ^ q;
 
-    // D Flip-Flop
     always_ff @(posedge clk) begin
         q <= d;
     end

@@ -1,15 +1,16 @@
-module TopModule(
+module TopModule (
     input clk,
     input resetn,
     input [2:0] r,
     output [2:0] g
 );
-
-    localparam A = 2'b00, B = 2'b01, C = 2'b10, D = 2'b11;
+    parameter A = 2'b00;
+    parameter B = 2'b01;
+    parameter C = 2'b10;
+    parameter D = 2'b11;
 
     logic [1:0] state, next_state;
 
-    // State Flip-Flops
     always @(posedge clk) begin
         if (!resetn)
             state <= A;
@@ -17,7 +18,6 @@ module TopModule(
             state <= next_state;
     end
 
-    // State Transition Logic
     always @(*) begin
         case (state)
             A: begin
@@ -42,14 +42,8 @@ module TopModule(
         endcase
     end
 
-    // Output Logic
-    always @(*) begin
-        case (state)
-            B: g = 3'b001;
-            C: g = 3'b010;
-            D: g = 3'b100;
-            default: g = 3'b000;
-        endcase
-    end
+    assign g[0] = (state == B);
+    assign g[1] = (state == C);
+    assign g[2] = (state == D);
 
 endmodule

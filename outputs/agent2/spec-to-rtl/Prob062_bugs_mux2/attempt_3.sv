@@ -5,6 +5,6 @@ module TopModule (
     output [7:0] out
 );
 
-    assign out = sel ? b : a;
+    assign out = sel ? a : b;
 
 endmodule

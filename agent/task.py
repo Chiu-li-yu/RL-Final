@@ -40,7 +40,7 @@ SPEC_TO_RTL = Task(
 CODE_COMPLETE_ICCAD2023 = Task(
     name="code-complete-iccad2023",
     dataset_dir=_DATASET_CODE_COMPLETE,
-    prompt_dir=_DATASET_SPEC_TO_RTL,   # _prompt.txt files are shared with spec-to-rtl
+    prompt_dir=_DATASET_CODE_COMPLETE, 
     system_prompt=CODE_COMPLETE_PROMPT,
 )
 

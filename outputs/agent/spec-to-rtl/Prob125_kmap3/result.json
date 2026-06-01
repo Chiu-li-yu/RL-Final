@@ -1,0 +1,23 @@
+{
+  "problem_id": "Prob125_kmap3",
+  "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
+  "attempts": 2,
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
+  "synth_error_log": "",
+  "sim_error_sequence": [
+    "w",
+    "."
+  ],
+  "synth_error_sequence": [
+    null,
+    "Y"
+  ],
+  "decompose_spec_calls": 1,
+  "get_debug_hints_calls": 0,
+  "task": "spec-to-rtl",
+  "experiment": "agent"
+}

@@ -7,8 +7,11 @@ module TopModule (
 
     assign out_assign = a & b;
 
+    logic out_alwaysblock_reg;
     always @(*) begin
-        out_alwaysblock = a & b;
+        out_alwaysblock_reg = a & b;
     end
+
+    assign out_alwaysblock = out_alwaysblock_reg;
 
 endmodule

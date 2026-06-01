@@ -1,21 +1,21 @@
 
 [attempt 0] → decompose_spec
 [attempt 0] ← decompose_spec:
-根據題目要求，將 Lemmings FSM 的實作分解為以下 5 個子目標：
+為了完成這個 Lemmings FSM 設計，建議將任務分解為以下 5 個步驟：
 
-1. 定義狀態編碼（`LEFT`, `RIGHT`）與狀態暫存器，並實作包含非同步重置的時序邏輯（sequential logic）。
-2. 根據 Moore 機定義，編寫組合邏輯以決定下一狀態（next state），並處理左右碰撞與同時碰撞的邏輯判斷。
-3. 根據當前狀態編寫組合邏輯，設定輸出訊號 `walk_left` 與 `walk_right`。
-4. 將狀態暫存器更新與狀態轉換邏輯整合，確保在 `areset` 時回到初始狀態。
-5. 完成模組接口定義（Input/Output），並將上述邏輯封裝至 Verilog `module` 中進行檢查。
+1. 定義狀態編碼（Parameters）與暫存器（Registers），宣告 `state` 與 `next_state` 變數。
+2. 實作非同步重置（Asynchronous Reset）的同步時序邏輯區塊（Always block），用以更新 `state`。
+3. 根據邏輯規則編寫組合邏輯區塊（Always block），判斷 `next_state` 的跳轉條件。
+4. 實作 Moore 型輸出邏輯，根據目前的 `state` 指派 `walk_left` 與 `walk_right` 的值。
+5. 整合所有區塊並檢查觸發條件（正緣觸發），完成模組定義。
 
 [attempt 1] → compile_and_test
 module TopModule (
-    input logic clk,
-    input logic areset,
-    input logic bump_left,
-    input logic bump_right,
-    output logic walk_left,
+    input clk,
+    input areset,
+    input bump_left,
+    input bump_right,
+    output walk_left,
 [attempt 1] ← compile_and_test: .
 
 [attempt 1] → synthesize

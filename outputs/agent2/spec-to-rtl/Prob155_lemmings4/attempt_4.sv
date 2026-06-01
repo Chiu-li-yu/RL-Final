@@ -1,61 +1,77 @@
-module TopModule(
+module TopModule (
     input clk,
     input areset,
     input bump_left,
     input bump_right,
     input ground,
     input dig,
-    output logic walk_left,
-    output logic walk_right,
-    output logic aaah,
-    output logic digging
+    output walk_left,
+    output walk_right,
+    output aaah,
+    output digging
 );
-    localparam LEFT = 0, RIGHT = 1, DIG_L = 2, DIG_R = 3, FALL_L = 4, FALL_R = 5, SPLATTER = 6;
-    logic [2:0] state, next_state;
-    logic [5:0] fall_timer;
 
-    always_ff @(posedge clk or posedge areset) begin
+    parameter WL = 0, WR = 1, DL = 2, DR = 3, FL = 4, FR = 5, SPLAT = 6;
+    logic [2:0] state, next_state;
+    logic [6:0] fall_cnt;
+
+    always @(posedge clk or posedge areset) begin
         if (areset) begin
-            state <= LEFT;
-            fall_timer <= 0;
+            state <= WL;
+            fall_cnt <= 0;
         end else begin
             state <= next_state;
-            if (state == FALL_L || state == FALL_R) fall_timer <= fall_timer + 1'b1;
-            else fall_timer <= 0;
+            if (next_state == FL || next_state == FR) begin
+                if (state == FL || state == FR)
+                    fall_cnt <= fall_cnt + 1;
+                else
+                    fall_cnt <= 1;
+            end else begin
+                fall_cnt <= 0;
+            end
         end
     end
 
-    always_comb begin
+    always @(*) begin
         next_state = state;
         case (state)
-            LEFT: begin
-                if (!ground) next_state = FALL_L;
-                else if (dig) next_state = DIG_L;
-                else if (bump_left || bump_right) next_state = RIGHT;
+            WL: begin
+                if (!ground) next_state = FL;
+                else if (dig) next_state = DL;
+                else if (bump_left) next_state = WR;
+                else next_state = WL;
             end
-            RIGHT: begin
-                if (!ground) next_state = FALL_R;
-                else if (dig) next_state = DIG_R;
-                else if (bump_left || bump_right) next_state = LEFT;
+            WR: begin
+                if (!ground) next_state = FR;
+                else if (dig) next_state = DR;
+                else if (bump_right) next_state = WL;
+                else next_state = WR;
             end
-            DIG_L: begin
-                if (!ground) next_state = FALL_L;
+            DL: begin
+                if (!ground) next_state = FL;
             end
-            DIG_R: begin
-                if (!ground) next_state = FALL_R;
+            DR: begin
+                if (!ground) next_state = FR;
             end
-            FALL_L: begin
-                if (ground) next_state = (fall_timer > 20) ? SPLATTER : LEFT;
+            FL: begin
+                if (ground) begin
+                    if (fall_cnt > 20) next_state = SPLAT;
+                    else next_state = WL;
+                end
             end
-            FALL_R: begin
-                if (ground) next_state = (fall_timer > 20) ? SPLATTER : RIGHT;
+            FR: begin
+                if (ground) begin
+                    if (fall_cnt > 20) next_state = SPLAT;
+                    else next_state = WR;
+                end
             end
-            SPLATTER: next_state = SPLATTER;
+            SPLAT: next_state = SPLAT;
         endcase
     end
 
-    assign walk_left  = (state == LEFT);
-    assign walk_right = (state == RIGHT);
-    assign digging    = (state == DIG_L || state == DIG_R);
-    assign aaah       = (state == FALL_L || state == FALL_R);
+    assign walk_left  = (state == WL);
+    assign walk_right = (state == WR);
+    assign aaah       = (state == FL || state == FR);
+    assign digging    = (state == DL || state == DR);
+
 endmodule

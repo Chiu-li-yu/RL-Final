@@ -1,76 +1,41 @@
 module TopModule (
-    input logic clk,
-    input logic reset,
-    input logic in,
+    input clk,
+    input reset,
+    input in,
     output logic done
 );
 
-    // Protocol: Start (0) + 8 data bits + Stop (1)
-    // The problem asks to identify the start bit, collect 8 bits, then verify stop bit.
-    // The sample time for each bit is every cycle.
-    
-    typedef enum logic [2:0] {
-        IDLE,
-        START,
-        DATA,
-        STOP,
-        WAIT_STOP
-    } state_t;
+    localparam IDLE = 0, START = 1, DATA = 2, STOP = 3, WAIT_STOP = 4;
+    logic [2:0] state, next_state;
+    logic [3:0] bit_count;
 
-    state_t state, next_state;
-    logic [3:0] bit_cnt;
-    logic done_q;
-
-    // FSM State Register
-    always_ff @(posedge clk) begin
-        if (reset)
-            state <= IDLE;
-        else
-            state <= next_state;
-    end
-
-    // bit_cnt tracking
-    always_ff @(posedge clk) begin
-        if (reset)
-            bit_cnt <= 0;
-        else if (state == START)
-            bit_cnt <= 0;
-        else if (state == DATA)
-            bit_cnt <= bit_cnt + 1;
-    end
-
-    // FSM Transition Logic
     always @(*) begin
         next_state = state;
         case (state)
-            IDLE:
-                if (in == 1'b0) next_state = START;
-                else next_state = IDLE;
-            START:
-                next_state = DATA;
-            DATA:
-                if (bit_cnt == 4'd7) next_state = STOP;
-                else next_state = DATA;
-            STOP:
-                next_state = IDLE; // Verification happens after this state transition
-            WAIT_STOP:
-                if (in == 1'b1) next_state = IDLE;
-                else next_state = WAIT_STOP;
+            IDLE: if (in == 0) next_state = START;
+            START: next_state = DATA;
+            DATA: if (bit_count == 7) next_state = STOP;
+            STOP: next_state = (in == 1) ? IDLE : WAIT_STOP;
+            WAIT_STOP: if (in == 1) next_state = IDLE;
             default: next_state = IDLE;
         endcase
     end
 
-    // Output logic: verify the stop bit exactly after 8th data bit
-    // According to specs: verify the stop bit was correct. If not, wait.
-    always_ff @(posedge clk) begin
-        if (reset)
-            done_q <= 1'b0;
-        else if (state == STOP && in == 1'b1)
-            done_q <= 1'b1;
-        else
-            done_q <= 1'b0;
+    always @(posedge clk) begin
+        if (reset) begin
+            state <= IDLE;
+            bit_count <= 0;
+            done <= 0;
+        end else begin
+            state <= next_state;
+            if (state == START) bit_count <= 0;
+            else if (state == DATA) bit_count <= bit_count + 1;
+            
+            // Generate done pulse: when we detect stop bit is 1 and transition to IDLE
+            if (state == STOP && in == 1)
+                done <= 1;
+            else
+                done <= 0;
+        end
     end
-
-    assign done = done_q;
-
 endmodule

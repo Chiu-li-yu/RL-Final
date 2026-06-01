@@ -3,21 +3,19 @@ module TopModule(
     input x,
     output z
 );
-    logic q1, q2, q3;
-    logic d1, d2, d3;
+    logic q0, q1, q2;
 
-    always @(posedge clk) begin
-        q1 <= d1;
-        q2 <= d2;
-        q3 <= d3;
+    initial begin
+        q0 = 0;
+        q1 = 0;
+        q2 = 0;
     end
 
-    always @(*) begin
-        d1 = x ^ q1;
-        d2 = x & (~q2);
-        d3 = x | (~q3);
+    always_ff @(posedge clk) begin
+        q0 <= x ^ q0;
+        q1 <= x & (~q1);
+        q2 <= x | (~q2);
     end
 
-    assign z = ~(q1 | q2 | q3);
-
+    assign z = ~(q0 | q1 | q2);
 endmodule

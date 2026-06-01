@@ -4,33 +4,41 @@ module TopModule (
     input x,
     output z
 );
-    // One-hot encoding
-    // State A: 2'b01
-    // State B: 2'b10
-    logic [1:0] state, next_state;
+
+    // States: A, B
+    // One-hot encoding: A=2'b01, B=2'b10
+    logic [1:0] state;
+    logic [1:0] next_state;
 
     always_ff @(posedge clk or posedge areset) begin
-        if (areset)
+        if (areset) begin
             state <= 2'b01;
-        else
+        end else begin
             state <= next_state;
+        end
     end
 
-    always @(*) begin
-        next_state = 2'b01;
+    always_comb begin
+        next_state = 2'b00;
         case (state)
             2'b01: begin // State A
-                if (x) next_state = 2'b10;
-                else   next_state = 2'b01;
+                if (x == 1'b0) next_state = 2'b01;
+                else           next_state = 2'b10;
             end
             2'b10: begin // State B
-                next_state = 2'b10;
+                if (x == 1'b0) next_state = 2'b10;
+                else           next_state = 2'b10;
             end
             default: next_state = 2'b01;
         endcase
     end
 
-    // Output logic (Mealy machine)
-    assign z = (state == 2'b01 && x == 1'b1) || (state == 2'b10 && x == 1'b0);
+    always_comb begin
+        case (state)
+            2'b01: z = (x == 1'b1); // A --x=1--> z=1
+            2'b10: z = (x == 1'b0); // B --x=0--> z=1
+            default: z = 1'b0;
+        endcase
+    end
 
 endmodule

@@ -1,4 +1,4 @@
-module TopModule(
+module TopModule (
     input clk,
     input areset,
     input bump_left,
@@ -11,53 +11,61 @@ module TopModule(
     output digging
 );
 
-    parameter WL = 0, WR = 1, FL = 2, FR = 3, DL = 4, DR = 5;
+    parameter LEFT    = 3'd0;
+    parameter RIGHT   = 3'd1;
+    parameter D_LEFT  = 3'd2;
+    parameter D_RIGHT = 3'd3;
+    parameter F_LEFT  = 3'd4;
+    parameter F_RIGHT = 3'd5;
+
     logic [2:0] state, next_state;
 
     always @(posedge clk or posedge areset) begin
         if (areset)
-            state <= WL;
+            state <= LEFT;
         else
             state <= next_state;
     end
 
     always @(*) begin
         case (state)
-            WL: begin
-                if (!ground) next_state = FL;
-                else if (dig) next_state = DL;
-                else if (bump_left) next_state = WR;
-                else next_state = WL;
+            LEFT: begin
+                if (!ground) next_state = F_LEFT;
+                else if (dig) next_state = D_LEFT;
+                else if (bump_right) next_state = RIGHT;
+                else if (bump_left) next_state = RIGHT; // Bumped on left = switch to right
+                else next_state = LEFT;
             end
-            WR: begin
-                if (!ground) next_state = FR;
-                else if (dig) next_state = DR;
-                else if (bump_right) next_state = WL;
-                else next_state = WR;
+            RIGHT: begin
+                if (!ground) next_state = F_RIGHT;
+                else if (dig) next_state = D_RIGHT;
+                else if (bump_left) next_state = LEFT;
+                else if (bump_right) next_state = LEFT; // Bumped on right = switch to left
+                else next_state = RIGHT;
             end
-            FL: begin
-                if (ground) next_state = WL;
-                else next_state = FL;
+            D_LEFT: begin
+                if (!ground) next_state = F_LEFT;
+                else next_state = D_LEFT;
             end
-            FR: begin
-                if (ground) next_state = WR;
-                else next_state = FR;
+            D_RIGHT: begin
+                if (!ground) next_state = F_RIGHT;
+                else next_state = D_RIGHT;
             end
-            DL: begin
-                if (!ground) next_state = FL;
-                else next_state = DL;
+            F_LEFT: begin
+                if (ground) next_state = LEFT;
+                else next_state = F_LEFT;
             end
-            DR: begin
-                if (!ground) next_state = FR;
-                else next_state = DR;
+            F_RIGHT: begin
+                if (ground) next_state = RIGHT;
+                else next_state = F_RIGHT;
             end
-            default: next_state = WL;
+            default: next_state = LEFT;
         endcase
     end
 
-    assign walk_left = (state == WL);
-    assign walk_right = (state == WR);
-    assign aaah = (state == FL || state == FR);
-    assign digging = (state == DL || state == DR);
+    assign walk_left  = (state == LEFT);
+    assign walk_right = (state == RIGHT);
+    assign aaah       = (state == F_LEFT || state == F_RIGHT);
+    assign digging    = (state == D_LEFT || state == D_RIGHT);
 
 endmodule
