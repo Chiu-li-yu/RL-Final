@@ -458,6 +458,43 @@ done_nonzero = self.done - self.errors
 
 ---
 
+## #10 — `run.py` `_DEFAULT_MODEL` 未傳入 `run_agent()`
+
+**時間**：2026-06-02，測試時發現  
+**發生位置**：`run.py::run_problem()` → `run_agent()` 呼叫
+
+### 問題描述
+
+`_DEFAULT_MODEL` 傳給了 `RunObserver`（只用於 `show_summary()` 的獨立 API call），但 `run_agent()` 呼叫本身沒有傳入 `model` 參數，導致 `run_agent()` 一直使用 `agent.py` 函式定義的 default 值，修改 `run.py` 的 `_DEFAULT_MODEL` 無效。
+
+### 修復
+
+```python
+# run.py::run_problem()
+result = run_agent(
+    ...
+    model=_DEFAULT_MODEL,   # ← 補上這一行
+    ...
+)
+```
+
+---
+
+## #11 — `no_error_details` 模式下 `show_summary()` 仍顯示錯誤細節
+
+**時間**：2026-06-02，使用者驗證時發現  
+**發生位置**：`run.py::RunObserver.on_tool_result()` → `_summary_log`
+
+### 問題描述
+
+`on_tool_result("compile_and_test", result, ...)` 收到的是完整 `result`（含 `error_type`、`mismatch_count`），並將其記入 `_summary_log`。使用者按 `s` 後，`show_summary()` 把完整 log 送給獨立 Gemini call，生成的總結中含有 mismatch 數量等錯誤細節，與 `binary_feedback=True` 的隱藏設計不一致。
+
+### 修復
+
+`RunObserver.__init__()` 加入 `binary_feedback: bool = False`；`on_tool_result` 在 `binary_feedback=True` 時只記 `"[attempt N] compile_and_test → PASS/FAIL"`，不記 error_type / mismatch / error_log。`on_checkpoint` 也在此模式下只顯示 `❌ FAIL（no_error_details 模式）`，並從選單移除 `v` 選項。
+
+---
+
 ## 快速參考：google.genai tools 正確寫法
 
 ```python

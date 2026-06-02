@@ -87,10 +87,12 @@
 #### 狀態
 
 - [x] Ubuntu WSL 已安裝
-<<<<<<< HEAD
+      <<<<<<< HEAD
 
 =======
->>>>>>> f322dd73bee1719d749d000ed7f0d3402a901520
+
+> > > > > > > f322dd73bee1719d749d000ed7f0d3402a901520
+
 ```bash
 #step1: 安裝wsl
 wsl --install
@@ -103,21 +105,27 @@ sudo apt update && sudo apt upgrade -y
 #step6: 進入Ubuntu
 wsl
 ```
+
 <<<<<<< HEAD
 
 - [x] iverilog v12.0 (stable) 已安裝並確認版本
 
 =======
+
 - [x] iverilog v12.0 (stable) 已安裝並確認版本
->>>>>>> f322dd73bee1719d749d000ed7f0d3402a901520
+  > > > > > > > f322dd73bee1719d749d000ed7f0d3402a901520
+
 ```bash
 sudo apt install -y iverilog #安裝
 iverilog -v #確認版本
 ```
+
 <<<<<<< HEAD
 
 =======
->>>>>>> f322dd73bee1719d749d000ed7f0d3402a901520
+
+> > > > > > > f322dd73bee1719d749d000ed7f0d3402a901520
+
 - [x] VerilogEval 第一題驗證通過（Prob001_zero，Mismatches: 0 in 20 samples）
 - [x] Python 虛擬環境建立（使用 **uv**，比 pip 快 10-100x）
 - [x] `google-genai`（新官方 SDK）安裝並驗證 OK
@@ -753,13 +761,13 @@ decompose_spec = {
   - `run_agent()` 新增 `enabled_tools: frozenset[str] | None` 參數，透過 `_build_tools()` 動態建構工具集
   - `evaluate.py` 更新為 5 個 runner，`VALID_EXPS` 同步更新
 
-  | 實驗 ID | 工具 | 記憶 |
-  |---------|------|------|
-  | `agent` | 全部 | ✅ |
-  | `no_debug_hints` | 移除 get_debug_hints | ✅ |
-  | `no_decompose` | 移除 decompose_spec | ✅ |
-  | `no_helper_tools` | 僅 compile_and_test + synthesize | ✅ |
-  | `no_memory` | 全部（5 次獨立 session） | ❌ |
+  | 實驗 ID           | 工具                             | 記憶 |
+  | ----------------- | -------------------------------- | ---- |
+  | `agent`           | 全部                             | ✅   |
+  | `no_debug_hints`  | 移除 get_debug_hints             | ✅   |
+  | `no_decompose`    | 移除 decompose_spec              | ✅   |
+  | `no_helper_tools` | 僅 compile_and_test + synthesize | ✅   |
+  | `no_memory`       | 全部（5 次獨立 session）         | ❌   |
 
 ### 5/30
 
@@ -806,22 +814,27 @@ decompose_spec = {
     - `_on_thinking`、`_on_tool_call`、`_on_tool_result`、`_make_on_save`、`_make_checkpoint` → `RunObserver` class
     - `run_problem()` 使用 `obs = RunObserver(...)` 後一次性傳入所有 callbacks
 
-### 5/29–5/30
+### 5/29–6/01
 
-- [ ] 跑完整實驗（5 組 × 兩種 task × 156 題）
-  - `python evaluate.py --exp agent --task spec-to-rtl`
-  - `python evaluate.py --exp no_debug_hints --task spec-to-rtl`
-  - `python evaluate.py --exp no_decompose --task spec-to-rtl`
-  - `python evaluate.py --exp no_helper_tools --task spec-to-rtl`
-  - `python evaluate.py --exp no_memory --task spec-to-rtl`
-  - code-complete-iccad2023 同上五組
-
-### 5/31–6/01
-
-- [ ] 分析結果，製作圖表（pass rate 比較、error type 分布、attempt 分布）
-- [ ] 撰寫書面報告
+- [x] **跑完整實驗（6 組 × spec-to-rtl × 156 題，各跑兩次）**
+  - 最終通過率：agent 93.6%、no_decompose 93.0%、no_helper_tools 92.3%、no_debug_hints 92.0%、no_error_details 88.5%、no_memory 88.2%
+  - 核心發現：記憶（−5.2 pp）> 錯誤細節（−4.9 pp）>> 工具（−1.1 pp 以內）
+- [x] **新增 `no_error_details` 實驗**：
+  - `agent/agent.py`：`_DispatchCtx` 新增 `binary_feedback: bool`；`_handle_compile_and_test` / `_handle_synthesize` 在 `binary_feedback=True` 時只回傳 `{"passed": bool}`
+  - `agent/experiments.py`：`Experiment` dataclass 新增 `binary_feedback` 欄位；加入 `no_error_details` 條目
+  - `run.py`：`RunObserver` 新增 `binary_feedback` 參數，`on_checkpoint` 與 `on_tool_result` 在此模式下隱藏錯誤細節，`v` 選項從選單移除
+- [x] **`run.py` `_DEFAULT_MODEL` 未傳入 `run_agent()` 的 bug 修正**：`run_problem()` 的 `run_agent()` 呼叫補上 `model=_DEFAULT_MODEL`
+- [x] **VerilogEval 資料集描述修正（3 道題）**：
+  - Prob093、Prob099、Prob149
 
 ### 6/02
 
-- [ ] Docker 容器化
-- [ ] 提交
+- [x] **書面報告（generate_report.js）完成**：
+  - 填入六組 ablation study 通過率表格（4.3.1）
+  - 新增 Ablation 差異分析、Attempt 分布、錯誤類型分布、工具呼叫統計（4.3.2–4.3.5）
+  - 新增高失敗率題目分析（5.1.3）：Prob116（K-map）、Prob149（雙向 FSM）等
+  - 新增資料集描述品質修正（4.1.1）：三道題對照表
+  - 新增案例研究 Prob140（4.4）：decompose_spec → e → get_debug_hints → R → PASS
+  - 5.1 結果分析、5.4 結論補完
+- [x] **簡報（generate_ppt.js）完成**：20 張投影片，涵蓋背景、方法論、六組實驗結果、案例研究、結論
+- [x] **README.md 建立**：環境需求、安裝步驟（WSL + uv）、run.py / evaluate.py 執行方式、輸出結構說明

@@ -8,3 +8,6 @@ unpacked_report/
 package-lock.json
 package.json
 *.js
+*.docx
+*.pdf
+*.pptx

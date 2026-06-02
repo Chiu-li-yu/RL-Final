@@ -45,7 +45,7 @@ SYNTH_PASS_CODE     = "Y"
 
 def _classify_compile(log: str) -> str:
     """
-    分析 iverilog stderr，回傳細粒度 compile error 代碼。
+    分析 iverilog stderr，回傳 compile error 代碼。
     僅在 compile returncode != 0 時呼叫。
 
     掃描順序與 sv-iv-analyze 的 analyze_result() 一致：
@@ -85,7 +85,7 @@ def _classify_compile(log: str) -> str:
 
 def _classify_sim(sim_log: str, verilog_code: str) -> tuple[str, int]:
     """
-    分析 vvp stdout，回傳細粒度 sim 結果代碼與 mismatch 數。
+    分析 vvp stdout，回傳 sim 結果代碼與 mismatch 數。
 
     優先序：
       1. Mismatches 行優先（即使出現 TIMEOUT，Mismatches: 0 視為通過）

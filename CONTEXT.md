@@ -454,9 +454,17 @@ outputs/
 {
   "problem_id": "Prob001_zero",
   "passed": true,
+  "sim_passed": true,
+  "synth_passed": true,
   "attempts": 2,
-  "error_type": ".",
-  "error_log": "",
+  "sim_error_type": ".",
+  "sim_error_log": "",
+  "synth_error_type": "Y",
+  "synth_error_log": "",
+  "sim_error_sequence": ["R", "."],
+  "synth_error_sequence": [null, "Y"],
+  "decompose_spec_calls": 0,
+  "get_debug_hints_calls": 1,
   "task": "spec-to-rtl",
   "experiment": "agent"
 }
@@ -464,29 +472,24 @@ outputs/
 
 ### 批次評估（evaluate.py）
 
-`evaluate.py` 是三組實驗的批次執行器，對 `agent.agent.run_agent()` 進行薄層包裝。
+`evaluate.py` 是六組 ablation study 的批次執行器，透過 `agent/experiments.py` 的 `Experiment` 登錄表統一管理實驗配置，對 `agent.agent.run_agent()` 進行薄層包裝。
 
-#### 三組執行器的對映關係
+#### 六組 Ablation Study
 
-| 實驗         | 執行方式                                 | 目的                                        |
-| ------------ | ---------------------------------------- | ------------------------------------------- |
-| `agent`      | `run_agent(max_attempts=3)`              | 完整系統（feedback + decompose_spec）       |
-| `baseline_a` | `run_agent(max_attempts=1)`              | 無 feedback 基準                            |
-| `baseline_b` | 3 × `run_agent(max_attempts=1)` 獨立呼叫 | 3 次機會但無 feedback，隔離 feedback 的價值 |
+| 實驗 ID | enabled_tools | binary_feedback | independent_runs | 目的 |
+|---------|--------------|----------------|-----------------|------|
+| `agent` | 全部 | False | 1 | 完整系統基準 |
+| `no_debug_hints` | compile + synthesize + decompose_spec | False | 1 | 移除 get_debug_hints |
+| `no_decompose` | compile + synthesize + get_debug_hints | False | 1 | 移除 decompose_spec |
+| `no_helper_tools` | compile + synthesize | False | 1 | 移除所有輔助工具 |
+| `no_memory` | 全部 | False | 5（max_attempts=1）| 無跨輪記憶 |
+| `no_error_details` | 全部 | **True** | 1 | 只回傳 passed，隱藏 error_type/log |
 
-**Baseline B 的 attempt 對映**：每次獨立呼叫帶入 `attempt_offset=0/1/2`，程式碼依序存為 `attempt_1.sv`、`attempt_2.sv`、`attempt_3.sv`。`result.json` 的 `attempts` 欄位記錄「第幾次才成功」（1/2/3），全部失敗則為 3。
+`binary_feedback=True` 時，`compile_and_test` 和 `synthesize` 的 function response 只回傳 `{"passed": bool}`，模擬「模型僅知對錯、不知錯誤細節」的情境。
 
-#### \_save_cb（batch 模式 checkpoint）
+#### BatchObserver（batch 模式 callback adapter）
 
-```python
-def _save_cb(problem_id, task, experiment, attempt_offset=0):
-    def on_checkpoint(attempt, result, code) -> bool:
-        save_code(problem_id, attempt + attempt_offset, code, ...)
-        return True   # 永不中斷 agent
-    return on_checkpoint
-```
-
-與 `run.py` 的 `_make_checkpoint` 相同介面，但移除人工介入邏輯，批次執行時永遠回傳 `True`。
+批次執行使用 `BatchObserver(problem_id, task, experiment, attempt_offset)` class，只實作 `on_save` callback，批次模式不需要人工介入或顯示層邏輯。`on_save` 依 `attempt_offset` 將程式碼存為 `attempt_N.sv`（供 no_memory 的多次獨立 session 使用）。
 
 #### 進度追蹤（\_Progress）
 
