@@ -509,10 +509,10 @@ google.genai.errors.ClientError: 401 UNAUTHENTICATED
 {'error': {'code': 401, 'reason': 'ACCESS_TOKEN_TYPE_UNSUPPORTED'}}
 ```
 
-`.env` 檔案原始內容（示例）：
+`.env` 檔案原始內容：
 
 ```env
-GEMINI_API_KEY=AQ.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # 個人帳號
+GEMINI_API_KEY=<API KEY> # 個人帳號
 ```
 
 ### 根本原因
@@ -524,7 +524,7 @@ GEMINI_API_KEY=AQ.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # 個人帳號
 | `python-dotenv`     | ✅ 支援             | 把 `# 個人帳號` 當 comment 丟棄，API key 乾淨 |
 | Docker `--env-file` | ❌ 不支援           | 把 `  # 個人帳號` 當作值的一部分傳入          |
 
-Docker 讀到的實際值（示例）：`AQ.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # 個人帳號`
+Docker 讀到的實際值：`<API_KEY>  # 個人帳號`
 
 中文字符「個人帳號」（UTF-8：3 bytes × 4 字 = 12 bytes）被 Gemini API 當作 token 值的一部分，API 無法識別這個格式，誤判為使用 OAuth2 token，返回 `ACCESS_TOKEN_TYPE_UNSUPPORTED`。
 
@@ -552,7 +552,7 @@ docker run --env-file .env rl-agent python3 -c "import os; key = os.getenv('GEMI
 # 期望輸出：Length: 53, Ends: '...-7A'（沒有 # 或中文字符）
 
 # 執行測試
-docker run -it --env-file .env -v "D:\Desktop\GitHub\School\RL-Final\outputs:/app/outputs" rl-agent
+docker run -it --env-file .env -v "<本專案路徑>\outputs:/app/outputs" rl-agent
 # 輸入 1，應成功通過 Prob001_zero
 ```
 
