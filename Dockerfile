@@ -22,15 +22,21 @@ WORKDIR /app
 
 # 先複製 requirements 安裝依賴（利用 Docker layer cache）
 COPY requirements.txt .
-RUN uv pip install --system --no-cache -r requirements.txt
+
+# 建立虛擬環境
+RUN uv venv .venv
+
+# 設定環境變數使虛擬環境為預設
+ENV PATH="/app/.venv/bin:$PATH"
+ENV VIRTUAL_ENV="/app/.venv"
+
+# 在虛擬環境中安裝依賴
+RUN uv pip install --no-cache -r requirements.txt
 
 # 複製專案檔案
 COPY . .
 
 # outputs 目錄掛載點（執行時用 -v 將結果持久化到本機）
 VOLUME ["/app/outputs"]
-
-# API key 在 docker run 時以 -e 傳入
-ENV GEMINI_API_KEY=""
 
 CMD ["python3", "run.py"]
