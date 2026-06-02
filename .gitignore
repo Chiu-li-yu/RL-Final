@@ -1,5 +1,6 @@
 .claude/
 learn-claude-code/
+.vscode/
 .venv/
 .env
 __pycache__/

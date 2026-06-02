@@ -10,63 +10,31 @@
 
 | 項目           | 版本 / 說明                                                       |
 | -------------- | ----------------------------------------------------------------- |
-| 作業系統       | WSL Ubuntu 22.04（必須，iverilog/yosys 為 Linux 二進位）          |
-| Python         | 3.11 以上                                                         |
-| iverilog       | v12.0（stable）                                                   |
-| yosys          | 任意穩定版                                                        |
+| Docker Desktop | 最新版（包含 Docker Engine）                                      |
 | Gemini API Key | [Google AI Studio](https://aistudio.google.com/) 申請免費 API key |
 
 ---
 
 ## 安裝步驟
 
-### 1. 進入 WSL 並安裝系統依賴
+### 1. Clone 專案
 
 ```bash
-# 更新套件列表
-sudo apt update && sudo apt upgrade -y
-
-# 安裝 iverilog
-sudo apt install -y iverilog
-
-# 確認版本
-iverilog -V   # 應顯示Icarus Verilog version 12.x
-
-# 安裝 yosys
-sudo apt install -y yosys
-
-# 確認版本
-yosys --version
+git clone https://github.com/Chiu-li-yu/RL-Final.git
+cd RL-Final
 ```
 
-### 2. 安裝 Python 套件管理工具 uv
+### 2. 確認 Docker Desktop 執行
+
+確保 Docker Desktop 應用正在執行。
+
+### 3. 建立 Docker 映像
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-source $HOME/.local/bin/env
+docker build -t rl-agent .
 ```
 
-### 3. 建立虛擬環境並安裝 Python 依賴
-
-```bash
-# 在專案根目錄下執行
-uv venv .venv
-source .venv/bin/activate
-
-uv pip install google-genai python-dotenv
-```
-
-### 4. 設定 Gemini API Key
-
-在專案根目錄建立 `.env` 檔案：
-
-```bash
-echo "GEMINI_API_KEY=你的_API_Key" > .env
-```
-
-> **注意**：`.env` 已加入 `.gitignore`，不會被提交至版本控制。
-
-### 5. 準備 VerilogEval 資料集
+### 4. 準備 VerilogEval 資料集
 
 確認 `verilog-eval/` 目錄存在，並包含以下子目錄：
 
@@ -82,22 +50,6 @@ verilog-eval/
 
 ## 執行方式
 
-### 互動式單題測試（run.py）
-
-```bash
-# REPL 模式（依提示輸入題目編號）
-python run.py
-
-# 直接指定題目
-python run.py Prob001_zero
-
-# 指定任務類型
-python run.py Prob001_zero code-complete-iccad2023
-
-# 指定實驗組別
-python run.py Prob001_zero spec-to-rtl no_debug_hints
-```
-
 **可用實驗組別：**
 
 | 組別               | 說明                                |
@@ -108,6 +60,37 @@ python run.py Prob001_zero spec-to-rtl no_debug_hints
 | `no_helper_tools`  | 僅 compile_and_test + synthesize    |
 | `no_memory`        | 5 次獨立 session，無跨輪記憶        |
 | `no_error_details` | 只告知模型通過/失敗，不提供錯誤細節 |
+
+### 互動式單題測試
+
+```bash
+# REPL 模式（依提示輸入題目編號）
+docker run -it \
+  -e GEMINI_API_KEY=你的_API_Key \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent
+
+# 直接指定題目
+docker run -it \
+  -e GEMINI_API_KEY=你的_API_Key \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent \
+  python3 run.py Prob001_zero
+
+# 指定任務類型
+docker run -it \
+  -e GEMINI_API_KEY=你的_API_Key \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent \
+  python3 run.py Prob001_zero code-complete-iccad2023
+
+# 指定實驗組別
+docker run -it \
+  -e GEMINI_API_KEY=你的_API_Key \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent \
+  python3 run.py Prob001_zero spec-to-rtl no_debug_hints
+```
 
 **互動式操作選項：**
 
@@ -120,24 +103,40 @@ python run.py Prob001_zero spec-to-rtl no_debug_hints
 - `h`：補充修改方向（注入至 Agent 對話）
 - `s`：請 Gemini 生成當前過程總結
 
-### 批次實驗（evaluate.py）
+### 批次實驗
 
 ```bash
 # 基本用法
-python evaluate.py --exp agent --task spec-to-rtl
+docker run -it \
+  -e GEMINI_API_KEY=你的_API_Key \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent \
+  python3 evaluate.py --exp agent --task spec-to-rtl
 
 # 常用參數
-python evaluate.py \
-  --exp agent \          # 實驗組別
-  --task spec-to-rtl \   # 任務：spec-to-rtl | code-complete-iccad2023
-  --rpm 15 \             # API 速率限制（requests per minute）
-  --workers 1            # 並行 worker 數
+docker run -it \
+  -e GEMINI_API_KEY=你的_API_Key \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent \
+  python3 evaluate.py \
+    --exp agent \
+    --task spec-to-rtl \
+    --rpm 15 \
+    --workers 1
 
 # 只列出待執行題目（不呼叫 API）
-python evaluate.py --exp agent --task spec-to-rtl --dry-run
+docker run -it \
+  -e GEMINI_API_KEY=你的_API_Key \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent \
+  python3 evaluate.py --exp agent --task spec-to-rtl --dry-run
 
 # 強制重跑所有題目（忽略既有 result.json）
-python evaluate.py --exp agent --task spec-to-rtl --no-resume
+docker run -it \
+  -e GEMINI_API_KEY=你的_API_Key \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent \
+  python3 evaluate.py --exp agent --task spec-to-rtl --no-resume
 ```
 
 ---
@@ -172,11 +171,22 @@ outputs/
 
 ---
 
+**說明：**
+- `-v $(pwd)/outputs:/app/outputs` 將容器內的結果掛載到本機 `outputs/` 目錄
+- `-e GEMINI_API_KEY=...` 傳入 API key（不寫入 `.env` 檔案）
+- 容器內環境完全獨立，不受 NTFS / OneDrive 影響
+
+---
+
 ## 實驗工具測試
 
 ```bash
 # 執行工具層與模擬器的整合測試
-python test_tools.py
+docker run -it \
+  -e GEMINI_API_KEY=你的_API_Key \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent \
+  python3 test_tools.py
 ```
 
 ---
