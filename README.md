@@ -50,6 +50,16 @@ verilog-eval/
 
 ## 執行方式
 
+### 方式 A：WSL（推薦）
+
+```bash
+wsl -d Ubuntu
+cd /mnt/d/Desktop/GitHub/School/RL-Final
+uv run run.py
+```
+
+### 方式 B：Docker
+
 **可用實驗組別：**
 
 | 組別               | 說明                                |
@@ -61,32 +71,67 @@ verilog-eval/
 | `no_memory`        | 5 次獨立 session，無跨輪記憶        |
 | `no_error_details` | 只告知模型通過/失敗，不提供錯誤細節 |
 
+### API Key 設定
+
+執行容器時傳入 Gemini API Key，有兩種方式：
+
+**方式 1：從 .env 檔案讀取（推薦）**
+
+```bash
+# 在專案根目錄建立 .env 檔案
+echo "GEMINI_API_KEY=你的_API_Key" > .env
+
+# 執行時自動讀取（.env 已在 .gitignore 中，不會提交）
+docker run -it \
+  --env-file .env \
+  -v $(pwd)/outputs:/app/outputs \
+  rl-agent
+```
+
+可以用用絕對路徑代替 `$(pwd)`
+
+```powershell
+docker run -it --env-file .env -v "<本資料夾的路徑>\outputs:/app/outputs" rl-agent
+```
+
+**方式 2：從本機環境變數讀取**
+
+```bash
+# 設定環境變數
+export GEMINI_API_KEY="你的_API_Key"
+
+# 執行時傳入
+docker run -it -e GEMINI_API_KEY  -v <RL-Final檔案路徑>/outputs:/app/outputs rl-agent
+```
+
+下面範例均使用 `--env-file .env`，若用方式 2 則改為 `-e GEMINI_API_KEY`。
+
 ### 互動式單題測試
 
 ```bash
 # REPL 模式（依提示輸入題目編號）
 docker run -it \
-  -e GEMINI_API_KEY=你的_API_Key \
+  --env-file .env \
   -v $(pwd)/outputs:/app/outputs \
   rl-agent
 
 # 直接指定題目
 docker run -it \
-  -e GEMINI_API_KEY=你的_API_Key \
+  --env-file .env \
   -v $(pwd)/outputs:/app/outputs \
   rl-agent \
   python3 run.py Prob001_zero
 
 # 指定任務類型
 docker run -it \
-  -e GEMINI_API_KEY=你的_API_Key \
+  --env-file .env \
   -v $(pwd)/outputs:/app/outputs \
   rl-agent \
   python3 run.py Prob001_zero code-complete-iccad2023
 
 # 指定實驗組別
 docker run -it \
-  -e GEMINI_API_KEY=你的_API_Key \
+  --env-file .env \
   -v $(pwd)/outputs:/app/outputs \
   rl-agent \
   python3 run.py Prob001_zero spec-to-rtl no_debug_hints
@@ -106,16 +151,16 @@ docker run -it \
 ### 批次實驗
 
 ```bash
-# 基本用法
+# 基本用法：執行完整的 spec-to-rtl 實驗
 docker run -it \
-  -e GEMINI_API_KEY=你的_API_Key \
+  --env-file .env \
   -v $(pwd)/outputs:/app/outputs \
   rl-agent \
   python3 evaluate.py --exp agent --task spec-to-rtl
 
-# 常用參數
+# 常用參數：指定速率限制和並行數
 docker run -it \
-  -e GEMINI_API_KEY=你的_API_Key \
+  --env-file .env \
   -v $(pwd)/outputs:/app/outputs \
   rl-agent \
   python3 evaluate.py \
@@ -126,17 +171,46 @@ docker run -it \
 
 # 只列出待執行題目（不呼叫 API）
 docker run -it \
-  -e GEMINI_API_KEY=你的_API_Key \
+  --env-file .env \
   -v $(pwd)/outputs:/app/outputs \
   rl-agent \
   python3 evaluate.py --exp agent --task spec-to-rtl --dry-run
 
 # 強制重跑所有題目（忽略既有 result.json）
 docker run -it \
-  -e GEMINI_API_KEY=你的_API_Key \
+  --env-file .env \
   -v $(pwd)/outputs:/app/outputs \
   rl-agent \
   python3 evaluate.py --exp agent --task spec-to-rtl --no-resume
+```
+
+**`evaluate.py` 參數說明：**
+
+| 參數 | 預設值 | 說明 |
+|------|--------|------|
+| `--exp` | `agent` | 實驗組別：`agent`, `no_debug_hints`, `no_decompose`, `no_helper_tools`, `no_memory`, `no_error_details` |
+| `--task` | `spec-to-rtl` | 任務類型：`spec-to-rtl` 或 `code-complete-iccad2023` |
+| `--rpm` | 15 | API 調用速率限制（請求/分鐘） |
+| `--workers` | 1 | 並行執行的 worker 數 |
+| `--dry-run` | — | 只列出待執行題目，不實際執行 |
+| `--no-resume` | — | 強制重新執行所有題目，忽略已存在的 result.json |
+
+**結果位置：** `outputs/{實驗組別}/{任務名稱}/{problem_id}/`
+
+**範例：**
+
+```bash
+# 執行 no_debug_hints 實驗（移除 debug hints 工具）
+docker run -it --env-file .env -v $(pwd)/outputs:/app/outputs rl-agent \
+  python3 evaluate.py --exp no_debug_hints --task spec-to-rtl
+
+# 執行 code-complete 任務
+docker run -it --env-file .env -v $(pwd)/outputs:/app/outputs rl-agent \
+  python3 evaluate.py --exp agent --task code-complete-iccad2023
+
+# 提高並行數和速率限制（謹慎使用，避免觸發 API 限流）
+docker run -it --env-file .env -v $(pwd)/outputs:/app/outputs rl-agent \
+  python3 evaluate.py --exp agent --task spec-to-rtl --rpm 30 --workers 3
 ```
 
 ---
@@ -172,6 +246,7 @@ outputs/
 ---
 
 **說明：**
+
 - `-v $(pwd)/outputs:/app/outputs` 將容器內的結果掛載到本機 `outputs/` 目錄
 - `-e GEMINI_API_KEY=...` 傳入 API key（不寫入 `.env` 檔案）
 - 容器內環境完全獨立，不受 NTFS / OneDrive 影響
@@ -183,7 +258,7 @@ outputs/
 ```bash
 # 執行工具層與模擬器的整合測試
 docker run -it \
-  -e GEMINI_API_KEY=你的_API_Key \
+  --env-file .env \
   -v $(pwd)/outputs:/app/outputs \
   rl-agent \
   python3 test_tools.py
