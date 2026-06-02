@@ -331,13 +331,13 @@ def _decompose_spec(
     model: str,
     rate_limiter: RateLimiter | None = None,
 ) -> str:
-    """用 Gemini 將題目分解為 3-5 個子目標（單次呼叫，非對話）。"""
+    """用 Gemini 將題目分解為 3-7 個子目標（單次呼叫，非對話）。"""
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
     response = _with_retry(
         client.models.generate_content,
         model=model,
         contents=(
-            "請將以下 Verilog 題目分解成 3-5 個具體、可執行的子目標，"
+            "請將以下 Verilog 題目分解成 3-7 個具體、可執行的子目標，"
             "每個子目標一行，用數字編號：\n\n"
             f"{problem_description}"
         ),
